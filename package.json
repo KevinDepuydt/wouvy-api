@@ -1,0 +1,50 @@
+{
+  "name": "wouvy-api",
+  "version": "0.1.0",
+  "description": "Wouvy API",
+  "main": "server.js",
+  "scripts": {
+    "prestart": "npm run -s build",
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.js --exec \"node -r dotenv/config -r babel-register\"",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && mkdir -p dist && babel src -s -D -d dist",
+    "test": "jest"
+  },
+  "keywords": [
+    "Wouvy",
+    "Node.js",
+    "API",
+    "JWT",
+    "Express",
+    "Babel"
+  ],
+  "author": "Wouvy",
+  "private": true,
+  "dependencies": {
+    "auth0-api-jwt-rsa-validation": "0.0.1",
+    "body-parser": "^1.17.2",
+    "chalk": "^2.1.0",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.15.4",
+    "express-jwt": "^5.3.0",
+    "helmet": "^3.8.1",
+    "lodash": "^4.17.4",
+    "method-override": "^2.3.9",
+    "mongoose": "^4.10.8"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-jest": "^20.0.3",
+    "babel-preset-env": "^1.6.0",
+    "babel-register": "^6.24.1",
+    "dotenv": "^4.0.0",
+    "eslint": "^4.4.0",
+    "jest": "^20.0.4",
+    "nodemon": "^1.11.0"
+  },
+  "engines": {
+    "node": ">=8.1.4",
+    "npm": ">=5.0.3"
+  }
+}
