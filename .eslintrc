@@ -1,0 +1,16 @@
+{
+  "env": {
+    "node": true
+  },
+  "plugins": ["node", "babel"],
+  "extends": ["eslint:recommended", "airbnb"],
+  "parserOptions": { "ecmaVersion": 8 },
+  "parser": "babel-eslint",
+  "rules": {
+    "strict": 0,
+    "jsx-a11y/href-no-hash": "off",
+    "import/order": ["error"],
+    "no-console": "off",
+    "no-restricted-syntax": "off"
+  }
+}

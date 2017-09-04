@@ -5,6 +5,8 @@
       {
         "target": "current"
       }
-    ]
+    ],
+    "es2015",
+    "stage-2"
   ]
 }
