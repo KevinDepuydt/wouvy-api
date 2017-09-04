@@ -3,7 +3,7 @@ import _ from 'lodash';
 import User from '../models/user';
 
 /**
- * Create an User
+ * Create an User as an admin
  */
 const create = (req, res) => {
   const user = new User(req.body);

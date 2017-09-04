@@ -1,10 +1,11 @@
 import usersRoutes from './users';
+import authenticationRoutes from './authentication';
 
-// server set routes likes
-// routeName: routeElement
-// if you want to map users routes, set { user: userRoutes }
-const routes = {
-  users: usersRoutes
-};
+// server set routes in order of routes array
+// authentication have to stay in first position to secure other routes
+const routes = [
+  authenticationRoutes,
+  usersRoutes,
+];
 
 export default routes;

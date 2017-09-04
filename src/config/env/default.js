@@ -12,6 +12,7 @@ const defaultEnv = {
   port: process.env.PORT || 3000,
   host: process.env.HOST || '127.0.0.1',
   nodeEnv: process.env.NODE_ENV,
+  jwtSecret: '@JwtSecretKey'
 };
 
 export default defaultEnv;
