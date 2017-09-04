@@ -35,7 +35,7 @@ const initHelmetHeaders = (app) => {
   app.use(helmet.hsts({
     maxAge: SIX_MONTHS,
     includeSubdomains: true,
-    force: true
+    force: true,
   }));
   app.disable('x-powered-by');
 };
@@ -45,7 +45,7 @@ const initHelmetHeaders = (app) => {
  * @param app
  */
 const initApiRoutes = (app) => {
-  routes.forEach((route) => app.use('/api', route));
+  routes.forEach(route => app.use('/api', route));
 };
 
 /**
@@ -53,7 +53,7 @@ const initApiRoutes = (app) => {
  * @param app
  */
 const initErrorHandler = (app) => {
-  app.use((req, res, next) => {
+  app.use((req, res) => {
     const err = new Error('Not Found');
     err.status = 404;
     res.status(err.status || 500).send({ message: err.message });

@@ -11,11 +11,11 @@ const create = (req, res) => {
   user.save((err) => {
     if (err) {
       return res.status(400).send({
-        message: err
+        message: err,
       });
-    } else {
-      res.jsonp(user);
     }
+
+    res.jsonp(user);
   });
 };
 
@@ -42,11 +42,11 @@ const update = (req, res) => {
   user.save((err) => {
     if (err) {
       return res.status(400).send({
-        message: err
+        message: err,
       });
-    } else {
-      res.jsonp(user);
     }
+
+    res.jsonp(user);
   });
 };
 
@@ -59,11 +59,11 @@ const remove = (req, res) => {
   user.remove((err) => {
     if (err) {
       return res.status(400).send({
-        message: err
+        message: err,
       });
-    } else {
-      res.jsonp(user);
     }
+
+    res.jsonp(user);
   });
 };
 
@@ -74,11 +74,11 @@ const list = (req, res) => {
   User.find().sort('-created').exec((err, users) => {
     if (err) {
       return res.status(400).send({
-        message: err
+        message: err,
       });
-    } else {
-      res.jsonp(users);
     }
+
+    res.jsonp(users);
   });
 };
 
@@ -88,7 +88,7 @@ const list = (req, res) => {
 const userByID = (req, res, next, id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).send({
-      message: 'User id is invalid'
+      message: 'User id is invalid',
     });
   }
 
@@ -97,7 +97,7 @@ const userByID = (req, res, next, id) => {
       return next(err);
     } else if (!user) {
       return res.status(404).send({
-        message: 'No User with that identifier has been found'
+        message: 'No User with that identifier has been found',
       });
     }
     req.user = user;

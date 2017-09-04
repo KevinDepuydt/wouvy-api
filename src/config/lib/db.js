@@ -18,3 +18,5 @@ export const connect = (cb) => {
     }
   });
 };
+
+export const isConnected = () => mongoose.connection.readyState === 1;

@@ -16,20 +16,19 @@ authenticationRoutes.use((req, res, next) => {
   // decode token
   if (token) {
     // verifies secret and checks exp
-    jwt.verify(token, env.jwtSecret, function(err, decoded) {
+    jwt.verify(token, env.jwtSecret, (err, decoded) => {
       if (err) {
         return res.json({ success: false, message: 'Failed to authenticate token.' });
-      } else {
-        // if everything is good, save to request for use in other routes
-        req.decoded = decoded;
-        next();
       }
+      // if everything is good, save to request for use in other routes
+      req.decoded = decoded;
+      next();
     });
   } else {
     // if there is no token return an 403 error
     return res.status(403).send({
       success: false,
-      message: 'No token provided.'
+      message: 'No token provided.',
     });
   }
 });

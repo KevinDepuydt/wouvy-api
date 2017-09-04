@@ -1,9 +1,9 @@
 const developmentEnv = {
   db: {
-    uri: `mongodb://127.0.0.1/node-api-starter`,
+    uri: 'mongodb://127.0.0.1/node-api-starter',
     options: {
       user: '',
-      pass: ''
+      pass: '',
     },
     // Enable mongoose debug mode
     debug: false,

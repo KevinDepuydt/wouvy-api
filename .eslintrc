@@ -11,6 +11,9 @@
     "jsx-a11y/href-no-hash": "off",
     "import/order": ["error"],
     "no-console": "off",
-    "no-restricted-syntax": "off"
+    "no-restricted-syntax": "off",
+    "consistent-return": "off",
+    "import/prefer-default-export": "off",
+    "import/no-mutable-exports": "off"
   }
 }

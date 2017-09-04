@@ -4,19 +4,19 @@ import * as db from './db';
 import * as express from './express';
 
 const init = (cb) => {
-  db.connect((db) => {
+  db.connect((dbInstance) => {
     // Initialize express
-    const app = express.init(db);
-    if (cb) cb(app, db, env);
+    const app = express.init();
+    if (cb) cb(app, dbInstance, env);
   });
 };
 
 export const start = (cb) => {
-  init((app, db, env) => {
+  init((app, dbInstance, envConfig) => {
     // Start the app by listening on <port> at <host>
-    app.listen(env.port, env.host, () => {
+    app.listen(envConfig.port, envConfig.host, () => {
       // Create server URL
-      const server = (env.nodeEnv === 'secure' ? 'https://' : 'http://') + env.host + ':' + env.port;
+      const server = envConfig.nodeEnv === 'secure' ? `https://${envConfig.host}:${envConfig.port}` : `http://${envConfig.host}:${envConfig.port}`;
 
       // Logging initialization
       console.log('--');

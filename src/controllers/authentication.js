@@ -11,11 +11,11 @@ const subscribe = (req, res) => {
   user.save((err) => {
     if (err) {
       return res.status(400).send({
-        message: err
+        message: err,
       });
-    } else {
-      res.jsonp(user);
     }
+
+    res.jsonp(user);
   });
 };
 
@@ -25,7 +25,7 @@ const subscribe = (req, res) => {
 const login = (req, res) => {
   // find the user
   User.findOne({
-    username: req.body.username
+    username: req.body.username,
   }, (err, user) => {
     if (err) {
       return res.status(400).send({ message: err });

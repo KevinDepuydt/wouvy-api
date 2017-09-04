@@ -16,7 +16,7 @@ const UserSchema = new Schema({
   },
   username: {
     type: String,
-    default: ''
+    default: '',
   },
   password: {
     type: String,
@@ -24,8 +24,8 @@ const UserSchema = new Schema({
   },
   created: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 export default mongoose.model('User', UserSchema);

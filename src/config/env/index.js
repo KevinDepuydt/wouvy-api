@@ -3,7 +3,7 @@ import defaultEnv from './default';
 import developmentEnv from './development';
 import productionEnv from './production';
 
-let env;
+let env = null;
 
 // extends the right env configuration
 if (process.env.NODE_ENV !== 'production') {
