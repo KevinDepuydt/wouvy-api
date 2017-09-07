@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
 
 const Schema = mongoose.Schema;
 
@@ -27,5 +28,31 @@ const UserSchema = new Schema({
     default: Date.now,
   },
 });
+
+/**
+ * Hook a pre save method to hash the password
+ */
+UserSchema.pre('save', function hash(next) {
+  if (this.password && this.isModified('password')) {
+    this.password = this.hashPassword(this.password);
+  }
+
+  next();
+});
+
+/**
+ * Method to hash password
+ */
+UserSchema.methods.hashPassword = function hashPassword(password) {
+  return bcrypt.hashSync(password, 10);
+};
+
+/**
+ * Create instance method for authenticating user
+ */
+UserSchema.methods.authenticate = function authenticate(password) {
+  return bcrypt.compareSync(password, this.password);
+};
+
 
 export default mongoose.model('User', UserSchema);

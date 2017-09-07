@@ -31,19 +31,16 @@ const login = (req, res) => {
       return res.status(400).send({ message: err });
     }
 
-    if (!user) {
-      res.status(400).send({ message: 'Authentication failed. User not found.' });
-    } else if (user) {
-      // check if password matches
-      if (user.password !== req.body.password) {
-        res.status(400).send({ message: 'Authentication failed. Wrong password.' });
-      } else {
-        // if user is found and password is right
-        // create a token
-        const token = jwt.sign(user, env.jwtSecret, { expiresIn: '24h' });
-        // return the information including token as JSON
-        res.jsonp({ message: 'Login successful!', user, token });
-      }
+    if (!user || !user.authenticate(req.body.password)) {
+      res.status(400).send({ message: 'Authentication failed. Bad credentials.' });
+    } else {
+      // if user is found and password is ok
+      // delete user password for security
+      user.password = undefined;
+      // create a token to authenticate user api call
+      const token = jwt.sign(user, env.jwtSecret, { expiresIn: '24h' });
+      // return the information including token as JSON
+      res.jsonp({ message: 'Login successful!', user, token });
     }
   });
 };

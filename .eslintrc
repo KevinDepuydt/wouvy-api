@@ -14,6 +14,7 @@
     "no-restricted-syntax": "off",
     "consistent-return": "off",
     "import/prefer-default-export": "off",
-    "import/no-mutable-exports": "off"
+    "import/no-mutable-exports": "off",
+    "no-param-reassign": "off"
   }
 }
