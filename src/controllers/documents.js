@@ -9,7 +9,7 @@ const create = (req, res) => {
   const doc = new Document(req.body);
 
   if (doc.published) {
-    doc.docFeedDate = Date.now();
+    doc.newsFeedDate = Date.now();
   }
 
   doc.save()
@@ -21,7 +21,6 @@ const create = (req, res) => {
  * Show the current Document
  */
 const read = (req, res) => {
-  // convert mongoose document to JSON
   const doc = req.doc ? req.doc.toJSON() : {};
 
   // extra field can be added here
@@ -42,7 +41,7 @@ const update = (req, res) => {
 };
 
 /**
- * Remove an Document
+ * Remove a Document
  */
 const remove = (req, res) => {
   const doc = req.doc;
@@ -53,7 +52,7 @@ const remove = (req, res) => {
 };
 
 /**
- * List of Document
+ * List of Documents
  */
 const list = (req, res) => {
   Document.find().sort('-created').exec()
