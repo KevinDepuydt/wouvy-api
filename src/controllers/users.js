@@ -8,26 +8,18 @@ import User from '../models/user';
 const create = (req, res) => {
   const user = new User(req.body);
 
-  user.save((err) => {
-    if (err) {
-      return res.status(400).send({
-        message: err,
-      });
-    }
-
-    res.jsonp(user);
-  });
+  user.save()
+    .then(savedUser => res.jsonp(savedUser))
+    .catch(err => res.status(400).send({ message: err }));
 };
 
 /**
  * Show the current User
  */
 const read = (req, res) => {
-  // convert mongoose document to JSON
   const user = req.user ? req.user.toJSON() : {};
 
   // extra field can be added here
-
   res.jsonp(user);
 };
 
@@ -39,15 +31,9 @@ const update = (req, res) => {
 
   user = _.extend(user, req.body);
 
-  user.save((err) => {
-    if (err) {
-      return res.status(400).send({
-        message: err,
-      });
-    }
-
-    res.jsonp(user);
-  });
+  user.save()
+    .then(savedUser => res.jsonp(savedUser))
+    .catch(err => res.status(400).send({ message: err }));
 };
 
 /**
@@ -56,30 +42,18 @@ const update = (req, res) => {
 const remove = (req, res) => {
   const user = req.user;
 
-  user.remove((err) => {
-    if (err) {
-      return res.status(400).send({
-        message: err,
-      });
-    }
-
-    res.jsonp(user);
-  });
+  user.remove()
+    .then(removedUser => res.jsonp(removedUser))
+    .catch(err => res.status(400).send({ message: err }));
 };
 
 /**
  * List of Users
  */
 const list = (req, res) => {
-  User.find().sort('-created').exec((err, users) => {
-    if (err) {
-      return res.status(400).send({
-        message: err,
-      });
-    }
-
-    res.jsonp(users);
-  });
+  User.find().sort('-created').exec()
+    .then(users => res.jsonp(users))
+    .catch(err => res.status(400).send({ message: err }));
 };
 
 /**
@@ -88,21 +62,21 @@ const list = (req, res) => {
 const userByID = (req, res, next, id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).send({
-      message: 'User id is invalid',
+      message: 'User id is not valid',
     });
   }
 
-  User.findById(id, (err, user) => {
-    if (err) {
-      return next(err);
-    } else if (!user) {
-      return res.status(404).send({
-        message: 'No User with that identifier has been found',
-      });
-    }
-    req.user = user;
-    next();
-  });
+  User.findById(id)
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({
+          message: 'User not found',
+        });
+      }
+      req.user = user;
+      next();
+    })
+    .catch(err => next(err));
 };
 
 export { create, read, update, remove, list, userByID };

@@ -13,6 +13,28 @@ const defaultEnv = {
   host: process.env.HOST || '127.0.0.1',
   nodeEnv: process.env.NODE_ENV,
   jwtSecret: '@JwtSecretKey',
+  rights: {
+    NONE: {
+      level: 0,
+      name: 'Aucun',
+    },
+    READ: {
+      level: 1,
+      name: 'Lire',
+    },
+    PARTICIPATE: {
+      level: 2,
+      name: 'Participer',
+    },
+    WRITE: {
+      level: 3,
+      name: 'Ecrire',
+    },
+    MODERATE: {
+      level: 4,
+      name: 'Modérer',
+    },
+  },
 };
 
 export default defaultEnv;
