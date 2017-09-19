@@ -1,0 +1,59 @@
+import mongoose from 'mongoose';
+
+const Schema = mongoose.Schema;
+
+/**
+ * Question Schema
+ */
+const QuestionSchema = new Schema({
+  user: {
+    type: Schema.ObjectId,
+    ref: 'User',
+  },
+  question: {
+    type: String,
+    required: 'Veuillez saisir votre question',
+  },
+  answer: {
+    type: String,
+    default: '',
+  },
+  oralAnswer: {
+    type: Boolean,
+    default: false,
+  },
+  haveAnswer: {
+    type: Boolean,
+    default: false,
+  },
+  isValid: {
+    type: Boolean,
+    default: false,
+  },
+  datePosted: {
+    type: Date,
+    default: Date.now(),
+  },
+  newsFeedDate: {
+    type: Date,
+    default: null,
+  },
+  dateValidated: {
+    type: Date,
+    default: null,
+  },
+  isFavorite: {
+    type: Boolean,
+    default: false,
+  },
+  likedBy: [{
+    type: Schema.ObjectId,
+    ref: 'User',
+  }],
+  like: {
+    type: Number,
+    default: 0,
+  },
+});
+
+export default mongoose.model('Question', QuestionSchema);
