@@ -1,6 +1,6 @@
 {
   "name": "wouvy-api",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Wouvy API",
   "main": "server.js",
   "scripts": {
