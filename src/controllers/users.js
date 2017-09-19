@@ -17,7 +17,6 @@ const create = (req, res) => {
  * Show the current User
  */
 const read = (req, res) => {
-  // convert mongoose document to JSON
   const user = req.user ? req.user.toJSON() : {};
 
   // extra field can be added here
