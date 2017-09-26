@@ -13,6 +13,7 @@ const MemberSchema = new Schema({
   user: {
     type: Schema.ObjectId,
     ref: 'User',
+    required: true,
   },
   tasks: [{
     type: Schema.ObjectId,

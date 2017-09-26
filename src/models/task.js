@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 
 /**
  * Task Schema
+ * @TODO Rework this schema
  */
 const TaskSchema = new Schema({
   user: {
