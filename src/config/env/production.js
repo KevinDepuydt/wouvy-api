@@ -2,10 +2,8 @@ const productionEnv = {
   db: {
     uri: process.env.MONGODB_URI || `mongodb://${process.env.DB_1_PORT_27017_TCP_ADDR || '127.0.0.1'}/wouvy`,
     options: {
-      user: '',
-      pass: '',
+      useMongoClient: true,
     },
-    // Enable mongoose debug mode
     debug: process.env.MONGODB_DEBUG || false,
     promise: Promise,
   },
