@@ -35,7 +35,13 @@ const read = (req, res) => {
 const update = (req, res) => {
   let member = req.member;
 
+  const memberRights = _.assign({}, member.rights);
+
   member = _.extend(member, req.body);
+
+  if (req.body.rights) {
+    member.rights = _.extend(memberRights, req.body.rights);
+  }
 
   member.save()
     .then(savedDoc => res.jsonp(savedDoc))
