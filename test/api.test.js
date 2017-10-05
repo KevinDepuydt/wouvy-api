@@ -3,6 +3,8 @@ import * as db from '../src/config/lib/db';
 import documentsTests from './documents';
 import newsTests from './news';
 import photosTests from './photos';
+import sponsorsTests from './sponsors';
+import tagCloudsTests from './tagclouds';
 
 describe('API', () => {
   before((done) => {
@@ -18,5 +20,7 @@ describe('API', () => {
 
   describe('Documents', documentsTests);
   describe('News', newsTests);
-  describe('Photo', photosTests);
+  describe('Photos', photosTests);
+  describe('Sponsors', sponsorsTests);
+  describe('TagClouds', tagCloudsTests);
 });
