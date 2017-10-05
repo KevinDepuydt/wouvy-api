@@ -6,27 +6,27 @@ Wouvy API
 
 ### Start in production
 ```
-npm start
+yarn start
 ```
 
 ### Start in development
 ```
-npm run dev
+yarn run dev
 ```
 
 ### Build
 transpile ES6 code to JS code
 ```
-npm run build
+yarn run build
 ```
 
 ### Clean
 Clean dist directory that contain transpilled code
 ```
-npm run clean
+yarn run clean
 ```
 
 ### Test
 ```
-npm test
+yarn test
 ```
