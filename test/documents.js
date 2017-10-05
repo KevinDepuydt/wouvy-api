@@ -1,7 +1,6 @@
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import env from '../src/config/env';
-import * as app from '../src/config/lib/app';
 import Document from '../src/models/document';
 
 // add chaiHttp to chai
@@ -13,21 +12,13 @@ const BASE_API_URL = `http://${env.host}:${env.port}`;
 // call chai should
 chai.should();
 
-describe('Documents', () => {
-  before((done) => {
-    app.start(() => done());
-  });
-
-  after(() => {
-    process.exit(0);
-  });
-
+const documentsTests = () => {
   afterEach((done) => {
     Document.remove({}, () => done());
   });
 
-  describe('List documents', () => {
-    it('it should GET all the books', (done) => {
+  describe('List', () => {
+    it('it should GET all the documents', (done) => {
       chai.request(BASE_API_URL)
         .get('/api/documents')
         .end((err, res) => {
@@ -39,55 +30,41 @@ describe('Documents', () => {
     });
   });
 
-  describe('Create document', () => {
+  describe('Create', () => {
     it('it should POST a document', (done) => {
-      const document = { name: 'DocTest' };
+      const document = { name: 'Document' };
       chai.request(BASE_API_URL)
         .post('/api/documents')
         .send(document)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');
-          res.body.name.should.be.eql('DocTest');
-          done();
-        });
-    });
-
-    it('it should not POST a document', (done) => {
-      const document = { title: 'DocTest' };
-      chai.request(BASE_API_URL)
-        .post('/api/documents')
-        .send(document)
-        .end((err, res) => {
-          res.should.not.have.status(200);
-          res.body.should.be.a('object');
-          res.body.should.have.property('message');
-          res.body.message.should.have.property('errors');
+          res.body.name.should.be.eql('Document');
           done();
         });
     });
   });
 
-  describe('Get document', () => {
+  describe('Read', () => {
     it('it should GET a document by id', (done) => {
-      const document = new Document({ name: 'docTest' });
+      const document = new Document({ name: 'Document' });
       document.save((error, savedDoc) => {
         chai.request(BASE_API_URL)
           .get(`/api/documents/${savedDoc._id}`)
           .end((err, res) => {
             res.should.have.status(200);
             res.body.should.be.a('object');
-            res.body.name.should.be.eql('docTest');
+            res.body.name.should.be.eql('Document');
             done();
           });
       });
     });
   });
 
-  describe('Update document', () => {
+  describe('Update', () => {
     it('it should PUT a document', (done) => {
-      const updates = { name: 'DocTestUpdated' };
-      const document = new Document({ name: 'docToDelete' });
+      const updates = { name: 'DocumentUpdated' };
+      const document = new Document({ name: 'Document' });
       document.save((error, savedDoc) => {
         chai.request(BASE_API_URL)
           .put(`/api/documents/${savedDoc._id}`)
@@ -95,26 +72,28 @@ describe('Documents', () => {
           .end((err, res) => {
             res.should.have.status(200);
             res.body.should.be.a('object');
-            res.body.name.should.be.eql('DocTestUpdated');
+            res.body.name.should.be.eql('DocumentUpdated');
             done();
           });
       });
     });
   });
 
-  describe('Remove document', () => {
+  describe('Remove', () => {
     it('it should DELETE a document', (done) => {
-      const document = new Document({ name: 'docToDelete' });
+      const document = new Document({ name: 'Document' });
       document.save((error, savedDoc) => {
         chai.request(BASE_API_URL)
           .delete(`/api/documents/${savedDoc._id}`)
           .end((err, res) => {
             res.should.have.status(200);
             res.body.should.be.a('object');
-            res.body.name.should.be.eql('docToDelete');
+            res.body.name.should.be.eql('Document');
             done();
           });
       });
     });
   });
-});
+};
+
+export default documentsTests;

@@ -10,7 +10,7 @@
     "clean": "rm -rf dist",
     "build": "npm run clean && mkdir -p dist && babel src -s -D -d dist",
     "eslint": "eslint src",
-    "test": "NODE_ENV=test mocha --timeout 10000 --compilers js:babel-core/register"
+    "test": "NODE_ENV=test mocha --timeout 10000 --compilers js:babel-core/register test/api.test.js"
   },
   "keywords": [
     "Wouvy",
