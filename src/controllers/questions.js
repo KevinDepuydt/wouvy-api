@@ -8,8 +8,6 @@ import Question from '../models/question';
 const create = (req, res) => {
   const question = new Question(req.body);
 
-  question.user = req.user;
-
   if (question.published) {
     question.newsFeedDate = Date.now();
   }

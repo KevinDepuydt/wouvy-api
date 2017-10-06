@@ -32,10 +32,10 @@ const usersTests = () => {
 
   describe('Create', () => {
     it('it should POST a user', (done) => {
-      const user = { firstname: 'First', lastname: 'Last', password: 'Password' };
+      const userData = { firstname: 'First', lastname: 'Last', password: 'Password' };
       chai.request(BASE_API_URL)
         .post('/api/users')
-        .send(user)
+        .send(userData)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');

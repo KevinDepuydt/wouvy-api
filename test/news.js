@@ -32,10 +32,10 @@ const newsTests = () => {
 
   describe('Create', () => {
     it('it should POST a news', (done) => {
-      const news = { title: 'News', description: 'test news' };
+      const newsData = { title: 'News', description: 'test news' };
       chai.request(BASE_API_URL)
         .post('/api/news')
-        .send(news)
+        .send(newsData)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');

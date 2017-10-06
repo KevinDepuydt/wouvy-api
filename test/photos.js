@@ -32,10 +32,10 @@ const photosTests = () => {
 
   describe('Create', () => {
     it('it should POST a photo', (done) => {
-      const photo = { title: 'Photo', image: 'path_to_image' };
+      const photoData = { title: 'Photo', image: 'path_to_image' };
       chai.request(BASE_API_URL)
         .post('/api/photos')
-        .send(photo)
+        .send(photoData)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');

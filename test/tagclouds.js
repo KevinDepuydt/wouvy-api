@@ -32,10 +32,10 @@ const tagCloudsTests = () => {
 
   describe('Create', () => {
     it('it should POST a tagCloud', (done) => {
-      const tagCloud = { theme: 'TagCloud', words: ['One', 'Two'] };
+      const tagCloudData = { theme: 'TagCloud', words: ['One', 'Two'] };
       chai.request(BASE_API_URL)
         .post('/api/tag-clouds')
-        .send(tagCloud)
+        .send(tagCloudData)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');

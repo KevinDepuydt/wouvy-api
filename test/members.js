@@ -37,10 +37,10 @@ const membersTests = () => {
     it('it should POST a member', (done) => {
       const user = new User({ firstname: 'First', lastname: 'Last', password: 'Password' });
       user.save((error, savedUser) => {
-        const member = { user: savedUser };
+        const memberData = { user: savedUser };
         chai.request(BASE_API_URL)
           .post('/api/members')
-          .send(member)
+          .send(memberData)
           .end((err, res) => {
             res.should.have.status(200);
             res.body.should.be.a('object');
@@ -82,7 +82,6 @@ const membersTests = () => {
             .put(`/api/members/${savedMember._id}`)
             .send(updates)
             .end((err, res) => {
-              console.log(res.body);
               res.should.have.status(200);
               res.body.should.be.a('object');
               res.body.rights.workflows.should.be.eql(env.rights.PARTICIPATE.level);

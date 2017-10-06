@@ -32,10 +32,10 @@ const sponsorsTests = () => {
 
   describe('Create', () => {
     it('it should POST a sponsor', (done) => {
-      const sponsor = { name: 'Sponsor', image: 'path_to_image' };
+      const sponsorData = { name: 'Sponsor', image: 'path_to_image' };
       chai.request(BASE_API_URL)
         .post('/api/sponsors')
-        .send(sponsor)
+        .send(sponsorData)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');

@@ -32,10 +32,10 @@ const documentsTests = () => {
 
   describe('Create', () => {
     it('it should POST a document', (done) => {
-      const document = { name: 'Document' };
+      const documentData = { name: 'Document' };
       chai.request(BASE_API_URL)
         .post('/api/documents')
-        .send(document)
+        .send(documentData)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');

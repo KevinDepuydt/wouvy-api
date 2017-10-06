@@ -7,6 +7,7 @@ import sponsorsTests from './sponsors';
 import tagCloudsTests from './tagclouds';
 import membersTests from './members';
 import usersTests from './users';
+import questionsTests from './questions';
 
 describe('API', () => {
   before((done) => {
@@ -27,4 +28,5 @@ describe('API', () => {
   describe('TagClouds', tagCloudsTests);
   describe('Members', membersTests);
   describe('Users', usersTests);
+  describe('Questions', questionsTests);
 });
