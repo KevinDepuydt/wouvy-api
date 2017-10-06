@@ -23,14 +23,14 @@ describe('API', () => {
     });
   });
 
+  describe('Authentication', authenticationTests);
+  describe('Users', usersTests);
+  describe('Rights', rightsTests);
   describe('Documents', documentsTests);
   describe('News', newsTests);
   describe('Photos', photosTests);
   describe('Sponsors', sponsorsTests);
   describe('TagClouds', tagCloudsTests);
   describe('Members', membersTests);
-  describe('Users', usersTests);
   describe('Questions', questionsTests);
-  describe('Rights', rightsTests);
-  describe('Authentication', authenticationTests);
 });
