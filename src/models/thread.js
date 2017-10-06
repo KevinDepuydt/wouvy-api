@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import Message from './message';
 
 const Schema = mongoose.Schema;
 
@@ -18,6 +19,15 @@ const ThreadSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+});
+
+/**
+ * Hook a pre save method to hash the password
+ */
+ThreadSchema.pre('remove', function preRemove(next) {
+  // delete messages
+  Message.remove({ _id: { $in: this.messages } });
+  next();
 });
 
 export default mongoose.model('Thread', ThreadSchema);
