@@ -12,6 +12,8 @@ const BASE_API_URL = `http://${env.host}:${env.port}`;
 // call chai should
 chai.should();
 
+const USER_DATA = { email: 'test@wouvy.fr', firstname: 'First', lastname: 'Last', password: 'Password' };
+
 const usersTests = () => {
   afterEach((done) => {
     User.remove({}, () => done());
@@ -32,13 +34,14 @@ const usersTests = () => {
 
   describe('Create', () => {
     it('it should POST a user', (done) => {
-      const userData = { firstname: 'First', lastname: 'Last', password: 'Password' };
+      const userData = USER_DATA;
       chai.request(BASE_API_URL)
         .post('/api/users')
         .send(userData)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');
+          res.body.email.should.be.eql('test@wouvy.fr');
           res.body.firstname.should.be.eql('First');
           res.body.lastname.should.be.eql('Last');
           res.body.password.should.not.be.eql('Password');
@@ -49,7 +52,7 @@ const usersTests = () => {
 
   describe('Read', () => {
     it('it should GET a user by id', (done) => {
-      const user = new User({ firstname: 'First', lastname: 'Last', password: 'Password' });
+      const user = new User(USER_DATA);
       user.save((errorUser, savedUser) => {
         chai.request(BASE_API_URL)
           .get(`/api/users/${savedUser._id}`)
@@ -57,6 +60,7 @@ const usersTests = () => {
             res.should.have.status(200);
             res.body.should.be.a('object');
             res.body._id.should.be.eql(savedUser._id.toString());
+            res.body.email.should.be.eql(savedUser.email);
             res.body.firstname.should.be.eql(savedUser.firstname);
             res.body.lastname.should.be.eql(savedUser.lastname);
             done();
@@ -68,7 +72,7 @@ const usersTests = () => {
   describe('Update', () => {
     it('it should PUT a user', (done) => {
       const updates = { firstname: 'FirstUpdated' };
-      const user = new User({ firstname: 'First', lastname: 'Last', password: 'Password' });
+      const user = new User(USER_DATA);
       user.save((errorUser, savedUser) => {
         chai.request(BASE_API_URL)
           .put(`/api/users/${savedUser._id}`)
@@ -76,6 +80,7 @@ const usersTests = () => {
           .end((err, res) => {
             res.should.have.status(200);
             res.body.should.be.a('object');
+            res.body.email.should.be.eql('test@wouvy.fr');
             res.body.firstname.should.be.eql('FirstUpdated');
             res.body.lastname.should.be.eql('Last');
             done();
@@ -86,14 +91,14 @@ const usersTests = () => {
 
   describe('Remove', () => {
     it('it should DELETE a user', (done) => {
-      const user = new User({ firstname: 'First', lastname: 'Last', password: 'Password' });
+      const user = new User(USER_DATA);
       user.save((errorUser, savedUser) => {
         chai.request(BASE_API_URL)
           .delete(`/api/users/${savedUser._id}`)
           .end((err, res) => {
             res.should.have.status(200);
             res.body.should.be.a('object');
-            res.body.firstname.should.be.eql('First');
+            res.body.email.should.be.eql('test@wouvy.fr');
             done();
           });
       });

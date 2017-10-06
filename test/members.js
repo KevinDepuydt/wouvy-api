@@ -13,6 +13,8 @@ const BASE_API_URL = `http://${env.host}:${env.port}`;
 // call chai should
 chai.should();
 
+const USER_DATA = { email: 'test@wouvy.fr', firstname: 'First', lastname: 'Last', password: 'Password' };
+
 const membersTests = () => {
   afterEach((done) => {
     User.remove({}, () => {
@@ -35,7 +37,7 @@ const membersTests = () => {
 
   describe('Create', () => {
     it('it should POST a member', (done) => {
-      const user = new User({ firstname: 'First', lastname: 'Last', password: 'Password' });
+      const user = new User(USER_DATA);
       user.save((error, savedUser) => {
         const memberData = { user: savedUser };
         chai.request(BASE_API_URL)
@@ -53,7 +55,7 @@ const membersTests = () => {
 
   describe('Read', () => {
     it('it should GET a member by id', (done) => {
-      const user = new User({ firstname: 'First', lastname: 'Last', password: 'Password' });
+      const user = new User(USER_DATA);
       user.save((errorUser, savedUser) => {
         const member = new Member({ user: savedUser });
         member.save((errorMember, savedMember) => {
@@ -74,7 +76,7 @@ const membersTests = () => {
   describe('Update', () => {
     it('it should PUT a member', (done) => {
       const updates = { rights: { workflows: env.rights.PARTICIPATE.level } };
-      const user = new User({ firstname: 'First', lastname: 'Last', password: 'Password' });
+      const user = new User(USER_DATA);
       user.save((errorUser, savedUser) => {
         const member = new Member({ user: savedUser });
         member.save((errorMember, savedMember) => {
@@ -95,7 +97,7 @@ const membersTests = () => {
 
   describe('Remove', () => {
     it('it should DELETE a member', (done) => {
-      const user = new User({ firstname: 'First', lastname: 'Last', password: 'Password' });
+      const user = new User(USER_DATA);
       user.save((errorUser, savedUser) => {
         const member = new Member({ user: savedUser });
         member.save((errorMember, savedMember) => {

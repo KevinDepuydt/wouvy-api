@@ -8,6 +8,8 @@ import tagCloudsTests from './tagclouds';
 import membersTests from './members';
 import usersTests from './users';
 import questionsTests from './questions';
+import rightsTests from './rights';
+import authenticationTests from './authentication';
 
 describe('API', () => {
   before((done) => {
@@ -29,4 +31,6 @@ describe('API', () => {
   describe('Members', membersTests);
   describe('Users', usersTests);
   describe('Questions', questionsTests);
+  describe('Rights', rightsTests);
+  describe('Authentication', authenticationTests);
 });

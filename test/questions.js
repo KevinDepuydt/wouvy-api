@@ -13,6 +13,8 @@ const BASE_API_URL = `http://${env.host}:${env.port}`;
 // call chai should
 chai.should();
 
+const USER_DATA = { email: 'test@wouvy.fr', firstname: 'First', lastname: 'Last', password: 'Password' };
+
 const questionsTests = () => {
   afterEach((done) => {
     User.remove({}, () => {
@@ -35,7 +37,7 @@ const questionsTests = () => {
 
   describe('Create', () => {
     it('it should POST a question', (done) => {
-      const user = new User({ firstname: 'First', lastname: 'Last', password: 'Password' });
+      const user = new User(USER_DATA);
       user.save((error, savedUser) => {
         const questionData = { user: savedUser, question: 'question' };
         chai.request(BASE_API_URL)
@@ -54,7 +56,7 @@ const questionsTests = () => {
 
   describe('Read', () => {
     it('it should GET a question by id', (done) => {
-      const user = new User({ firstname: 'First', lastname: 'Last', password: 'Password' });
+      const user = new User(USER_DATA);
       user.save((errorUser, savedUser) => {
         const question = new Question({ question: 'question', user: savedUser });
         question.save((errorQuestion, savedQuestion) => {
@@ -76,7 +78,7 @@ const questionsTests = () => {
   describe('Update', () => {
     it('it should PUT a question', (done) => {
       const updates = { question: 'question updated' };
-      const user = new User({ firstname: 'First', lastname: 'Last', password: 'Password' });
+      const user = new User(USER_DATA);
       user.save((errorUser, savedUser) => {
         const question = new Question({ question: 'question', user: savedUser });
         question.save((errorQuestion, savedQuestion) => {
@@ -97,7 +99,7 @@ const questionsTests = () => {
 
   describe('Remove', () => {
     it('it should DELETE a question', (done) => {
-      const user = new User({ firstname: 'First', lastname: 'Last', password: 'Password' });
+      const user = new User(USER_DATA);
       user.save((errorUser, savedUser) => {
         const question = new Question({ question: 'question', user: savedUser });
         question.save((errorQuestion, savedQuestion) => {

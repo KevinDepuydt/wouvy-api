@@ -5,8 +5,8 @@ import * as authentication from '../controllers/authentication';
 
 const authenticationRoutes = Router();
 
-authenticationRoutes.route('/authentication/subscribe').post(authentication.subscribe);
-authenticationRoutes.route('/authentication/login').post(authentication.login);
+authenticationRoutes.route('/authentication/signup').post(authentication.signup);
+authenticationRoutes.route('/authentication/signin').post(authentication.signin);
 
 // authentication middleware
 authenticationRoutes.use((req, res, next) => {
