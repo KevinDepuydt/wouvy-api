@@ -15,7 +15,9 @@ chai.should();
 
 const membersTests = () => {
   afterEach((done) => {
-    Member.remove({}, () => done());
+    User.remove({}, () => {
+      Member.remove({}, () => done());
+    });
   });
 
   describe('List', () => {
