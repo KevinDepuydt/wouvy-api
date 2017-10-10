@@ -9,10 +9,6 @@ const validateTaskStatus = status => env.taskStatus.findIndex(s => s === status)
  * Task Schema
  */
 const TaskSchema = new Schema({
-  users: [{
-    type: Schema.ObjectId,
-    ref: 'User',
-  }],
   title: {
     type: String,
     required: 'La tâche est vide',
@@ -22,6 +18,10 @@ const TaskSchema = new Schema({
     validate: [validateTaskStatus, 'Le statut de la tâche n\'est pas valide'],
     default: env.taskStatus[0],
   },
+  users: [{
+    type: Schema.ObjectId,
+    ref: 'User',
+  }],
   subTasks: [{
     title: {
       type: String,
