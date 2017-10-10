@@ -8,10 +8,6 @@ import Document from '../models/document';
 const create = (req, res) => {
   const doc = new Document(req.body);
 
-  if (doc.published) {
-    doc.newsFeedDate = Date.now();
-  }
-
   doc.save()
     .then(savedDoc => res.jsonp(savedDoc))
     .catch(err => res.status(400).send({ message: err }));

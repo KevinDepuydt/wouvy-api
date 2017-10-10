@@ -20,3 +20,9 @@ export const connect = (cb) => {
 };
 
 export const isConnected = () => mongoose.connection.readyState === 1;
+
+export const dropDatabase = () => {
+  if (isConnected()) {
+    return mongoose.connection.db.dropDatabase();
+  }
+};

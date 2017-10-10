@@ -1,0 +1,29 @@
+{
+  "env": {
+    "node": true
+  },
+  "plugins": ["node", "babel"],
+  "extends": ["eslint:recommended", "airbnb"],
+  "parserOptions": { "ecmaVersion": 8 },
+  "parser": "babel-eslint",
+  "rules": {
+    "strict": 0,
+    "jsx-a11y/href-no-hash": "off",
+    "import/order": ["error"],
+    "no-console": "off",
+    "no-restricted-syntax": "off",
+    "consistent-return": "off",
+    "import/prefer-default-export": "off",
+    "import/no-mutable-exports": "off",
+    "no-param-reassign": "off",
+    "no-underscore-dangle": "off"
+  },
+  "globals": {
+    "describe": true,
+    "before": true,
+    "beforeEach": true,
+    "after": true,
+    "afterEach": true,
+    "it": true
+  }
+}

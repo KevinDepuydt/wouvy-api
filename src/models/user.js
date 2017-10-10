@@ -7,6 +7,11 @@ const Schema = mongoose.Schema;
  * Document Schema
  */
 const UserSchema = new Schema({
+  email: {
+    type: String,
+    required: 'Email is required',
+    unique: true,
+  },
   firstname: {
     type: String,
     required: 'First name is required',

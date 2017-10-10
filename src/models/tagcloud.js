@@ -13,13 +13,13 @@ const TagCloudSchema = new Schema({
   words: [{
     type: String,
   }],
-  newsFeedDate: {
-    type: Date,
-    default: null,
-  },
   published: {
     type: Boolean,
     default: false,
+  },
+  created: {
+    type: Date,
+    default: Date.now,
   },
 });
 

@@ -2,10 +2,8 @@ const developmentEnv = {
   db: {
     uri: 'mongodb://127.0.0.1/wouvy-dev',
     options: {
-      user: '',
-      pass: '',
+      useMongoClient: true,
     },
-    // Enable mongoose debug mode
     debug: false,
     promise: Promise,
   },

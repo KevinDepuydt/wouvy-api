@@ -16,6 +16,10 @@ const SponsorSchema = new Schema({
     type: String,
     default: '',
   },
+  created: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 /**

@@ -2,8 +2,7 @@ const defaultEnv = {
   db: {
     uri: process.env.MONGODB_URI || `mongodb://${process.env.DB_1_PORT_27017_TCP_ADDR || '127.0.0.1'}/wouvy`,
     options: {
-      user: '',
-      pass: '',
+      useMongoClient: true,
     },
     // Enable mongoose debug mode
     debug: process.env.MONGODB_DEBUG || false,
@@ -35,6 +34,20 @@ const defaultEnv = {
       name: 'Modérer',
     },
   },
+  taskStatus: [
+    {
+      value: 0,
+      label: 'To do',
+    },
+    {
+      value: 1,
+      label: 'Doing',
+    },
+    {
+      value: 2,
+      label: 'Done',
+    },
+  ],
 };
 
 export default defaultEnv;

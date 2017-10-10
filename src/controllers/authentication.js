@@ -5,7 +5,7 @@ import User from '../models/user';
 /**
  * Subscribe an User
  */
-const subscribe = (req, res) => {
+const signup = (req, res) => {
   const user = new User(req.body);
 
   user.save((err) => {
@@ -22,10 +22,10 @@ const subscribe = (req, res) => {
 /**
  * Login an User
  */
-const login = (req, res) => {
+const signin = (req, res) => {
   // find the user
   User.findOne({
-    username: req.body.username,
+    email: req.body.email,
   }, (err, user) => {
     if (err) {
       return res.status(400).send({ message: err });
@@ -45,4 +45,4 @@ const login = (req, res) => {
   });
 };
 
-export { subscribe, login };
+export { signup, signin };

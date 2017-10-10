@@ -8,10 +8,6 @@ import TagCloud from '../models/tagcloud';
 const create = (req, res) => {
   const tagCloud = new TagCloud(req.body);
 
-  if (tagCloud.published) {
-    tagCloud.newsFeedDate = Date.now();
-  }
-
   tagCloud.save()
     .then(savedTagCloud => res.jsonp(savedTagCloud))
     .catch(err => res.status(400).send({ message: err }));

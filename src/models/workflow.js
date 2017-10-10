@@ -18,7 +18,6 @@ const WorkflowSchema = new Schema({
   },
   name: {
     type: String,
-    default: '',
     required: 'Please fill Workflow name',
     trim: true,
   },
@@ -44,7 +43,7 @@ const WorkflowSchema = new Schema({
   }],
   documents: [{
     type: Schema.ObjectId,
-    ref: 'Doc',
+    ref: 'Document',
   }],
   votes: [{
     type: Schema.ObjectId,

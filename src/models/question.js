@@ -9,6 +9,7 @@ const QuestionSchema = new Schema({
   user: {
     type: Schema.ObjectId,
     ref: 'User',
+    required: true,
   },
   question: {
     type: String,
@@ -34,10 +35,6 @@ const QuestionSchema = new Schema({
     type: Date,
     default: Date.now(),
   },
-  newsFeedDate: {
-    type: Date,
-    default: null,
-  },
   dateValidated: {
     type: Date,
     default: null,
@@ -53,6 +50,10 @@ const QuestionSchema = new Schema({
   like: {
     type: Number,
     default: 0,
+  },
+  created: {
+    type: Date,
+    default: Date.now,
   },
 });
 

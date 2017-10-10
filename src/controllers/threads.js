@@ -8,9 +8,11 @@ import Thread from '../models/thread';
 const create = (req, res) => {
   const thread = new Thread(req.body);
 
+  /*
   if (thread.users.indexOf(req.user) === -1) {
     thread.users.push(req.user);
   }
+  */
 
   thread.save()
     .then(savedThread => res.jsonp(savedThread))
@@ -34,6 +36,11 @@ const update = (req, res) => {
   let thread = req.thread;
 
   thread = _.extend(thread, req.body);
+
+  // if message then push to messages
+  if (req.body.message) {
+    thread.messages.push(req.body.message);
+  }
 
   thread.save()
     .then(savedThread => res.jsonp(savedThread))

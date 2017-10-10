@@ -19,9 +19,9 @@ const PhotoSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  newsFeedDate: {
+  created: {
     type: Date,
-    default: null,
+    default: Date.now,
   },
 });
 

@@ -10,25 +10,9 @@ const validateAnswersNumber = answers => answers.length > 1 && answers.length <=
  * Vote Answer Schema
  */
 const VoteAnswerSchema = new Schema({
-  answer: {
+  text: {
     type: String,
     required: 'L\'une des réponses est vide',
-  },
-  goodAnswer: {
-    type: Boolean,
-    default: false,
-  },
-  count: {
-    type: Number,
-    default: 0,
-  },
-  users: [{
-    type: Schema.ObjectId,
-    ref: 'User',
-  }],
-  percent: {
-    type: Number,
-    default: 0,
   },
 });
 
@@ -54,11 +38,16 @@ const VoteSchema = new Schema({
     type: Number,
     default: 0,
   },
-  usersWhoAnswered: {
-    type: [Schema.ObjectId],
-    ref: 'User',
-    default: [],
-  },
+  results: [{
+    user: {
+      type: Schema.ObjectId,
+      ref: 'User',
+    },
+    answers: [{
+      type: Schema.ObjectId,
+      ref: VoteAnswerSchema,
+    }],
+  }],
   isResultPublic: {
     type: Boolean,
     default: false,
@@ -66,10 +55,6 @@ const VoteSchema = new Schema({
   published: {
     type: Boolean,
     default: false,
-  },
-  newsFeedDate: {
-    type: Date,
-    default: null,
   },
   created: {
     type: Date,
@@ -82,7 +67,7 @@ const VoteSchema = new Schema({
  */
 VoteSchema.plugin(deepPopulatePlugin, {
   populate: {
-    'answers.users': {
+    'results.users': {
       select: 'displayName email',
     },
   },
