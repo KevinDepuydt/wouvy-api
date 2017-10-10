@@ -36,17 +36,14 @@ const defaultEnv = {
   },
   taskStatus: [
     {
-      key: 'TODO',
       value: 0,
       label: 'To do',
     },
     {
-      key: 'DOING',
       value: 1,
       label: 'Doing',
     },
     {
-      key: 'DONE',
       value: 2,
       label: 'Done',
     },

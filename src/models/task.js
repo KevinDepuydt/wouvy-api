@@ -7,7 +7,6 @@ const validateTaskStatus = status => env.taskStatus.findIndex(s => s === status)
 
 /**
  * Task Schema
- * @TODO Rework this schema
  */
 const TaskSchema = new Schema({
   users: [{
