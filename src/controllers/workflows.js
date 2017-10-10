@@ -45,7 +45,13 @@ const read = (req, res) => {
 const update = (req, res) => {
   let workflow = req.workflow;
 
+  const workflowEnabledFeatures = _.assign({}, workflow.enabledFeatures);
+
   workflow = _.extend(workflow, req.body);
+
+  if (req.body.enabledFeatures) {
+    workflow.enabledFeatures = _.extend(workflowEnabledFeatures, req.body.enabledFeatures);
+  }
 
   workflow.save()
     .then(savedWorkflow => res.jsonp(savedWorkflow))
