@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import env from '../config/env';
+// import env from '../config/env';
 
 const Schema = mongoose.Schema;
 
-const validateTaskStatus = status => env.taskStatus.findIndex(s => s === status) !== -1;
+// const validateTaskStatus = status => env.taskStatus.findIndex(s => s === status) !== -1;
 
 /**
  * Task Schema
@@ -13,10 +13,13 @@ const TaskSchema = new Schema({
     type: String,
     required: 'La tâche est vide',
   },
-  status: {
-    type: Object,
-    validate: [validateTaskStatus, 'Le statut de la tâche n\'est pas valide'],
-    default: env.taskStatus[0],
+  description: {
+    type: String,
+    default: '',
+  },
+  isDone: {
+    type: Boolean,
+    default: false,
   },
   users: [{
     type: Schema.ObjectId,

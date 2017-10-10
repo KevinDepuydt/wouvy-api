@@ -8,10 +8,6 @@ import Vote from '../models/vote';
 const create = (req, res) => {
   const vote = new Vote(req.body);
 
-  if (vote.published) {
-    vote.newsFeedDate = Date.now();
-  }
-
   vote.save()
     .then(savedVote => res.jsonp(savedVote))
     .catch(err => res.status(400).send({ message: err }));

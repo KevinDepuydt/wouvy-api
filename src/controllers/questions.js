@@ -8,10 +8,6 @@ import Question from '../models/question';
 const create = (req, res) => {
   const question = new Question(req.body);
 
-  if (question.published) {
-    question.newsFeedDate = Date.now();
-  }
-
   question.save()
     .then(savedQuestion => res.jsonp(savedQuestion))
     .catch(err => res.status(400).send({ message: err }));

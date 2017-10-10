@@ -8,10 +8,6 @@ import Task from '../models/task';
 const create = (req, res) => {
   const task = new Task(req.body);
 
-  if (task.published) {
-    task.taskFeedDate = Date.now();
-  }
-
   task.save()
     .then(savedTask => res.jsonp(savedTask))
     .catch(err => res.status(400).send({ message: err }));

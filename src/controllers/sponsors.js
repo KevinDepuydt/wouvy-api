@@ -8,10 +8,6 @@ import Sponsor from '../models/sponsor';
 const create = (req, res) => {
   const sponsor = new Sponsor(req.body);
 
-  if (sponsor.published) {
-    sponsor.newsFeedDate = Date.now();
-  }
-
   sponsor.save()
     .then(savedSponsor => res.jsonp(savedSponsor))
     .catch(err => res.status(400).send({ message: err }));

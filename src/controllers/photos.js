@@ -8,10 +8,6 @@ import Photo from '../models/photo';
 const create = (req, res) => {
   const photo = new Photo(req.body);
 
-  if (photo.published) {
-    photo.newsFeedDate = Date.now();
-  }
-
   photo.save()
     .then(savedPhoto => res.jsonp(savedPhoto))
     .catch(err => res.status(400).send({ message: err }));

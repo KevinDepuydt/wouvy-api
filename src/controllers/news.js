@@ -8,10 +8,6 @@ import News from '../models/news';
 const create = (req, res) => {
   const news = new News(req.body);
 
-  if (news.published) {
-    news.newsFeedDate = Date.now();
-  }
-
   news.save()
     .then(savedNews => res.jsonp(savedNews))
     .catch(err => res.status(400).send({ message: err }));

@@ -19,10 +19,6 @@ const NewsSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  newsFeedDate: {
-    type: Date,
-    default: null,
-  },
   created: {
     type: Date,
     default: Date.now,
