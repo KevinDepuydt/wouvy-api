@@ -12,6 +12,7 @@ import rightsTests from './rights';
 import authenticationTests from './authentication';
 import threadsTests from './threads';
 import tasksTests from './tasks';
+import votesTests from './votes';
 
 describe('API', () => {
   before((done) => {
@@ -37,5 +38,6 @@ describe('API', () => {
   describe('Questions', questionsTests);
   describe('Threads', threadsTests);
   describe('Tasks', tasksTests);
-  // @TODO: test workflows and votes
+  describe('Votes', votesTests);
+  // @TODO: test workflows
 });
