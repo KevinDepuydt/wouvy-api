@@ -1,5 +1,7 @@
 # wouvy-api
 
+[![Build Status](https://travis-ci.com/KevinDepuydt/wouvy-api.svg?token=DzdpA2xzqKcvBPt7ExGD&branch=master)](https://travis-ci.com/KevinDepuydt/wouvy-api)
+
 Wouvy API
 
 ## Scripts
