@@ -11,12 +11,17 @@ const signup = (req, res) => {
 
   user.save((err) => {
     if (err) {
-      return res.status(400).send({
-        message: err,
-      });
+      return res.status(400).send({ message: err });
     }
 
-    res.jsonp(user);
+    // login and return the user
+    req.login(user, (loginErr) => {
+      if (loginErr) {
+        res.status(400).send({ message: loginErr });
+      } else {
+        res.jsonp(user);
+      }
+    });
   });
 };
 
@@ -35,7 +40,7 @@ const signin = (req, res, next) => {
     // login and return the information including token as JSON
     req.login(user, (loginErr) => {
       if (loginErr) {
-        res.status(400).send(loginErr);
+        res.status(400).send({ message: loginErr });
       } else {
         res.json({ message: 'Login successful!', user, token });
       }
