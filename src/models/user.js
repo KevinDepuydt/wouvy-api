@@ -14,11 +14,11 @@ const UserSchema = new Schema({
   },
   firstname: {
     type: String,
-    required: 'First name is required',
+    default: '',
   },
   lastname: {
     type: String,
-    required: 'Last name is required',
+    default: '',
   },
   username: {
     type: String,
