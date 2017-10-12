@@ -5,8 +5,14 @@ import * as authentication from '../controllers/authentication';
 
 const authenticationRoutes = Router();
 
-authenticationRoutes.route('/authentication/signup').post(authentication.signup);
-authenticationRoutes.route('/authentication/signin').post(authentication.signin);
+authenticationRoutes.route('/auth/signup').post(authentication.signup);
+authenticationRoutes.route('/auth/signin').post(authentication.signin);
+
+// Facebook authentication
+authenticationRoutes.route('/auth/facebook').get(authentication.socialAuth('facebook', {
+  scope: ['email'],
+}));
+authenticationRoutes.route('/auth/facebook/callback').get(authentication.socialAuthCallback('facebook'));
 
 // authentication middleware
 authenticationRoutes.use((req, res, next) => {

@@ -8,6 +8,11 @@ const productionEnv = {
     promise: Promise,
   },
   nodeEnv: 'test',
+  socialCredentials: {
+    facebook: {},
+    google: {},
+    linkedin: {},
+  },
 };
 
 export default productionEnv;

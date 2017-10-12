@@ -42,10 +42,36 @@ const signin = (req, res, next) => {
       if (loginErr) {
         res.status(400).send({ message: loginErr });
       } else {
-        res.json({ message: 'Login successful!', user, token });
+        res.json({ message: 'Local login successful!', user, token });
       }
     });
   })(req, res, next);
 };
 
-export { signup, signin };
+const socialAuth = (strategy, scope) => (req, res, next) => {
+  // Authenticate
+  passport.authenticate(strategy, scope)(req, res, next);
+};
+
+const socialAuthCallback = strategy => (req, res, next) => {
+  // info.redirect_to contains inteded redirect path
+  passport.authenticate(strategy, (err, user, info) => {
+    if (err || !user) {
+      return res.status(400).send(info);
+    }
+    // delete user password for security
+    user.password = undefined;
+    // create a token to authenticate user api call
+    const token = jwt.sign(user, env.jwtSecret, { expiresIn: '24h' });
+    // login and return the information including token as JSON
+    req.login(user, (loginErr) => {
+      if (loginErr) {
+        res.status(400).send({ message: loginErr });
+      } else {
+        res.json({ message: `${strategy} login successful!`, user, token });
+      }
+    });
+  })(req, res, next);
+};
+
+export { signup, signin, socialAuth, socialAuthCallback };

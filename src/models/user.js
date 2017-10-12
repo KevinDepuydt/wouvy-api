@@ -28,6 +28,9 @@ const UserSchema = new Schema({
     type: String,
     required: 'Password is required',
   },
+  providers: {
+    facebook: {},
+  },
   created: {
     type: Date,
     default: Date.now,

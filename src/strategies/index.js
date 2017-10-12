@@ -1,11 +1,18 @@
+import env from '../config/env';
 import User from '../models/user';
 import localStrategy from './local';
+import facebookStrategy from './facebook';
+import googleStrategy from './google';
+import linkedinStrategy from './linkedin';
 
 const passportStrategies = (passport) => {
   /**
    * Load passport strategies
    */
   localStrategy(passport); // local
+  facebookStrategy(passport, env.socialCredentials.facebook); // facebook
+  googleStrategy(passport, env.socialCredentials.google); // google
+  linkedinStrategy(passport, env.socialCredentials.linkedin); // linkedin
 
   /**
    * define de/serialize user methods
