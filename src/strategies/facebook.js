@@ -1,4 +1,5 @@
 import FacebookStrategy from 'passport-facebook';
+import User from '../models/user';
 
 const facebookStrategy = (passport, facebookConfig) => {
   passport.use(new FacebookStrategy({
@@ -8,13 +9,33 @@ const facebookStrategy = (passport, facebookConfig) => {
     profileFields: ['id', 'name', 'displayName', 'emails', 'photos'],
     passReqToCallback: true,
   }, (req, accessToken, refreshToken, profile, done) => {
-    // @TODO look for user with email + providerName.id eql to profile.id
-    console.log('*** FB AUTH CALLBACK ***');
-    console.log(accessToken);
-    console.log(refreshToken);
-    console.log(profile);
-    console.log('*** END ***');
-    done();
+    const fbData = profile._json;
+    User.findOne({ email: fbData.email, 'providers.facebook.id': fbData.id }, (err, user) => {
+      if (err) {
+        done(err, null);
+      } else if (user) {
+        done(null, user);
+      } else {
+        // define new User
+        const newUser = new User({
+          email: fbData.email,
+          firstname: fbData.first_name,
+          lastname: fbData.last_name,
+          username: fbData.name,
+          password: Math.random().toString(36).slice(2),
+          picture: fbData.picture.data.url,
+          'providers.facebook': {
+            id: fbData.id,
+            accessToken,
+            refreshToken,
+          },
+        });
+        // add new User
+        newUser.save()
+          .then(savedUser => done(null, savedUser))
+          .catch(errUser => done(errUser, null));
+      }
+    });
   }));
 };
 

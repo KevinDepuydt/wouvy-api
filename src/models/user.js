@@ -24,12 +24,20 @@ const UserSchema = new Schema({
     type: String,
     default: '',
   },
+  picture: {
+    type: String,
+    default: '',
+  },
   password: {
     type: String,
     required: 'Password is required',
   },
   providers: {
     facebook: {},
+    google: {},
+    linkedin: {},
+    github: {},
+    twitter: {},
   },
   created: {
     type: Date,
