@@ -1,7 +1,7 @@
 import GoogleStrategy from 'passport-google-oauth';
 
 const googleStrategy = (passport, googleConfig) => {
-  passport.use(new GoogleStrategy({
+  passport.use(new GoogleStrategy.OAuth2Strategy({
     clientID: googleConfig.clientID,
     clientSecret: googleConfig.clientSecret,
     callbackURL: '/api/auth/facebook/callback',
