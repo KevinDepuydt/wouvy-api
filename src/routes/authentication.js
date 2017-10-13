@@ -14,6 +14,24 @@ authenticationRoutes.route('/auth/facebook').get(authentication.socialAuth('face
 }));
 authenticationRoutes.route('/auth/facebook/callback').get(authentication.socialAuthCallback('facebook'));
 
+// Google authentication
+authenticationRoutes.route('/auth/google').get(authentication.socialAuth('google', {
+  scope: [
+    'https://www.googleapis.com/auth/userinfo.profile',
+    'https://www.googleapis.com/auth/userinfo.email',
+  ],
+}));
+authenticationRoutes.route('/auth/google/callback').get(authentication.socialAuthCallback('google'));
+
+// Linkedin authentication
+authenticationRoutes.route('/auth/linkedin').get(authentication.socialAuth('linkedin', {
+  scope: [
+    'r_basicprofile',
+    'r_emailaddress',
+  ],
+}));
+authenticationRoutes.route('/auth/linkedin/callback').get(authentication.socialAuthCallback('linkedin'));
+
 // authentication middleware
 authenticationRoutes.use((req, res, next) => {
   // check header or url parameters or post parameters for token

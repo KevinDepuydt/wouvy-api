@@ -15,9 +15,9 @@ const productionEnv = {
       clientID: process.env.FACEBOOK_ID || '120288108438256',
       clientSecret: process.env.FACEBOOK_SECRET || '0a001f467e2bd5ee29f4e5d3e63b046a',
     },
-    google: { // credentials to replace
-      clientID: process.env.GOOGLE_ID || '230432657244-dei6mk6up0nvmp5g5ke4s8de85e5mcor.apps.googleusercontent.com',
-      clientSecret: process.env.GOOGLE_SECRET || '2xa5M4wwCrwoPZ9WUye12nrW',
+    google: {
+      clientID: process.env.GOOGLE_ID || '884838643361-ro8mc5e0caucgeaqq3bvdckr10jvsnb6.apps.googleusercontent.com',
+      clientSecret: process.env.GOOGLE_SECRET || '3DCfw1kh2ZoWF9Bbpe8FVUbU',
     },
     linkedin: { // credentials to replace
       clientID: process.env.LINKEDIN_ID || '78r8nh2y0sj4hj',
