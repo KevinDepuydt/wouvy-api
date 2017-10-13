@@ -10,7 +10,7 @@ const googleStrategy = (passport, googleConfig) => {
   }, (req, accessToken, refreshToken, profile, done) => {
     const googleData = profile._json;
     // find user by mail and google provider id
-    User.findOne({ email: googleData.email, 'providers.google.id': googleData.id }, (err, user) => {
+    User.findOne({ email: googleData.emails[0].value, 'providers.google.id': googleData.id }, (err, user) => {
       if (err) {
         done(err, null);
       } else if (user) {
