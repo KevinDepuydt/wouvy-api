@@ -10,6 +10,7 @@ const facebookStrategy = (passport, facebookConfig) => {
     passReqToCallback: true,
   }, (req, accessToken, refreshToken, profile, done) => {
     const fbData = profile._json;
+    // find user by mail and facebook provider id
     User.findOne({ email: fbData.email, 'providers.facebook.id': fbData.id }, (err, user) => {
       if (err) {
         done(err, null);
