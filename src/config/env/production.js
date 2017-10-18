@@ -10,6 +10,7 @@ const productionEnv = {
   port: process.env.PORT,
   host: process.env.HOST,
   nodeEnv: process.env.NODE_ENV,
+  appUrl: 'https://app.wouvy.fr',
   socialCredentials: {
     facebook: {
       clientID: process.env.FACEBOOK_ID || '120288108438256',

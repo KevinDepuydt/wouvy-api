@@ -10,6 +10,7 @@ const developmentEnv = {
   port: 3000,
   host: '127.0.0.1',
   nodeEnv: 'development',
+  appUrl: 'http://localhost:4200',
   socialCredentials: {
     facebook: {
       clientID: process.env.FACEBOOK_ID || '120323061768094',
@@ -19,17 +20,17 @@ const developmentEnv = {
       clientID: process.env.GOOGLE_ID || '884838643361-ro8mc5e0caucgeaqq3bvdckr10jvsnb6.apps.googleusercontent.com',
       clientSecret: process.env.GOOGLE_SECRET || '3DCfw1kh2ZoWF9Bbpe8FVUbU',
     },
-    linkedin: { // credentials to replace
-      clientID: process.env.LINKEDIN_ID || '78r8nh2y0sj4hj',
-      clientSecret: process.env.LINKEDIN_SECRET || 'vtCUTSPhGnRjtJKB',
+    linkedin: {
+      clientID: process.env.LINKEDIN_ID || '78pof83gkkg4np',
+      clientSecret: process.env.LINKEDIN_SECRET || 'XwqEgGGODCaxuMJ0',
     },
     github: {
-      clientID: process.env.GITHUB_ID || '',
-      clientSecret: process.env.GITHUB_SECRET || '',
+      clientID: process.env.GITHUB_ID || 'git',
+      clientSecret: process.env.GITHUB_SECRET || 'pass',
     },
     twitter: {
-      clientID: process.env.TWITTER_ID || '',
-      clientSecret: process.env.TWITTER_SECRET || '',
+      clientID: process.env.TWITTER_ID || 'twi',
+      clientSecret: process.env.TWITTER_SECRET || 'pass',
     },
   },
 };
