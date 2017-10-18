@@ -17,8 +17,8 @@ const developmentEnv = {
       clientSecret: process.env.FACEBOOK_SECRET || '6447867cb0a30178397f68f5b3150c56',
     },
     google: {
-      clientID: process.env.GOOGLE_ID || '884838643361-ro8mc5e0caucgeaqq3bvdckr10jvsnb6.apps.googleusercontent.com',
-      clientSecret: process.env.GOOGLE_SECRET || '3DCfw1kh2ZoWF9Bbpe8FVUbU',
+      clientID: process.env.GOOGLE_ID || '230432657244-ims9kqgk47nfeiq6ail3c0igdbv21k3l.apps.googleusercontent.com',
+      clientSecret: process.env.GOOGLE_SECRET || 'hRLJK4MRddnv8bu1HD7RJRRu',
     },
     linkedin: {
       clientID: process.env.LINKEDIN_ID || '78pof83gkkg4np',
