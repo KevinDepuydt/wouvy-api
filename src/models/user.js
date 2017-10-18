@@ -14,19 +14,30 @@ const UserSchema = new Schema({
   },
   firstname: {
     type: String,
-    required: 'First name is required',
+    default: '',
   },
   lastname: {
     type: String,
-    required: 'Last name is required',
+    default: '',
   },
   username: {
+    type: String,
+    default: '',
+  },
+  picture: {
     type: String,
     default: '',
   },
   password: {
     type: String,
     required: 'Password is required',
+  },
+  providers: {
+    facebook: {},
+    google: {},
+    linkedin: {},
+    github: {},
+    twitter: {},
   },
   created: {
     type: Date,

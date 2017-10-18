@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.4.0
+### [feature/social-signin][pr-3]
+#### added
+- social signin with facebook, google, linkedin, twitter and github
+- env var appUrl
+#### updated
+- local signin with passport
+- redirect to UI App after social login
+- social networks credentials
+- switched yo yarn
+
 ## v0.3.0
 ### [feature/tests][pr-2]
 #### added
@@ -20,3 +31,4 @@
 
 [pr-1]: https://github.com/KevinDepuydt/wouvy-api/pull/1 "See pull request #1"
 [pr-2]: https://github.com/KevinDepuydt/wouvy-api/pull/2 "See pull request #2"
+[pr-3]: https://github.com/KevinDepuydt/wouvy-api/pull/3 "See pull request #3"

@@ -1,10 +1,13 @@
 import express from 'express';
+import passport from 'passport';
+import session from 'express-session';
 import bodyParser from 'body-parser';
 import methodOverride from 'method-override';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import routes from '../../routes';
+import passportStrategies from '../../strategies';
 
 /**
  * Initialize application middleware
@@ -19,6 +22,14 @@ const initMiddleware = (app) => {
   app.use(cookieParser());
   // Logger dev
   app.use(morgan('dev'));
+  // passport settings
+  app.use(session({
+    secret: 'MyAPISecretKeyToChange',
+    resave: false,
+    saveUninitialized: false,
+  }));
+  app.use(passport.initialize());
+  app.use(passport.session());
 };
 
 /**
@@ -38,6 +49,13 @@ const initHelmetHeaders = (app) => {
     force: true,
   }));
   app.disable('x-powered-by');
+};
+
+/**
+ * Initialize passport strategies
+ */
+const initPassportStrategies = () => {
+  passportStrategies(passport);
 };
 
 /**
@@ -70,6 +88,9 @@ export const init = () => {
 
   // Initialize Express middleware
   initMiddleware(app);
+
+  // Initialize Passport strategies
+  initPassportStrategies();
 
   // Initialize Helmet security headers
   initHelmetHeaders(app);

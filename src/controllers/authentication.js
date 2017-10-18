@@ -1,3 +1,4 @@
+import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import env from '../config/env';
 import User from '../models/user';
@@ -10,39 +11,60 @@ const signup = (req, res) => {
 
   user.save((err) => {
     if (err) {
-      return res.status(400).send({
-        message: err,
-      });
+      return res.status(400).send({ message: err });
     }
-
-    res.jsonp(user);
+    // login and return the user
+    req.login(user, (loginErr) => {
+      if (loginErr) {
+        res.status(400).send({ message: loginErr });
+      } else {
+        res.jsonp(user);
+      }
+    });
   });
 };
 
 /**
  * Login an User
  */
-const signin = (req, res) => {
-  // find the user
-  User.findOne({
-    email: req.body.email,
-  }, (err, user) => {
-    if (err) {
-      return res.status(400).send({ message: err });
+const signin = (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
+    if (err || !user) {
+      return res.status(400).send(info);
     }
-
-    if (!user || !user.authenticate(req.body.password)) {
-      res.status(400).send({ message: 'Authentication failed. Bad credentials.' });
-    } else {
-      // if user is found and password is ok
-      // delete user password for security
-      user.password = undefined;
-      // create a token to authenticate user api call
-      const token = jwt.sign(user, env.jwtSecret, { expiresIn: '24h' });
-      // return the information including token as JSON
-      res.jsonp({ message: 'Login successful!', user, token });
-    }
-  });
+    // delete user password for security
+    user.password = undefined;
+    // create a token to authenticate user api call
+    const token = jwt.sign(user, env.jwtSecret, { expiresIn: '24h' });
+    // login and return the information including token as JSON
+    req.login(user, (loginErr) => {
+      if (loginErr) {
+        res.status(400).send({ message: loginErr });
+      } else {
+        res.json({ message: 'Local login successful!', user, token });
+      }
+    });
+  })(req, res, next);
 };
 
-export { signup, signin };
+const socialAuth = (strategy, scope) => (req, res, next) => {
+  // Authenticate
+  passport.authenticate(strategy, scope)(req, res, next);
+};
+
+const socialAuthCallback = strategy => (req, res, next) => {
+  passport.authenticate(strategy, (err, user) => {
+    if (err || !user) {
+      return res.redirect(`${env.appUrl}/auth?error=${JSON.stringify(err)}`);
+    }
+    // delete user password for security
+    user.password = undefined;
+    // create a token to authenticate user api call
+    const token = jwt.sign(user, env.jwtSecret, { expiresIn: '24h' });
+    // login and return the information including token as JSON
+    return res.redirect(`${env.appUrl}/auth?token=${token}`);
+    // @TODO complete to process, send back the token by requesting API with front to verify user
+  })(req, res, next);
+};
+
+export { signup, signin, socialAuth, socialAuthCallback };

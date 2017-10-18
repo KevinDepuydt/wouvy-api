@@ -22,7 +22,7 @@ const authenticationTests = () => {
   describe('Signup', () => {
     it('it should sign up an user', (done) => {
       chai.request(BASE_API_URL)
-        .post('/api/authentication/signup')
+        .post('/api/auth/signup')
         .send(USER_DATA)
         .end((err, res) => {
           res.should.have.status(200);
@@ -40,7 +40,7 @@ const authenticationTests = () => {
       const user = new User(USER_DATA);
       user.save(() => {
         chai.request(BASE_API_URL)
-          .post('/api/authentication/signin')
+          .post('/api/auth/signin')
           .send(USER_DATA)
           .end((err, res) => {
             res.should.have.status(200);
