@@ -37,7 +37,9 @@ authenticationRoutes.route('/auth/twitter').get(authentication.socialAuth('twitt
 authenticationRoutes.route('/auth/twitter/callback').get(authentication.socialAuthCallback('twitter'));
 
 // Github authentication
-authenticationRoutes.route('/auth/github').get(authentication.socialAuth('github'));
+authenticationRoutes.route('/auth/github').get(authentication.socialAuth('github', {
+  scope: 'user:email',
+}));
 authenticationRoutes.route('/auth/github/callback').get(authentication.socialAuthCallback('github'));
 
 // authentication middleware
