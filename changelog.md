@@ -9,6 +9,7 @@
 - local signin with passport
 - redirect to UI App after social login
 - social networks credentials
+- switched yo yarn
 
 ## v0.3.0
 ### [feature/tests][pr-2]
