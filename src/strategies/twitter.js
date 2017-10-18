@@ -24,7 +24,7 @@ const twitterStrategy = (passport, twitterConfig) => {
           username: twitterData.name,
           password: Math.random().toString(36).slice(2),
           picture: twitterData.profile_image_url_https,
-          'providers.google': {
+          'providers.twitter': {
             id: twitterData.id,
             accessToken,
             refreshToken,
