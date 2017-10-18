@@ -4,8 +4,8 @@ import localStrategy from './local';
 import facebookStrategy from './facebook';
 import googleStrategy from './google';
 import linkedinStrategy from './linkedin';
-// import twitterStrategy from './twitter';
-// import githubStrategy from './github';
+import twitterStrategy from './twitter';
+import githubStrategy from './github';
 
 const passportStrategies = (passport) => {
   /**
@@ -15,8 +15,8 @@ const passportStrategies = (passport) => {
   facebookStrategy(passport, env.socialCredentials.facebook); // facebook
   googleStrategy(passport, env.socialCredentials.google); // google
   linkedinStrategy(passport, env.socialCredentials.linkedin); // linkedin
-  // twitterStrategy(passport, env.socialCredentials.twitter); // twitter
-  // githubStrategy(passport, env.socialCredentials.github); // github
+  twitterStrategy(passport, env.socialCredentials.twitter); // twitter
+  githubStrategy(passport, env.socialCredentials.github); // github
 
   /**
    * define de/serialize user methods

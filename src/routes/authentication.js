@@ -32,6 +32,14 @@ authenticationRoutes.route('/auth/linkedin').get(authentication.socialAuth('link
 }));
 authenticationRoutes.route('/auth/linkedin/callback').get(authentication.socialAuthCallback('linkedin'));
 
+// Twitter authentication
+authenticationRoutes.route('/auth/twitter').get(authentication.socialAuth('twitter'));
+authenticationRoutes.route('/auth/twitter/callback').get(authentication.socialAuthCallback('twitter'));
+
+// Github authentication
+authenticationRoutes.route('/auth/github').get(authentication.socialAuth('github'));
+authenticationRoutes.route('/auth/github/callback').get(authentication.socialAuthCallback('github'));
+
 // authentication middleware
 authenticationRoutes.use((req, res, next) => {
   // check header or url parameters or post parameters for token

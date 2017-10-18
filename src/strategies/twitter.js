@@ -1,18 +1,18 @@
 import TwitterStrategy from 'passport-twitter';
-// import User from '../models/user';
+import User from '../models/user';
 
 const twitterStrategy = (passport, twitterConfig) => {
   passport.use(new TwitterStrategy({
-    clientID: twitterConfig.clientID,
-    clientSecret: twitterConfig.clientSecret,
+    consumerKey: twitterConfig.clientID,
+    consumerSecret: twitterConfig.clientSecret,
     callbackURL: '/api/auth/twitter/callback',
+    includeEmail: true,
+    profileFields: ['id', 'name', 'profile_image_url_https'],
     passReqToCallback: true,
   }, (req, accessToken, refreshToken, profile, done) => {
     const twitterData = profile._json;
-    console.log('TWITTER AUTH CALLBACK', twitterData);
     // find user by mail and twitter provider id
-    /*
-    User.findOne({ email: twitterData.emails[0].value, 'providers.twitter.id': twitterData.id }, (err, user) => {
+    User.findOne({ email: twitterData.email, 'providers.twitter.id': twitterData.id }, (err, user) => {
       if (err) {
         done(err, null);
       } else if (user) {
@@ -20,12 +20,10 @@ const twitterStrategy = (passport, twitterConfig) => {
       } else {
         // define new User
         const newUser = new User({
-          email: twitterData.emails[0].value,
-          firstname: twitterData.name.givenName,
-          lastname: twitterData.name.familyName,
-          username: twitterData.displayName,
+          email: twitterData.email,
+          username: twitterData.name,
           password: Math.random().toString(36).slice(2),
-          picture: twitterData.image.url,
+          picture: twitterData.profile_image_url_https,
           'providers.google': {
             id: twitterData.id,
             accessToken,
@@ -38,8 +36,6 @@ const twitterStrategy = (passport, twitterConfig) => {
           .catch(errUser => done(errUser, null));
       }
     });
-    */
-    done();
   }));
 };
 
