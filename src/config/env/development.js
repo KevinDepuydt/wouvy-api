@@ -29,8 +29,8 @@ const developmentEnv = {
       clientSecret: process.env.GITHUB_SECRET || 'pass',
     },
     twitter: {
-      clientID: process.env.TWITTER_ID || 'twi',
-      clientSecret: process.env.TWITTER_SECRET || 'pass',
+      clientID: process.env.TWITTER_ID || 'EhEAqmH1NRMFtsHoiG7PP0VRw',
+      clientSecret: process.env.TWITTER_SECRET || 'Q8ZofHcVc8LRdvtMzRZXki7i2M27JAXSJix94ixE2w2eA9KMwW',
     },
   },
 };

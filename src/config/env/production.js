@@ -29,8 +29,8 @@ const productionEnv = {
       clientSecret: process.env.GITHUB_SECRET || '',
     },
     twitter: {
-      clientID: process.env.TWITTER_ID || '',
-      clientSecret: process.env.TWITTER_SECRET || '',
+      clientID: process.env.TWITTER_ID || 'crHU9HAmfJUjwJ4i3PPMDBPBn',
+      clientSecret: process.env.TWITTER_SECRET || 'VsaLmLfY2bEvpgGHj0GIHYNPpYE5xi7Z7YYaHXaQyGE11tW4XL',
     },
   },
 };
