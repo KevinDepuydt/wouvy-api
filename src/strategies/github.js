@@ -1,5 +1,5 @@
 import GitHubStrategy from 'passport-github';
-// import User from '../models/user';
+import User from '../models/user';
 
 const githubStrategy = (passport, githubConfig) => {
   passport.use(new GitHubStrategy({
@@ -9,10 +9,8 @@ const githubStrategy = (passport, githubConfig) => {
     passReqToCallback: true,
   }, (req, accessToken, refreshToken, profile, done) => {
     const githubData = profile._json;
-    console.log('GITHUB AUTH CALLBACK', githubData);
     // find user by mail and github provider id
-    /*
-    User.findOne({ email: githubData.emails[0].value, 'providers.twitter.id': githubData.id }, (err, user) => {
+    User.findOne({ email: githubData.email, 'providers.github.id': githubData.id }, (err, user) => {
       if (err) {
         done(err, null);
       } else if (user) {
@@ -20,13 +18,11 @@ const githubStrategy = (passport, githubConfig) => {
       } else {
         // define new User
         const newUser = new User({
-          email: githubData.emails[0].value,
-          firstname: githubData.name.givenName,
-          lastname: githubData.name.familyName,
-          username: githubData.displayName,
+          email: githubData.email,
+          username: githubData.login,
           password: Math.random().toString(36).slice(2),
-          picture: githubData.image.url,
-          'providers.google': {
+          picture: githubData.avatar_url,
+          'providers.github': {
             id: githubData.id,
             accessToken,
             refreshToken,
@@ -38,8 +34,6 @@ const githubStrategy = (passport, githubConfig) => {
           .catch(errUser => done(errUser, null));
       }
     });
-    */
-    done();
   }));
 };
 
