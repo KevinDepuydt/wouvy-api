@@ -5,7 +5,7 @@ const googleStrategy = (passport, googleConfig) => {
   passport.use(new GoogleStrategy({
     clientID: googleConfig.clientID,
     clientSecret: googleConfig.clientSecret,
-    callbackURL: 'http://localhost:3000/api/auth/google/callback',
+    callbackURL: '/api/auth/google/callback',
     passReqToCallback: true,
   }, (req, accessToken, refreshToken, profile, done) => {
     const googleData = profile._json;
