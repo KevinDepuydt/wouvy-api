@@ -45,7 +45,7 @@ authenticationRoutes.use((req, res, next) => {
     // verifies secret and checks exp
     jwt.verify(token, env.jwtSecret, (err, decoded) => {
       if (err) {
-        return res.json({ success: false, message: 'Authentication failed.' });
+        return res.status(403).send({ success: false, message: 'Authentication failed.' });
       }
       // if everything is good, save to request for use in other routes
       req.decoded = decoded;
