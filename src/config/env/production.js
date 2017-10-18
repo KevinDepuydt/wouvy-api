@@ -25,8 +25,8 @@ const productionEnv = {
       clientSecret: process.env.LINKEDIN_SECRET || 'vtCUTSPhGnRjtJKB',
     },
     github: {
-      clientID: process.env.GITHUB_ID || '',
-      clientSecret: process.env.GITHUB_SECRET || '',
+      clientID: process.env.GITHUB_ID || 'a82fdbbc9451c29b9d0d',
+      clientSecret: process.env.GITHUB_SECRET || 'e6424cbcc1251c1afb0ac2e048bd1941e186f170',
     },
     twitter: {
       clientID: process.env.TWITTER_ID || 'crHU9HAmfJUjwJ4i3PPMDBPBn',
