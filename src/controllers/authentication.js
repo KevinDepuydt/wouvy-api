@@ -13,7 +13,6 @@ const signup = (req, res) => {
     if (err) {
       return res.status(400).send({ message: err });
     }
-
     // login and return the user
     req.login(user, (loginErr) => {
       if (loginErr) {
@@ -54,23 +53,17 @@ const socialAuth = (strategy, scope) => (req, res, next) => {
 };
 
 const socialAuthCallback = strategy => (req, res, next) => {
-  // info.redirect_to contains inteded redirect path
-  passport.authenticate(strategy, (err, user, info) => {
+  passport.authenticate(strategy, (err, user) => {
     if (err || !user) {
-      return res.status(400).send(info);
+      return res.redirect(`${env.appUrl}/auth?error=${JSON.stringify(err)}`);
     }
     // delete user password for security
     user.password = undefined;
     // create a token to authenticate user api call
     const token = jwt.sign(user, env.jwtSecret, { expiresIn: '24h' });
     // login and return the information including token as JSON
-    req.login(user, (loginErr) => {
-      if (loginErr) {
-        res.status(400).send({ message: loginErr });
-      } else {
-        res.json({ message: `${strategy} login successful!`, user, token });
-      }
-    });
+    return res.redirect(`${env.appUrl}/auth?token=${token}`);
+    // @TODO complete to process, send back the token by requesting API with front to verify user
   })(req, res, next);
 };
 
