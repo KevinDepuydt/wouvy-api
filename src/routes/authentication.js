@@ -49,7 +49,7 @@ authenticationRoutes.use((req, res, next) => {
 
   // decode token
   // disable for tests
-  if (env.nodeEnv === 'test') {
+  if (env.nodeEnv === 'test' || req.method === 'OPTIONS') {
     next();
   } else if (token) {
     // verifies secret and checks exp
