@@ -13,12 +13,16 @@ const signup = (req, res) => {
     if (err) {
       return res.status(400).send({ message: err });
     }
-    // login and return the user
+    // delete user password for security
+    user.password = undefined;
+    // create a token to authenticate user api call
+    const token = jwt.sign(user, env.jwtSecret, { expiresIn: '24h' });
+    // login and return the information including token as JSON
     req.login(user, (loginErr) => {
       if (loginErr) {
         res.status(400).send({ message: loginErr });
       } else {
-        res.jsonp(user);
+        res.json({ message: 'Local signup successful!', user, token });
       }
     });
   });
@@ -41,7 +45,7 @@ const signin = (req, res, next) => {
       if (loginErr) {
         res.status(400).send({ message: loginErr });
       } else {
-        res.json({ message: 'Local login successful!', user, token });
+        res.json({ message: 'Local signin successful!', user, token });
       }
     });
   })(req, res, next);
