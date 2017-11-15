@@ -22,7 +22,7 @@ const signup = (req, res) => {
       if (loginErr) {
         res.status(400).send({ message: loginErr });
       } else {
-        res.json({ message: 'Local signup successful!', user, token });
+        res.json({ message: 'Local signup successful!', token });
       }
     });
   });
@@ -45,7 +45,7 @@ const signin = (req, res, next) => {
       if (loginErr) {
         res.status(400).send({ message: loginErr });
       } else {
-        res.json({ message: 'Local signin successful!', user, token });
+        res.json({ message: 'Local signin successful!', token });
       }
     });
   })(req, res, next);
