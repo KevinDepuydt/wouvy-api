@@ -33,7 +33,28 @@ const linkedinStrategy = (passport, linkedinConfig) => {
         // add new User
         newUser.save()
           .then(savedUser => done(null, savedUser))
-          .catch(errUser => done(errUser, null));
+          .catch((errB) => {
+            // looking for existing user with another social network
+            // to add new social network to his account
+            User.findOne({ email: linkedinData.emailAddress, 'providers.linkedin': { $exists: false }, providers: { $not: { $size: 0 } } }, (errC, existingUser) => {
+              if (errC) {
+                done(errC, null);
+              } else if (existingUser) {
+                if (!existingUser.providers.linkedin) {
+                  existingUser.providers.linkedin = {
+                    id: linkedinData.id,
+                    accessToken,
+                    refreshToken,
+                  };
+                  existingUser.save()
+                    .then(savedExistingUser => done(null, savedExistingUser))
+                    .catch(errD => done(errD, null));
+                }
+              } else {
+                done(errB, null);
+              }
+            });
+          });
       }
     });
   }));

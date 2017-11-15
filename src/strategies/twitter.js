@@ -33,7 +33,28 @@ const twitterStrategy = (passport, twitterConfig) => {
         // add new User
         newUser.save()
           .then(savedUser => done(null, savedUser))
-          .catch(errUser => done(errUser, null));
+          .catch((errB) => {
+            // looking for existing user with another social network
+            // to add new social network to his account
+            User.findOne({ email: twitterData.email, 'providers.twitter': { $exists: false }, providers: { $not: { $size: 0 } } }, (errC, existingUser) => {
+              if (errC) {
+                done(errC, null);
+              } else if (existingUser) {
+                if (!existingUser.providers.twitter) {
+                  existingUser.providers.twitter = {
+                    id: twitterData.id,
+                    accessToken,
+                    refreshToken,
+                  };
+                  existingUser.save()
+                    .then(savedExistingUser => done(null, savedExistingUser))
+                    .catch(errD => done(errD, null));
+                }
+              } else {
+                done(errB, null);
+              }
+            });
+          });
       }
     });
   }));

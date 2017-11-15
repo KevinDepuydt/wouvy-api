@@ -33,8 +33,29 @@ const facebookStrategy = (passport, facebookConfig) => {
         });
         // add new User
         newUser.save()
-          .then(savedUser => done(null, savedUser))
-          .catch(errUser => done(errUser, null));
+          .then(savedNewUser => done(null, savedNewUser))
+          .catch((errB) => {
+            // looking for existing user with another social network
+            // to add new social network to his account
+            User.findOne({ email: fbData.email, 'providers.facebook': { $exists: false }, providers: { $not: { $size: 0 } } }, (errC, existingUser) => {
+              if (errC) {
+                done(errC, null);
+              } else if (existingUser) {
+                if (!existingUser.providers.facebook) {
+                  existingUser.providers.facebook = {
+                    id: fbData.id,
+                    accessToken,
+                    refreshToken,
+                  };
+                  existingUser.save()
+                    .then(savedExistingUser => done(null, savedExistingUser))
+                    .catch(errD => done(errD, null));
+                }
+              } else {
+                done(errB, null);
+              }
+            });
+          });
       }
     });
   }));
