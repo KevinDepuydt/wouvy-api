@@ -59,14 +59,14 @@ const socialAuth = (strategy, scope) => (req, res, next) => {
 const socialAuthCallback = strategy => (req, res, next) => {
   passport.authenticate(strategy, (err, user) => {
     if (err || !user) {
-      return res.redirect(`${env.appUrl}/auth?error=${JSON.stringify(err)}`);
+      return res.redirect(`${env.appUrl}/oauth?error=${JSON.stringify(err)}`);
     }
     // delete user password for security
     user.password = undefined;
     // create a token to authenticate user api call
     const token = jwt.sign(user, env.jwtSecret, { expiresIn: '24h' });
     // login and return the information including token as JSON
-    return res.redirect(`${env.appUrl}/auth?token=${token}`);
+    return res.redirect(`${env.appUrl}/oauth?token=${token}`);
     // @TODO complete to process, send back the token by requesting API with front to verify user
   })(req, res, next);
 };
