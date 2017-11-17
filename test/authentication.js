@@ -27,9 +27,7 @@ const authenticationTests = () => {
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');
-          res.body.firstname.should.be.eql('First');
-          res.body.lastname.should.be.eql('Last');
-          res.body.password.should.not.be.eql('Password');
+          res.body.token.should.be.a('string');
           done();
         });
     });
@@ -45,8 +43,6 @@ const authenticationTests = () => {
           .end((err, res) => {
             res.should.have.status(200);
             res.body.should.be.a('object');
-            res.body.user.email.should.be.eql('test@wouvy.fr');
-            res.body.user.should.not.have.property('password');
             res.body.token.should.be.a('string');
             done();
           });
