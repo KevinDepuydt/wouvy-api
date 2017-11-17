@@ -2,6 +2,7 @@ import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import env from '../config/env';
 import User from '../models/user';
+import { getErrorMessage } from '../helpers/error_messages';
 
 /**
  * Subscribe an User
@@ -11,7 +12,7 @@ const signup = (req, res) => {
 
   user.save((err) => {
     if (err) {
-      return res.status(400).send({ message: err });
+      return res.status(400).send({ message: getErrorMessage(err) });
     }
     // delete user password for security
     user.password = undefined;
@@ -20,7 +21,7 @@ const signup = (req, res) => {
     // login and return the information including token as JSON
     req.login(user, (loginErr) => {
       if (loginErr) {
-        res.status(400).send({ message: loginErr });
+        res.status(400).send({ message: getErrorMessage(loginErr) });
       } else {
         res.json({ message: 'Local signup successful!', token });
       }
@@ -43,7 +44,7 @@ const signin = (req, res, next) => {
     // login and return the information including token as JSON
     req.login(user, (loginErr) => {
       if (loginErr) {
-        res.status(400).send({ message: loginErr });
+        res.status(400).send({ message: getErrorMessage(loginErr) });
       } else {
         res.json({ message: 'Local signin successful!', token });
       }

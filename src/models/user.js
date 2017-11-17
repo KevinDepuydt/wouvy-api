@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
+import uniqueValidator from 'mongoose-unique-validator';
 
 const Schema = mongoose.Schema;
 
@@ -44,6 +45,8 @@ const UserSchema = new Schema({
     default: Date.now,
   },
 });
+
+UserSchema.plugin(uniqueValidator, { message: 'An account with this email already exists.' });
 
 /**
  * Hook a pre save method to hash the password
