@@ -4,13 +4,13 @@
   "description": "Wouvy API",
   "main": "server.js",
   "scripts": {
-    "prestart": "yarn run -s build",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.js --exec \"node -r dotenv/config -r babel-register\"",
     "clean": "rm -rf dist",
     "build": "yarn run clean && mkdir -p dist && ./node_modules/.bin/babel src -s -D -d dist",
     "eslint": "eslint src",
-    "test": "NODE_ENV=test mocha --timeout 10000 --compilers js:babel-core/register test/api.test.js"
+    "test": "NODE_ENV=test mocha --timeout 10000 --compilers js:babel-core/register test/api.test.js",
+    "postinstall": "yarn run -s build"
   },
   "keywords": [
     "Wouvy",
