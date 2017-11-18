@@ -1,6 +1,6 @@
 const productionEnv = {
   db: {
-    uri: 'mongodb://127.0.0.1/wouvy-test',
+    uri: process.env.MONGODB_URI || 'mongodb://127.0.0.1/wouvy-test',
     options: {
       useMongoClient: true,
     },

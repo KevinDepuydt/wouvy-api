@@ -1,6 +1,6 @@
 const developmentEnv = {
   db: {
-    uri: 'mongodb://127.0.0.1/wouvy-dev',
+    uri: process.env.MONGODB_URI || 'mongodb://127.0.0.1/wouvy-dev',
     options: {
       useMongoClient: true,
     },
