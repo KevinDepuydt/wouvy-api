@@ -14,7 +14,7 @@ const init = (cb) => {
 export const start = (cb) => {
   init((app, dbInstance, envConfig) => {
     // Start the app by listening on <port> at <host>
-    app.listen(envConfig.port, envConfig.host, () => {
+    app.listen(envConfig.port, () => {
       // Create server URL
       const protocol = envConfig.nodeEnv === 'secure' ? 'https://' : 'http://';
       const server = `${protocol}${envConfig.host}:${envConfig.port}`;
