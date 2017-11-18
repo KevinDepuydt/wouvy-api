@@ -9,8 +9,8 @@ const developmentEnv = {
   },
   port: 3000,
   host: '127.0.0.1',
-  nodeEnv: 'development',
-  appUrl: 'http://localhost:4200',
+  nodeEnv: process.env.NODE_ENV || 'development',
+  appUrl: process.env.APP_URL || 'http://localhost:4200',
   socialCredentials: {
     facebook: {
       clientID: process.env.FACEBOOK_ID || '120323061768094',

@@ -10,7 +10,7 @@ const productionEnv = {
   port: process.env.PORT,
   host: process.env.HOST,
   nodeEnv: process.env.NODE_ENV,
-  appUrl: 'https://app.wouvy.fr',
+  appUrl: process.env.APP_URL || 'https://app.wouvy.fr',
   socialCredentials: {
     facebook: {
       clientID: process.env.FACEBOOK_ID || '120288108438256',
@@ -20,7 +20,7 @@ const productionEnv = {
       clientID: process.env.GOOGLE_ID || '230432657244-dei6mk6up0nvmp5g5ke4s8de85e5mcor.apps.googleusercontent.com',
       clientSecret: process.env.GOOGLE_SECRET || 'rmFdrTo-4JFDAm81qIPVN4tT',
     },
-    linkedin: { // credentials to replace
+    linkedin: {
       clientID: process.env.LINKEDIN_ID || '78r8nh2y0sj4hj',
       clientSecret: process.env.LINKEDIN_SECRET || 'vtCUTSPhGnRjtJKB',
     },
