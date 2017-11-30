@@ -36,7 +36,7 @@ const googleStrategy = (passport, googleConfig) => {
           .catch((errB) => {
             // looking for existing user with another social network
             // to add new social network to his account
-            User.findOne({ email: googleData.email, 'providers.google': { $exists: false }, providers: { $not: { $size: 0 } } }, (errC, existingUser) => {
+            User.findOne({ email: googleData.emails[0].value, 'providers.google': { $exists: false }, providers: { $not: { $size: 0 } } }, (errC, existingUser) => {
               if (errC) {
                 done(errC, null);
               } else if (existingUser) {
