@@ -80,9 +80,9 @@ const usersTests = () => {
           .end((err, res) => {
             res.should.have.status(200);
             res.body.should.be.a('object');
-            res.body.email.should.be.eql('test@wouvy.fr');
-            res.body.firstname.should.be.eql('FirstUpdated');
-            res.body.lastname.should.be.eql('Last');
+            res.body.should.have.property('token');
+            res.body.should.have.property('message');
+            res.body.token.should.be.a('string');
             done();
           });
       });
