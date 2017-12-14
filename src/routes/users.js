@@ -12,6 +12,8 @@ usersRoutes.route('/users/:userId')
   .put(user.update)
   .delete(user.remove);
 
+usersRoutes.route('/users/:userId/password').put(user.updatePassword);
+
 usersRoutes.param('userId', user.userByID);
 
 export default usersRoutes;

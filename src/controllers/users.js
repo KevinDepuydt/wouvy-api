@@ -46,6 +46,28 @@ const update = (req, res) => {
 };
 
 /**
+ * Update an User password
+ */
+const updatePassword = (req, res) => {
+  let user = req.user;
+
+  console.log('update password', user);
+
+  user = _.extend(user, req.body);
+
+  user.save()
+    .then((savedUser) => {
+      // delete user password for security
+      savedUser.password = undefined;
+      // create a token to authenticate user api call
+      const token = jwt.sign(savedUser, env.jwtSecret, { expiresIn: '24h' });
+      // returned updated token
+      res.json({ message: 'Votre profil à été mis à jour !', token });
+    })
+    .catch(err => res.status(400).send({ message: err }));
+};
+
+/**
  * Remove an User
  */
 const remove = (req, res) => {
@@ -88,4 +110,4 @@ const userByID = (req, res, next, id) => {
     .catch(err => next(err));
 };
 
-export { create, read, update, remove, list, userByID };
+export { create, read, update, updatePassword, remove, list, userByID };
