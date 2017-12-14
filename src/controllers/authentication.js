@@ -18,14 +18,8 @@ const signup = (req, res) => {
     user.password = undefined;
     // create a token to authenticate user api call
     const token = jwt.sign(user, env.jwtSecret, { expiresIn: '24h' });
-    // login and return the information including token as JSON
-    req.login(user, (loginErr) => {
-      if (loginErr) {
-        res.status(400).send({ message: getErrorMessage(loginErr) });
-      } else {
-        res.json({ message: 'Local signup successful!', token });
-      }
-    });
+    // return the information including token as JSON
+    res.json({ message: 'Inscription réussie!', token });
   });
 };
 
@@ -41,14 +35,8 @@ const signin = (req, res, next) => {
     user.password = undefined;
     // create a token to authenticate user api call
     const token = jwt.sign(user, env.jwtSecret, { expiresIn: '24h' });
-    // login and return the information including token as JSON
-    req.login(user, (loginErr) => {
-      if (loginErr) {
-        res.status(400).send({ message: getErrorMessage(loginErr) });
-      } else {
-        res.json({ message: 'Local signin successful!', token });
-      }
-    });
+    // return the information including token as JSON
+    res.json({ message: 'Connexion réussie!', token });
   })(req, res, next);
 };
 
@@ -66,9 +54,8 @@ const socialAuthCallback = strategy => (req, res, next) => {
     user.password = undefined;
     // create a token to authenticate user api call
     const token = jwt.sign(user, env.jwtSecret, { expiresIn: '24h' });
-    // login and return the information including token as JSON
+    // redirect to application with token a query parameters
     return res.redirect(`${env.appUrl}/oauth?token=${token}`);
-    // @TODO complete to process, send back the token by requesting API with front to verify user
   })(req, res, next);
 };
 

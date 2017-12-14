@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
 import _ from 'lodash';
+import env from '../config/env';
 import User from '../models/user';
 
 /**
@@ -32,7 +34,14 @@ const update = (req, res) => {
   user = _.extend(user, req.body);
 
   user.save()
-    .then(savedUser => res.jsonp(savedUser))
+    .then((savedUser) => {
+      // delete user password for security
+      savedUser.password = undefined;
+      // create a token to authenticate user api call
+      const token = jwt.sign(savedUser, env.jwtSecret, { expiresIn: '24h' });
+      // returned updated token
+      res.json({ message: 'Votre profil à été mis à jour !', token });
+    })
     .catch(err => res.status(400).send({ message: err }));
 };
 
