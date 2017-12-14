@@ -49,22 +49,25 @@ const update = (req, res) => {
  * Update an User password
  */
 const updatePassword = (req, res) => {
-  let user = req.user;
+  const user = req.user;
+  const { password, newPassword } = req.body;
 
-  console.log('update password', user);
+  console.log('update password', user, password, newPassword);
 
-  user = _.extend(user, req.body);
+  if (user && user.authenticate(password)) {
+    user.password = newPassword;
 
-  user.save()
-    .then((savedUser) => {
-      // delete user password for security
-      savedUser.password = undefined;
-      // create a token to authenticate user api call
-      const token = jwt.sign(savedUser, env.jwtSecret, { expiresIn: '24h' });
-      // returned updated token
-      res.json({ message: 'Votre profil à été mis à jour !', token });
-    })
-    .catch(err => res.status(400).send({ message: err }));
+    user.save()
+      .then((savedUser) => {
+        // delete user password for security
+        savedUser.password = undefined;
+        // returned updated token
+        res.json({ message: 'Votre mot de passe à été mis à jour.' });
+      })
+      .catch(err => res.status(400).send({ message: err }));
+  } else {
+    res.status(400).send({ message: 'Mot de passe incorrect.' });
+  }
 };
 
 /**
