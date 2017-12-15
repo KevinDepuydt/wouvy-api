@@ -21,7 +21,7 @@ const create = (req, res) => {
 
   workflow.save()
     .then(savedWorkflow => res.jsonp(savedWorkflow))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -55,7 +55,7 @@ const update = (req, res) => {
 
   workflow.save()
     .then(savedWorkflow => res.jsonp(savedWorkflow))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -66,7 +66,7 @@ const remove = (req, res) => {
 
   workflow.remove()
     .then(removedWorkflow => res.jsonp(removedWorkflow))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -79,7 +79,7 @@ const list = (req, res) => {
     .deepPopulate('members members.user')
     .exec()
     .then(workflows => res.jsonp(workflows))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -93,7 +93,7 @@ const listForUser = (req, res) => {
     .deepPopulate('members members.user')
     .exec()
     .then(workflows => res.jsonp(workflows))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -106,7 +106,7 @@ const search = (req, res) => {
     .deepPopulate('members members.user')
     .exec()
     .then(workflows => res.jsonp(workflows))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -118,7 +118,7 @@ const listPossibleMembers = (req, res) => {
 
   User.find({ $and: [{ _id: { $nin: ids } }, { _id: { $ne: workflow.user._id } }] })
     .then(users => res.jsonp(users))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -130,7 +130,7 @@ const getByToken = (req, res) => {
     .deepPopulate('members members.user')
     .exec()
     .then(workflows => res.jsonp(workflows))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -147,7 +147,7 @@ const generateAccessToken = (req, res) => {
   // Then save workflow
   workflow.save()
     .then(() => res.jsonp(token))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 

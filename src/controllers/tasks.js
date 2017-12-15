@@ -10,7 +10,7 @@ const create = (req, res) => {
 
   task.save()
     .then(savedTask => res.jsonp(savedTask))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -33,7 +33,7 @@ const update = (req, res) => {
 
   task.save()
     .then(savedTask => res.jsonp(savedTask))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -44,7 +44,7 @@ const remove = (req, res) => {
 
   task.remove()
     .then(removedTask => res.jsonp(removedTask))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -53,7 +53,7 @@ const remove = (req, res) => {
 const list = (req, res) => {
   Task.find().sort('-created').exec()
     .then(tasks => res.jsonp(tasks))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**

@@ -12,7 +12,7 @@ const create = (req, res) => {
 
   user.save()
     .then(savedUser => res.jsonp(savedUser))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -42,7 +42,7 @@ const update = (req, res) => {
       // returned updated token
       res.json({ message: 'Votre profil à été mis à jour !', token });
     })
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -52,11 +52,8 @@ const updatePassword = (req, res) => {
   const user = req.user;
   const { password, newPassword } = req.body;
 
-  console.log('update password', user, password, newPassword);
-
   if (user && user.authenticate(password)) {
     user.password = newPassword;
-
     user.save()
       .then((savedUser) => {
         // delete user password for security
@@ -64,9 +61,9 @@ const updatePassword = (req, res) => {
         // returned updated token
         res.json({ message: 'Votre mot de passe à été mis à jour.' });
       })
-      .catch(err => res.status(400).send({ message: err }));
+      .catch(err => res.status(500).send({ message: err }));
   } else {
-    res.status(400).send({ message: 'Mot de passe incorrect.' });
+    res.status(401).send({ message: 'Mot de passe incorrect.' });
   }
 };
 
@@ -78,7 +75,7 @@ const remove = (req, res) => {
 
   user.remove()
     .then(removedUser => res.jsonp(removedUser))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -87,7 +84,7 @@ const remove = (req, res) => {
 const list = (req, res) => {
   User.find().sort('-created').exec()
     .then(users => res.jsonp(users))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -95,7 +92,7 @@ const list = (req, res) => {
  */
 const userByID = (req, res, next, id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).send({
+    return res.status(401).send({
       message: 'User id is not valid',
     });
   }

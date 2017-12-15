@@ -10,7 +10,7 @@ const create = (req, res) => {
 
   vote.save()
     .then(savedVote => res.jsonp(savedVote))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -36,7 +36,7 @@ const update = (req, res) => {
 
   vote.save()
     .then(savedVote => res.jsonp(savedVote))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -47,7 +47,7 @@ const remove = (req, res) => {
 
   vote.remove()
     .then(removedVote => res.jsonp(removedVote))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -56,7 +56,7 @@ const remove = (req, res) => {
 const list = (req, res) => {
   Vote.find().sort('-created').exec()
     .then(votes => res.jsonp(votes))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**

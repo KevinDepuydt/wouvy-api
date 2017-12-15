@@ -10,7 +10,7 @@ const create = (req, res) => {
 
   tagCloud.save()
     .then(savedTagCloud => res.jsonp(savedTagCloud))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -33,7 +33,7 @@ const update = (req, res) => {
 
   tagCloud.save()
     .then(savedTagCloud => res.jsonp(savedTagCloud))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -44,7 +44,7 @@ const remove = (req, res) => {
 
   tagCloud.remove()
     .then(removedTagCloud => res.jsonp(removedTagCloud))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -53,7 +53,7 @@ const remove = (req, res) => {
 const list = (req, res) => {
   TagCloud.find().sort('-created').exec()
     .then(tagClouds => res.jsonp(tagClouds))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**

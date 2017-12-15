@@ -16,7 +16,7 @@ const create = (req, res) => {
 
   thread.save()
     .then(savedThread => res.jsonp(savedThread))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -44,7 +44,7 @@ const update = (req, res) => {
 
   thread.save()
     .then(savedThread => res.jsonp(savedThread))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -55,7 +55,7 @@ const remove = (req, res) => {
 
   thread.remove()
     .then(removedThread => res.jsonp(removedThread))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -65,7 +65,7 @@ const list = (req, res) => {
   // @TODO add where user id = req.user.id in find
   Thread.find().sort('-created').exec()
     .then(documents => res.jsonp(documents))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**

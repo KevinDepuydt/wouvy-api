@@ -10,7 +10,7 @@ const create = (req, res) => {
 
   sponsor.save()
     .then(savedSponsor => res.jsonp(savedSponsor))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -33,7 +33,7 @@ const update = (req, res) => {
 
   sponsor.save()
     .then(savedSponsor => res.jsonp(savedSponsor))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -44,7 +44,7 @@ const remove = (req, res) => {
 
   sponsor.remove()
     .then(removedSponsor => res.jsonp(removedSponsor))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -53,7 +53,7 @@ const remove = (req, res) => {
 const list = (req, res) => {
   Sponsor.find().sort('-created').exec()
     .then(documents => res.jsonp(documents))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**

@@ -10,7 +10,7 @@ const create = (req, res) => {
 
   photo.save()
     .then(savedPhoto => res.jsonp(savedPhoto))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -33,7 +33,7 @@ const update = (req, res) => {
 
   photo.save()
     .then(savedPhoto => res.jsonp(savedPhoto))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -44,7 +44,7 @@ const remove = (req, res) => {
 
   photo.remove()
     .then(removedPhoto => res.jsonp(removedPhoto))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -53,7 +53,7 @@ const remove = (req, res) => {
 const list = (req, res) => {
   Photo.find().sort('-created').exec()
     .then(photos => res.jsonp(photos))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**

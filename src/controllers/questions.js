@@ -10,7 +10,7 @@ const create = (req, res) => {
 
   question.save()
     .then(savedQuestion => res.jsonp(savedQuestion))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -33,7 +33,7 @@ const update = (req, res) => {
 
   question.save()
     .then(savedQuestion => res.jsonp(savedQuestion))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -44,7 +44,7 @@ const remove = (req, res) => {
 
   question.remove()
     .then(removedDoc => res.jsonp(removedDoc))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -53,7 +53,7 @@ const remove = (req, res) => {
 const list = (req, res) => {
   Question.find().sort('-created').exec()
     .then(questions => res.jsonp(questions))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -69,7 +69,7 @@ const like = (req, res) => {
 
   question.save()
     .then(savedQuestion => res.jsonp(savedQuestion))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -85,7 +85,7 @@ const dislike = (req, res) => {
 
   question.save()
     .then(savedQuestion => res.jsonp(savedQuestion))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -100,7 +100,7 @@ const validate = (req, res) => {
 
   question.save()
     .then(savedQuestion => res.jsonp(savedQuestion))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -116,7 +116,7 @@ const favorite = (req, res) => {
 
   question.save()
     .then(savedQuestion => res.jsonp(savedQuestion))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**

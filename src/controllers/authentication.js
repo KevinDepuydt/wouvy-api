@@ -12,7 +12,7 @@ const signup = (req, res) => {
 
   user.save((err) => {
     if (err) {
-      return res.status(400).send({ message: getErrorMessage(err) });
+      return res.status(500).send({ message: getErrorMessage(err) });
     }
     // delete user password for security
     user.password = undefined;
@@ -29,7 +29,7 @@ const signup = (req, res) => {
 const signin = (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err || !user) {
-      return res.status(400).send(info);
+      return res.status(500).send(info);
     }
     // delete user password for security
     user.password = undefined;

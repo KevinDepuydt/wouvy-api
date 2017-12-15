@@ -14,7 +14,7 @@ const create = (req, res) => {
 
   member.save()
     .then(savedDoc => res.jsonp(savedDoc))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -45,7 +45,7 @@ const update = (req, res) => {
 
   member.save()
     .then(savedDoc => res.jsonp(savedDoc))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -56,7 +56,7 @@ const remove = (req, res) => {
 
   member.remove()
     .then(removedMember => res.jsonp(removedMember))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -65,7 +65,7 @@ const remove = (req, res) => {
 const list = (req, res) => {
   Member.find().sort('-created').exec()
     .then(members => res.jsonp(members))
-    .catch(err => res.status(400).send({ message: err }));
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
