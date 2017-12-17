@@ -50,10 +50,10 @@ const update = (req, res) => {
  */
 const updatePassword = (req, res) => {
   const user = req.user;
-  const { password, newPassword } = req.body;
+  const { password, newPassword, isNew } = req.body;
 
-  if (user && user.authenticate(password)) {
-    if (password === newPassword) {
+  if (user && (user.authenticate(password) || isNew)) {
+    if (password === newPassword && !isNew) {
       res.status(401).send({ message: 'Le nouveau mot de passe est identique à l\'ancien.' });
     } else {
       user.password = newPassword;
