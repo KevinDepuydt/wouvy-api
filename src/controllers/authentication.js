@@ -2,7 +2,7 @@ import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import env from '../config/env';
 import User from '../models/user';
-import { getErrorMessage } from '../helpers/error_messages';
+import { getErrorMessage } from '../helpers/error-messages';
 
 /**
  * Subscribe an User
