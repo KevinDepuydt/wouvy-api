@@ -45,6 +45,10 @@ const UserSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  resetToken: {
+    type: String,
+    default: null,
+  },
 });
 
 UserSchema.plugin(uniqueValidator, { message: 'An account with this email already exists.' });

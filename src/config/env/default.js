@@ -11,6 +11,17 @@ const defaultEnv = {
   port: process.env.PORT || 3000,
   host: process.env.HOST || '127.0.0.1',
   nodeEnv: process.env.NODE_ENV,
+  mailer: {
+    from: 'Wouvy <tech@wouvy.fr>',
+    options: {
+      host: 'mail.gandi.net',
+      port: 587,
+      auth: {
+        user: 'tech@wouvy.fr',
+        pass: 'WouvyTech176@$!',
+      },
+    },
+  },
   jwtSecret: '@JwtSecretKey',
   rights: {
     NONE: {

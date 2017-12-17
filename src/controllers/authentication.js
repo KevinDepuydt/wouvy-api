@@ -1,8 +1,19 @@
+import path from 'path';
+import crypto from 'crypto';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
+import hbs from 'nodemailer-express-handlebars';
 import env from '../config/env';
 import User from '../models/user';
 import { getErrorMessage } from '../helpers/error-messages';
+
+const smtpTransport = nodemailer.createTransport(env.mailer.options);
+smtpTransport.use('compile', hbs({
+  viewEngine: 'handlebars',
+  viewPath: path.resolve(path.join(__dirname, '..', 'templates')),
+  extName: '.html',
+}));
 
 /**
  * Subscribe an User
@@ -40,6 +51,42 @@ const signin = (req, res, next) => {
   })(req, res, next);
 };
 
+/**
+ * Generate a token to reset password and send an email to user email
+ */
+const forgotPassword = (req, res) => {
+  const { email } = req.body;
+
+  User.findOneAndUpdate({ email }, { resetToken: crypto.randomBytes(256).toString('hex') })
+    .then((user) => {
+      console.log('user found', user.email);
+      const mailOptions = {
+        to: user.email,
+        from: env.mailer.from,
+        subject: 'Réinitialisation du mot de passe Wouvy',
+        template: 'password-reset-request',
+        context: {
+          url: `${env.appUrl}/new-password/${user.resetToken}`,
+        },
+      };
+      smtpTransport.sendMail(mailOptions, (errMail) => {
+        console.log('send mail cb', errMail);
+        if (!errMail) {
+          res.send({
+            message: 'An email has been sent to the provided email with further instructions.',
+          });
+        } else {
+          return res.status(400).send({
+            message: 'Failure sending email',
+          });
+        }
+      });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
+};
+
 const socialAuth = (strategy, scope) => (req, res, next) => {
   // Authenticate
   passport.authenticate(strategy, scope)(req, res, next);
@@ -59,4 +106,4 @@ const socialAuthCallback = strategy => (req, res, next) => {
   })(req, res, next);
 };
 
-export { signup, signin, socialAuth, socialAuthCallback };
+export { signup, signin, forgotPassword, socialAuth, socialAuthCallback };

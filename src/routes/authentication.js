@@ -7,6 +7,7 @@ const authenticationRoutes = Router();
 
 authenticationRoutes.route('/auth/signup').post(authentication.signup);
 authenticationRoutes.route('/auth/signin').post(authentication.signin);
+authenticationRoutes.route('/auth/forgot-password').post(authentication.forgotPassword);
 
 // Facebook authentication
 authenticationRoutes.route('/auth/facebook').get(authentication.socialAuth('facebook', {

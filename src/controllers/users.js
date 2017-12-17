@@ -53,15 +53,19 @@ const updatePassword = (req, res) => {
   const { password, newPassword } = req.body;
 
   if (user && user.authenticate(password)) {
-    user.password = newPassword;
-    user.save()
-      .then((savedUser) => {
-        // delete user password for security
-        savedUser.password = undefined;
-        // returned updated token
-        res.json({ message: 'Votre mot de passe à été mis à jour.' });
-      })
-      .catch(err => res.status(500).send({ message: err }));
+    if (password === newPassword) {
+      res.status(401).send({ message: 'Le nouveau mot de passe est identique à l\'ancien.' });
+    } else {
+      user.password = newPassword;
+      user.save()
+        .then((savedUser) => {
+          // delete user password for security
+          savedUser.password = undefined;
+          // returned updated token
+          res.json({ message: 'Votre mot de passe à été mis à jour.' });
+        })
+        .catch(err => res.status(500).send({ message: err }));
+    }
   } else {
     res.status(401).send({ message: 'Mot de passe incorrect.' });
   }
