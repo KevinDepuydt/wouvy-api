@@ -57,9 +57,8 @@ const signin = (req, res, next) => {
 const forgotPassword = (req, res) => {
   const { email } = req.body;
 
-  User.findOneAndUpdate({ email }, { resetToken: crypto.randomBytes(256).toString('hex') })
+  User.findOneAndUpdate({ email }, { resetToken: crypto.randomBytes(256).toString('hex') }, { new: true })
     .then((user) => {
-      console.log('user found', user.email);
       const mailOptions = {
         to: user.email,
         from: env.mailer.from,
@@ -70,7 +69,6 @@ const forgotPassword = (req, res) => {
         },
       };
       smtpTransport.sendMail(mailOptions, (errMail) => {
-        console.log('send mail cb', errMail);
         if (!errMail) {
           res.send({
             message: 'An email has been sent to the provided email with further instructions.',
@@ -85,6 +83,23 @@ const forgotPassword = (req, res) => {
     .catch((err) => {
       res.status(500).send({ message: err });
     });
+};
+
+/**
+ * Generate a token to reset password and send an email to user email
+ */
+const newPassword = (req, res) => {
+  const { resetToken, password } = req.body;
+
+  User.findOne({ resetToken })
+    .then((user) => {
+      user.resetToken = undefined;
+      user.password = password;
+      user.save()
+        .then(() => res.json({ message: 'Votre mot de passe à été mis à jour.' }))
+        .catch(err => res.status(500).send({ message: err }));
+    })
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 const socialAuth = (strategy, scope) => (req, res, next) => {
@@ -106,4 +121,4 @@ const socialAuthCallback = strategy => (req, res, next) => {
   })(req, res, next);
 };
 
-export { signup, signin, forgotPassword, socialAuth, socialAuthCallback };
+export { signup, signin, forgotPassword, newPassword, socialAuth, socialAuthCallback };
