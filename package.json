@@ -27,6 +27,7 @@
     "axios": "^0.16.2",
     "bcrypt": "^1.0.3",
     "body-parser": "^1.17.2",
+    "canvas": "^1.6.8",
     "chalk": "^2.1.0",
     "cookie-parser": "^1.4.3",
     "express": "^4.15.4",
@@ -40,6 +41,8 @@
     "mongoose-deep-populate": "^3.0.0",
     "mongoose-unique-validator": "^1.0.6",
     "morgan": "^1.8.2",
+    "nodemailer": "^4.4.1",
+    "nodemailer-express-handlebars": "^2.0.0",
     "passport": "^0.4.0",
     "passport-facebook": "^2.1.1",
     "passport-github": "^1.1.0",
@@ -71,7 +74,7 @@
     "nodemon": "^1.11.0"
   },
   "engines": {
-    "node": "8.9.x",
+    "node": "9.3.x",
     "npm": "5.5.x"
   }
 }
