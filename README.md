@@ -3,6 +3,12 @@
 
 Wouvy API
 
+## Pre-requisite
+
+For node-canvas you need to install some extra libraries on the server machine.
+
+See [this link](https://github.com/Automattic/node-canvas#installation) to install them.
+
 ## Scripts
 
 ### Start in production

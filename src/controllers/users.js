@@ -48,20 +48,27 @@ const update = (req, res) => {
 /**
  * Update an User password
  */
-const updatePassword = (req, res) => {
+const updateCredentials = (req, res) => {
   const user = req.user;
-  const { password, newPassword } = req.body;
+  const { email, password, newPassword, isNew } = req.body;
 
-  if (user && user.authenticate(password)) {
-    user.password = newPassword;
-    user.save()
-      .then((savedUser) => {
-        // delete user password for security
-        savedUser.password = undefined;
-        // returned updated token
-        res.json({ message: 'Votre mot de passe à été mis à jour.' });
-      })
-      .catch(err => res.status(500).send({ message: err }));
+  if (user && (user.authenticate(password) || isNew)) {
+    if (password === newPassword && !isNew) {
+      res.status(401).send({ message: 'Le nouveau mot de passe est identique à l\'ancien.' });
+    } else {
+      user.email = email;
+      user.password = newPassword;
+      user.save()
+        .then((savedUser) => {
+          // delete user password for security
+          savedUser.password = undefined;
+          // create a token to authenticate user api call
+          const token = jwt.sign(savedUser, env.jwtSecret, { expiresIn: '24h' });
+          // returned updated token
+          res.json({ message: 'Vos identifiants ont été mis à jour.', token });
+        })
+        .catch(err => res.status(500).send({ message: err }));
+    }
   } else {
     res.status(401).send({ message: 'Mot de passe incorrect.' });
   }
@@ -110,4 +117,4 @@ const userByID = (req, res, next, id) => {
     .catch(err => next(err));
 };
 
-export { create, read, update, updatePassword, remove, list, userByID };
+export { create, read, update, updateCredentials, remove, list, userByID };

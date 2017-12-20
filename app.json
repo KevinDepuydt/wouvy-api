@@ -1,0 +1,12 @@
+{
+  "name": "Wouvy API",
+  "keywords": [
+    "wouvy",
+    "api"
+  ],
+  "buildpacks": [
+    {
+      "url": "https://github.com/mojodna/heroku-buildpack-cairo"
+    }
+  ]
+}

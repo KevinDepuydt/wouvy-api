@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import uniqueValidator from 'mongoose-unique-validator';
+import { getAvatarFromText } from '../helpers/letters-avatar';
 
 const Schema = mongoose.Schema;
 
@@ -44,6 +45,10 @@ const UserSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  resetToken: {
+    type: String,
+    default: null,
+  },
 });
 
 UserSchema.plugin(uniqueValidator, { message: 'An account with this email already exists.' });
@@ -52,6 +57,11 @@ UserSchema.plugin(uniqueValidator, { message: 'An account with this email alread
  * Hook a pre save method to hash the password
  */
 UserSchema.pre('save', function hash(next) {
+  if (!this.picture) {
+    const text = this.lastname && this.firstname ? `${this.lastname[0]}${this.firstname[0]}` : this.email;
+    this.picture = getAvatarFromText(text);
+  }
+
   if (this.password && this.isModified('password')) {
     this.password = this.hashPassword(this.password);
   }
