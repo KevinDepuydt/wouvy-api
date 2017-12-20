@@ -1,11 +1,11 @@
 language: node_js
 node_js:
-- "9"
+  - "9"
 services:
-- mongodb
+  - mongodb
 env:
-- NODE_ENV=test
-- CXX=g++-4.9
+  - NODE_ENV=test
+  - CXX=g++-4.9
 addons:
   apt:
     sources:
