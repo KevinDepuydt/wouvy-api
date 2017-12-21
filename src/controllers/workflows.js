@@ -72,21 +72,7 @@ const remove = (req, res) => {
  * List of Workflows
  */
 const list = (req, res) => {
-  Workflow.find()
-    .sort('-created')
-    .populate('user', 'displayName email')
-    .deepPopulate('members members.user')
-    .exec()
-    .then(workflows => res.jsonp(workflows))
-    .catch(err => res.status(500).send(errorHandler(err)));
-};
-
-/**
- * List of Workflows
- */
-const listForUser = (req, res) => {
-  // @TODO add condition to get only user workflows (where user is member of the workflow)
-  Workflow.find()
+  Workflow.find({ $or: [{ user: req.user }, { 'member.user': req.user }] })
     .sort('-created')
     .populate('user', 'displayName email')
     .deepPopulate('members members.user')
@@ -99,7 +85,7 @@ const listForUser = (req, res) => {
  * Search workflows
  */
 const search = (req, res) => {
-  Workflow.find({ $text: { $search: req.query.terms }, public: true })
+  Workflow.find({ $text: { $search: req.query.terms } })
     .sort('-created')
     .populate('user', 'displayName email')
     .deepPopulate('members members.user')
@@ -222,7 +208,6 @@ export {
   update,
   remove,
   list,
-  listForUser,
   search,
   listPossibleMembers,
   getByToken,

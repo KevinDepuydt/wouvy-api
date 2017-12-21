@@ -1,6 +1,8 @@
 import fs from 'fs';
 import mongoose from 'mongoose';
 import deepPopulate from 'mongoose-deep-populate';
+import bcrypt from 'bcrypt';
+import uniqueValidator from 'mongoose-unique-validator';
 
 const Schema = mongoose.Schema;
 const deepPopulatePlugin = deepPopulate(mongoose);
@@ -9,6 +11,10 @@ const deepPopulatePlugin = deepPopulate(mongoose);
  * Workflow Schema
  */
 const WorkflowSchema = new Schema({
+  user: {
+    type: Schema.ObjectId,
+    ref: 'User',
+  },
   slug: {
     type: String,
     default: '',
@@ -28,10 +34,6 @@ const WorkflowSchema = new Schema({
   logo: {
     type: String,
     default: '',
-  },
-  user: {
-    type: Schema.ObjectId,
-    ref: 'User',
   },
   members: [{
     type: Schema.ObjectId,
@@ -107,8 +109,9 @@ const WorkflowSchema = new Schema({
     type: Number,
     default: 0,
   },
-  accessToken: {
+  password: {
     type: String,
+    default: null,
   },
   created: {
     type: Date,
@@ -120,6 +123,11 @@ const WorkflowSchema = new Schema({
  * Search indexes
  */
 WorkflowSchema.index({ name: 'text', slug: 'text', description: 'text' });
+
+/**
+ * Unique plugin
+ */
+WorkflowSchema.plugin(uniqueValidator, { message: 'Un workflow avec cette url personnalisé existe déjà' });
 
 /**
  * Plugin to deep populate
@@ -136,12 +144,31 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
 });
 
 /**
- * Hook a pre save method to validate slug
+ * Hook a pre save method to validate slug and has the password
  */
 WorkflowSchema.pre('save', function preSave(next) {
   this.slug = this.slug.toLowerCase();
+
+  if (this.password && this.isModified('password')) {
+    this.password = this.hashPassword(this.password);
+  }
+
   next();
 });
+
+/**
+ * Method to hash password
+ */
+WorkflowSchema.methods.hashPassword = function hashPassword(password) {
+  return bcrypt.hashSync(password, 10);
+};
+
+/**
+ * Create instance method for authenticating user
+ */
+WorkflowSchema.methods.authenticate = function authenticate(password) {
+  return bcrypt.compareSync(password, this.password);
+};
 
 /**
  * Hook a pre remove method to remove documents
