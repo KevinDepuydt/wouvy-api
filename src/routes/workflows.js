@@ -3,6 +3,9 @@ import * as workflow from '../controllers/workflows';
 
 const workflowsRoutes = Router();
 
+// extra routes
+workflowsRoutes.route('/workflows/search').get(workflow.search);
+
 // Workflows Routes
 workflowsRoutes.route('/workflows')
   .get(workflow.list)
@@ -13,13 +16,10 @@ workflowsRoutes.route('/workflows/:workflowId')
   .put(workflow.update)
   .delete(workflow.remove);
 
+// other routes
 workflowsRoutes.route('/workflows/:workflowId/possible-members').get(workflow.listPossibleMembers);
 
 workflowsRoutes.route('/workflows/:workflowId/generate-access-token').get(workflow.generateAccessToken);
-
-workflowsRoutes.route('/user-workflows').get(workflow.listForUser);
-
-workflowsRoutes.route('/search-workflows').get(workflow.search);
 
 workflowsRoutes.route('/workflows-by-token').get(workflow.getByToken);
 

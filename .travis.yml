@@ -4,8 +4,7 @@ node_js:
 services:
   - mongodb
 env:
-  - NODE_ENV=test
-  - CXX=g++-4.9
+  - NODE_ENV=test CXX=g++-4.9
 addons:
   apt:
     sources:
