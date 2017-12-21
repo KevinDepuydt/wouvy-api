@@ -6,9 +6,10 @@ export const getErrorMessage = (error) => {
       errorMessages.push(error.errors[key].message);
     }
   }
-  console.log(errorMessages);
   if (errorMessages.length > 0) {
     return errorMessages.join('\n');
   }
   return 'Oups! Something went wrong';
 };
+
+export const errorHandler = err => ({ message: getErrorMessage(err) });

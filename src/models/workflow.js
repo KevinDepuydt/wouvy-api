@@ -107,14 +107,6 @@ const WorkflowSchema = new Schema({
     type: Number,
     default: 0,
   },
-  public: {
-    type: Boolean,
-    default: false,
-  },
-  autoValidationDomains: {
-    type: [String],
-    default: [],
-  },
   accessToken: {
     type: String,
   },

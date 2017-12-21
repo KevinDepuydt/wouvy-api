@@ -4,6 +4,7 @@ import _ from 'lodash';
 import slug from 'slug';
 import Workflow from '../models/workflow';
 import User from '../models/user';
+import { errorHandler } from '../helpers/error-messages';
 
 /**
  * Create a Workflow
@@ -11,9 +12,7 @@ import User from '../models/user';
 const create = (req, res) => {
   const workflow = new Workflow(req.body);
 
-  if (!workflow.user) {
-    workflow.user = req.user;
-  }
+  workflow.user = req.user;
 
   if (!workflow.slug.length) {
     workflow.slug = slug(workflow.name);
@@ -21,7 +20,7 @@ const create = (req, res) => {
 
   workflow.save()
     .then(savedWorkflow => res.jsonp(savedWorkflow))
-    .catch(err => res.status(500).send({ message: err }));
+    .catch(err => res.status(500).send(errorHandler(err)));
 };
 
 /**
@@ -55,7 +54,7 @@ const update = (req, res) => {
 
   workflow.save()
     .then(savedWorkflow => res.jsonp(savedWorkflow))
-    .catch(err => res.status(500).send({ message: err }));
+    .catch(err => res.status(500).send(errorHandler(err)));
 };
 
 /**
@@ -66,7 +65,7 @@ const remove = (req, res) => {
 
   workflow.remove()
     .then(removedWorkflow => res.jsonp(removedWorkflow))
-    .catch(err => res.status(500).send({ message: err }));
+    .catch(err => res.status(500).send(errorHandler(err)));
 };
 
 /**
@@ -79,7 +78,7 @@ const list = (req, res) => {
     .deepPopulate('members members.user')
     .exec()
     .then(workflows => res.jsonp(workflows))
-    .catch(err => res.status(500).send({ message: err }));
+    .catch(err => res.status(500).send(errorHandler(err)));
 };
 
 /**
@@ -93,7 +92,7 @@ const listForUser = (req, res) => {
     .deepPopulate('members members.user')
     .exec()
     .then(workflows => res.jsonp(workflows))
-    .catch(err => res.status(500).send({ message: err }));
+    .catch(err => res.status(500).send(errorHandler(err)));
 };
 
 /**
@@ -106,7 +105,7 @@ const search = (req, res) => {
     .deepPopulate('members members.user')
     .exec()
     .then(workflows => res.jsonp(workflows))
-    .catch(err => res.status(500).send({ message: err }));
+    .catch(err => res.status(500).send(errorHandler(err)));
 };
 
 /**
@@ -118,7 +117,7 @@ const listPossibleMembers = (req, res) => {
 
   User.find({ $and: [{ _id: { $nin: ids } }, { _id: { $ne: workflow.user._id } }] })
     .then(users => res.jsonp(users))
-    .catch(err => res.status(500).send({ message: err }));
+    .catch(err => res.status(500).send(errorHandler(err)));
 };
 
 /**
@@ -130,7 +129,7 @@ const getByToken = (req, res) => {
     .deepPopulate('members members.user')
     .exec()
     .then(workflows => res.jsonp(workflows))
-    .catch(err => res.status(500).send({ message: err }));
+    .catch(err => res.status(500).send(errorHandler(err)));
 };
 
 /**
@@ -147,7 +146,7 @@ const generateAccessToken = (req, res) => {
   // Then save workflow
   workflow.save()
     .then(() => res.jsonp(token))
-    .catch(err => res.status(500).send({ message: err }));
+    .catch(err => res.status(500).send(errorHandler(err)));
 };
 
 

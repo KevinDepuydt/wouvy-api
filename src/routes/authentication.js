@@ -60,7 +60,7 @@ authenticationRoutes.use((req, res, next) => {
         return res.status(403).send({ success: false, message: 'Authentication failed.' });
       }
       // if everything is good, save to request for use in other routes
-      req.decoded = decoded;
+      req.user = decoded._doc;
       next();
     });
   } else {
