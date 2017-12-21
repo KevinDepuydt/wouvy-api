@@ -48,7 +48,6 @@ const workflowsTests = () => {
             res.should.have.status(200);
             res.body.should.be.a('object');
             res.body.name.should.be.eql('Workflow');
-            res.body.user.should.be.eql(savedUser._id.toString());
             done();
           });
       });
