@@ -72,7 +72,7 @@ const remove = (req, res) => {
  * List of Workflows
  */
 const list = (req, res) => {
-  Workflow.find({ $or: [{ user: req.user }, { 'member.user': req.user }] })
+  Workflow.find({ $or: [{ user: req.user }, { 'member.user': req.user }] }, '-password')
     .sort('-created')
     .populate('user', 'displayName email')
     .deepPopulate('members members.user')
