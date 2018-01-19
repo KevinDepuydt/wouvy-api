@@ -11,6 +11,9 @@ workflowsRoutes.route('/workflows')
   .get(workflow.list)
   .post(workflow.create);
 
+workflowsRoutes.route('/workflows/:workflowId/authenticate')
+  .post(workflow.authenticateUser);
+
 workflowsRoutes.route('/workflows/:workflowId')
   .get(workflow.read)
   .put(workflow.update)

@@ -4,6 +4,7 @@ import _ from 'lodash';
 import slug from 'slug';
 import Workflow from '../models/workflow';
 import User from '../models/user';
+import Member from '../models/member';
 import { errorHandler } from '../helpers/error-messages';
 
 /**
@@ -32,7 +33,7 @@ const read = (req, res) => {
   // custom data that isn't persisted to mongodb
   if (req.user && workflow.user) {
     workflow.isCurrentUserOwner = workflow.user._id.toString() === req.user._id.toString();
-    workflow.isCurrentUserAdmin = workflow.isCurrentUserOwner || req.user.roles.indexOf('admin') !== -1;
+    // workflow.isCurrentUserAdmin = workflow.isCurrentUserOwner || req.user.roles.indexOf('admin') !== -1;
   }
 
   res.jsonp(workflow);
@@ -72,7 +73,8 @@ const remove = (req, res) => {
  * List of Workflows
  */
 const list = (req, res) => {
-  Workflow.find({ $or: [{ user: req.user }, { 'member.user': req.user }] }, '-password')
+  // @TODO: find how to select wf matching members.user = req.user (query on subdoc array)
+  Workflow.find({ $or: [{ user: req.user }, { 'members.user': { $in: [req.user] } }] }, '-password')
     .sort('-created')
     .populate('user', 'displayName email')
     .deepPopulate('members members.user')
@@ -135,6 +137,29 @@ const generateAccessToken = (req, res) => {
     .catch(err => res.status(500).send(errorHandler(err)));
 };
 
+const authenticateUser = (req, res) => {
+  const user = req.user;
+  const workflow = req.workflow;
+
+  if (workflow.authenticate(req.body.password)) {
+    const member = new Member({ user, workflowId: workflow._id });
+    member.save()
+      .then((savedMember) => {
+        console.log('saved', savedMember);
+        workflow.members.push(member);
+        workflow.save()
+          .then(savedWorkflow => res.jsonp({
+            message: `Tu es maintenant membre du workflow ${savedWorkflow.name}`,
+            workflow: savedWorkflow,
+          }))
+          .catch(err => res.status(500).send(errorHandler(err)));
+      })
+      .catch(err => res.status(500).send(errorHandler(err)));
+  } else {
+    res.status(403).jsonp({ message: 'Wrong password' });
+  }
+  console.log();
+};
 
 /**
  * Workflow middleware
@@ -212,6 +237,7 @@ export {
   listPossibleMembers,
   getByToken,
   generateAccessToken,
+  authenticateUser,
   workflowByID,
   workflowByIdOrSlug,
 };
