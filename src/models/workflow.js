@@ -134,11 +134,14 @@ WorkflowSchema.plugin(uniqueValidator, { message: 'Un workflow avec cette url pe
  */
 WorkflowSchema.plugin(deepPopulatePlugin, {
   populate: {
+    user: {
+      select: 'email',
+    },
     'members.user': {
-      select: '-salt -password',
+      select: 'email',
     },
     'questions.user': {
-      select: 'displayName profileImageURL',
+      select: 'email displayName picture',
     },
   },
 });

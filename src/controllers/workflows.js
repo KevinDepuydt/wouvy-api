@@ -73,13 +73,31 @@ const remove = (req, res) => {
  * List of Workflows
  */
 const list = (req, res) => {
-  // @TODO: find how to select wf matching members.user = req.user (query on subdoc array)
-  Workflow.find({ $or: [{ user: req.user }, { 'members.user': { $in: [req.user] } }] }, '-password')
+  Member.find({ user: req.user }, 'workflowId')
+    .then((members) => {
+      const or = [{ user: req.user }];
+      if (members.length) {
+        const membersIds = members.map(m => m._id);
+        or.push({ members: { $in: [membersIds] } });
+      }
+      Workflow.find({ $or: or }, '-password')
+        .sort('-created')
+        .deepPopulate('user members members.user')
+        .exec()
+        .then(workflows => res.jsonp(workflows))
+        .catch(err => res.status(500).send(errorHandler(err)));
+    }).catch(err => res.status(500).send(errorHandler(err)));
+};
+
+const filterWorkflowsForUser = (w, user) =>
+  w.user._id.toString() === user._id.toString() ||
+  w.members.findIndex(m => m.user._id.toString() === user._id.toString()) !== -1;
+const listTest = (req, res) => {
+  Workflow.find({}, '-password')
     .sort('-created')
-    .populate('user', 'displayName email')
-    .deepPopulate('members members.user')
+    .deepPopulate('user members members.user')
     .exec()
-    .then(workflows => res.jsonp(workflows))
+    .then(workflows => res.jsonp(workflows.filter(w => filterWorkflowsForUser(w, req.user))))
     .catch(err => res.status(500).send(errorHandler(err)));
 };
 

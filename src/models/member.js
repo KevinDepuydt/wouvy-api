@@ -90,7 +90,7 @@ MemberSchema.plugin(uniqueValidator, { message: 'Vous êtes déjà membre de ce 
 MemberSchema.plugin(deepPopulatePlugin, {
   populate: {
     user: {
-      select: '-salt -password',
+      select: '-password',
     },
   },
 });
