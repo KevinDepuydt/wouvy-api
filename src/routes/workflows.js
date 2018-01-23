@@ -12,7 +12,7 @@ workflowsRoutes.route('/workflows')
   .post(workflow.create);
 
 workflowsRoutes.route('/workflows/:workflowId/authenticate')
-  .post(workflow.authenticateUser);
+  .post(workflow.authenticate);
 
 workflowsRoutes.route('/workflows/:workflowId')
   .get(workflow.read)
@@ -21,10 +21,6 @@ workflowsRoutes.route('/workflows/:workflowId')
 
 // other routes
 workflowsRoutes.route('/workflows/:workflowId/possible-members').get(workflow.listPossibleMembers);
-
-workflowsRoutes.route('/workflows/:workflowId/generate-access-token').get(workflow.generateAccessToken);
-
-workflowsRoutes.route('/workflows-by-token').get(workflow.getByToken);
 
 // Finish by binding the Workflow middleware
 workflowsRoutes.param('workflowId', workflow.workflowByIdOrSlug);

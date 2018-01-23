@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import deepPopulate from 'mongoose-deep-populate';
 import bcrypt from 'bcrypt';
 import uniqueValidator from 'mongoose-unique-validator';
+import uniqueArrayPlugin from 'mongoose-unique-array';
 
 const Schema = mongoose.Schema;
 const deepPopulatePlugin = deepPopulate(mongoose);
@@ -35,9 +36,10 @@ const WorkflowSchema = new Schema({
     type: String,
     default: '',
   },
-  members: [{
+  users: [{
     type: Schema.ObjectId,
-    ref: 'Member',
+    ref: 'User',
+    unique: true,
   }],
   questions: [{
     type: Schema.ObjectId,
@@ -130,6 +132,11 @@ WorkflowSchema.index({ name: 'text', slug: 'text', description: 'text' });
 WorkflowSchema.plugin(uniqueValidator, { message: 'Un workflow avec cette url personnalisé existe déjà' });
 
 /**
+ * Unique array plugin
+ */
+WorkflowSchema.plugin(uniqueArrayPlugin, { message: 'Cet utilisateur fait déjà parti des membres' });
+
+/**
  * Plugin to deep populate
  */
 WorkflowSchema.plugin(deepPopulatePlugin, {
@@ -137,7 +144,7 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
     user: {
       select: 'email',
     },
-    'members.user': {
+    users: {
       select: 'email',
     },
     'questions.user': {
@@ -205,11 +212,6 @@ WorkflowSchema.pre('remove', function preRemove(next) {
   // delete votes
   for (const vote of this.votes) {
     vote.remove();
-  }
-
-  // delete members
-  for (const member of this.members) {
-    member.remove();
   }
 
   // delete logo file

@@ -19,7 +19,7 @@ const routes = [
   authenticationRoutes,
   usersRoutes,
   workflowsRoutes,
-  membersRoutes,
+  // membersRoutes, disable members routes
   documentsRoutes,
   newsRoutes,
   photosRoutes,
