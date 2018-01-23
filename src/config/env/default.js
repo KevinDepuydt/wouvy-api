@@ -23,6 +23,7 @@ const defaultEnv = {
     },
   },
   jwtSecret: '@JwtSecretKey',
+  jwtExpiresIn: '48h',
   rights: {
     NONE: {
       level: 0,

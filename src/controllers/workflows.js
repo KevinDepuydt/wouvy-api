@@ -176,7 +176,6 @@ const authenticateUser = (req, res) => {
   } else {
     res.status(403).jsonp({ message: 'Wrong password' });
   }
-  console.log();
 };
 
 /**

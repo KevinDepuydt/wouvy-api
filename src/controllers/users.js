@@ -38,7 +38,7 @@ const update = (req, res) => {
       // delete user password for security
       savedUser.password = undefined;
       // create a token to authenticate user api call
-      const token = jwt.sign(savedUser, env.jwtSecret, { expiresIn: '24h' });
+      const token = jwt.sign(savedUser, env.jwtSecret, { expiresIn: env.jwtExpiresIn });
       // returned updated token
       res.json({ message: 'Votre profil à été mis à jour !', token });
     })
@@ -63,7 +63,7 @@ const updateCredentials = (req, res) => {
           // delete user password for security
           savedUser.password = undefined;
           // create a token to authenticate user api call
-          const token = jwt.sign(savedUser, env.jwtSecret, { expiresIn: '24h' });
+          const token = jwt.sign(savedUser, env.jwtSecret, { expiresIn: env.jwtExpiresIn });
           // returned updated token
           res.json({ message: 'Vos identifiants ont été mis à jour.', token });
         })
