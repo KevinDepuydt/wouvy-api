@@ -1,11 +1,17 @@
 export const getErrorMessage = (error) => {
+  // console.log(error);
   const errorMessages = [];
   if (error.errors) {
     const keys = Object.keys(error.errors);
+    console.log(keys);
     for (const key of keys) {
-      errorMessages.push(error.errors[key].message);
+      const message = error.errors[key].message;
+      if (message.length <= 200) {
+        errorMessages.push(error.errors[key].message);
+      }
     }
   }
+  console.log(errorMessages);
   if (errorMessages.length > 0) {
     return errorMessages.join('\n');
   }

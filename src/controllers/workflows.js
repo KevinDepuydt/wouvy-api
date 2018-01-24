@@ -78,9 +78,9 @@ const remove = (req, res) => {
  * List of Workflows
  */
 const list = (req, res) => {
-  Workflow.find({ $or: [{ user: req.user }, { users: { $in: [req.user] } }] }, '-password')
+  Workflow.find({ $or: [{ user: req.user }, { 'members.user': { $in: [req.user] } }] }, '-password')
     .sort('-created')
-    .deepPopulate('user users')
+    .deepPopulate('user members.user')
     .exec()
     .then(workflows => res.jsonp(workflows))
     .catch(err => res.status(500).send(errorHandler(err)));
@@ -92,7 +92,7 @@ const list = (req, res) => {
 const search = (req, res) => {
   Workflow.find({ $text: { $search: req.query.terms } }, '-password')
     .sort('-created')
-    .deepPopulate('user users')
+    .deepPopulate('user members.user')
     .exec()
     .then(workflows => res.jsonp(workflows))
     .catch(err => res.status(500).send(errorHandler(err)));
@@ -115,7 +115,7 @@ const authenticate = (req, res) => {
   const workflow = req.workflow;
 
   if (workflow.authenticate(req.body.password)) {
-    workflow.users.push(user);
+    workflow.members.push({ user });
     workflow.save()
       .then((savedWorkflow) => {
         savedWorkflow.password = undefined;
@@ -163,7 +163,7 @@ const workflowByIdOrSlug = (req, res, next, id) => {
     Workflow
       .findById(id)
       .populate('user', 'displayName')
-      .deepPopulate('documents questions questions.user news sponsors photos votes votes.answers tagClouds users')
+      .deepPopulate('documents questions questions.user news sponsors photos votes votes.answers tagClouds members.user')
       .exec()
       .then((workflow) => {
         if (!workflow) {
@@ -177,7 +177,7 @@ const workflowByIdOrSlug = (req, res, next, id) => {
     Workflow
       .findOne({ slug: id })
       .populate('user', 'displayName email profileImageURL')
-      .deepPopulate('documents questions questions.user news sponsors photos votes votes.answers tagClouds users')
+      .deepPopulate('documents questions questions.user news sponsors photos votes votes.answers tagClouds members.user')
       .exec()
       .then((workflow) => {
         if (!workflow) {

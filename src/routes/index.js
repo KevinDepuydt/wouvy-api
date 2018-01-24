@@ -1,7 +1,6 @@
 import authenticationRoutes from './authentication';
 import usersRoutes from './users';
 import workflowsRoutes from './workflows';
-import membersRoutes from './members';
 import documentsRoutes from './documents';
 import newsRoutes from './news';
 import photosRoutes from './photos';
@@ -19,7 +18,6 @@ const routes = [
   authenticationRoutes,
   usersRoutes,
   workflowsRoutes,
-  // membersRoutes, disable members routes
   documentsRoutes,
   newsRoutes,
   photosRoutes,

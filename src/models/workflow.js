@@ -3,7 +3,9 @@ import mongoose from 'mongoose';
 import deepPopulate from 'mongoose-deep-populate';
 import bcrypt from 'bcrypt';
 import uniqueValidator from 'mongoose-unique-validator';
-import uniqueArrayPlugin from 'mongoose-unique-array';
+import env from '../config/env';
+
+const rights = env.rights;
 
 const Schema = mongoose.Schema;
 const deepPopulatePlugin = deepPopulate(mongoose);
@@ -20,7 +22,7 @@ const WorkflowSchema = new Schema({
     type: String,
     default: '',
     dropDups: true,
-    unique: true,
+    unique: 'Un workflow avec cette url personnalisé existe déjà',
     trim: true,
   },
   name: {
@@ -36,10 +38,58 @@ const WorkflowSchema = new Schema({
     type: String,
     default: '',
   },
-  users: [{
-    type: Schema.ObjectId,
-    ref: 'User',
-    unique: true,
+  members: [{
+    user: {
+      type: Schema.ObjectId,
+      ref: 'User',
+      unique: 'Cet utilisateur est déjà membre du workflow !',
+    },
+    rights: {
+      workflows: {
+        type: Number,
+        default: rights.NONE.level,
+      },
+      users: {
+        type: Number,
+        default: rights.NONE.level,
+      },
+      tagClouds: {
+        type: Number,
+        default: rights.NONE.level,
+      },
+      documents: {
+        type: Number,
+        default: rights.NONE.level,
+      },
+      photos: {
+        type: Number,
+        default: rights.NONE.level,
+      },
+      votes: {
+        type: Number,
+        default: rights.NONE.level,
+      },
+      news: {
+        type: Number,
+        default: rights.NONE.level,
+      },
+      logo: {
+        type: Number,
+        default: rights.NONE.level,
+      },
+      questions: {
+        type: Number,
+        default: rights.NONE.level,
+      },
+      sponsors: {
+        type: Number,
+        default: rights.NONE.level,
+      },
+    },
+    created: {
+      type: Date,
+      default: Date.now,
+    },
   }],
   questions: [{
     type: Schema.ObjectId,
@@ -129,12 +179,7 @@ WorkflowSchema.index({ name: 'text', slug: 'text', description: 'text' });
 /**
  * Unique plugin
  */
-WorkflowSchema.plugin(uniqueValidator, { message: 'Un workflow avec cette url personnalisé existe déjà' });
-
-/**
- * Unique array plugin
- */
-WorkflowSchema.plugin(uniqueArrayPlugin, { message: 'Cet utilisateur fait déjà parti des membres' });
+WorkflowSchema.plugin(uniqueValidator);
 
 /**
  * Plugin to deep populate
@@ -144,7 +189,7 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
     user: {
       select: 'email',
     },
-    users: {
+    'members.user': {
       select: 'email',
     },
     'questions.user': {
