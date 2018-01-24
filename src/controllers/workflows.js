@@ -126,7 +126,7 @@ const authenticate = (req, res) => {
       })
       .catch(err => res.status(500).send(errorHandler(err)));
   } else {
-    res.status(403).jsonp({ message: 'Wrong password' });
+    res.status(403).jsonp({ message: 'Le mot de passe est incorrect' });
   }
 };
 

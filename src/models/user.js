@@ -11,8 +11,8 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
   email: {
     type: String,
-    required: 'Email is required',
-    unique: true,
+    required: 'Veuillez renseigner une adresse email',
+    unique: 'Cette adresse email est déjà prise',
   },
   firstname: {
     type: String,
@@ -32,7 +32,7 @@ const UserSchema = new Schema({
   },
   password: {
     type: String,
-    required: 'Password is required',
+    required: 'Veuillez renseigner un mot de passe',
   },
   providers: {
     facebook: {},
@@ -51,7 +51,7 @@ const UserSchema = new Schema({
   },
 });
 
-UserSchema.plugin(uniqueValidator, { message: 'An account with this email already exists.' });
+UserSchema.plugin(uniqueValidator);
 
 /**
  * Hook a pre save method to hash the password

@@ -71,11 +71,11 @@ const forgotPassword = (req, res) => {
       smtpTransport.sendMail(mailOptions, (errMail) => {
         if (!errMail) {
           res.send({
-            message: 'An email has been sent to the provided email with further instructions.',
+            message: `Un email de résiliation du mot de passe à été envoyé à ${email}`,
           });
         } else {
           return res.status(400).send({
-            message: 'Failure sending email',
+            message: "Une erreur s'est produite lors de l'envoie de l'email de résiliation du mot de passe",
           });
         }
       });

@@ -27,12 +27,12 @@ const WorkflowSchema = new Schema({
   },
   name: {
     type: String,
-    required: 'Please fill Workflow name',
+    required: 'Veuillez saisir un nom pour votre workflow.',
     trim: true,
   },
   description: {
     type: String,
-    default: 'Description of the workflow',
+    default: '',
   },
   logo: {
     type: String,
