@@ -75,7 +75,7 @@
     "nodemon": "^1.11.0"
   },
   "engines": {
-    "node": "9.3.x",
-    "npm": "5.5.x"
+    "node": "9.x.x",
+    "npm": "5.x.x"
   }
 }
