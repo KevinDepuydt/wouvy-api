@@ -1,3 +1,4 @@
+/*
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import env from '../src/config/env';
@@ -13,7 +14,12 @@ const BASE_API_URL = `http://${env.host}:${env.port}`;
 // call chai should
 chai.should();
 
-const USER_DATA = { email: 'test@wouvy.fr', firstname: 'First', lastname: 'Last', password: 'Password' };
+const USER_DATA = {
+  email: 'test@wouvy.fr',
+  firstname: 'First',
+  lastname: 'Last',
+  password: 'Password',
+};
 
 const membersTests = () => {
   afterEach((done) => {
@@ -116,3 +122,4 @@ const membersTests = () => {
 };
 
 export default membersTests;
+*/
