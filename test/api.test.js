@@ -5,7 +5,6 @@ import newsTests from './news';
 import photosTests from './photos';
 import sponsorsTests from './sponsors';
 import tagCloudsTests from './tagclouds';
-import membersTests from './members';
 import usersTests from './users';
 import questionsTests from './questions';
 import rightsTests from './rights';
@@ -35,7 +34,6 @@ describe('API', () => {
   describe('Photos', photosTests);
   describe('Sponsors', sponsorsTests);
   describe('TagClouds', tagCloudsTests);
-  describe('Members', membersTests);
   describe('Questions', questionsTests);
   describe('Threads', threadsTests);
   describe('Tasks', tasksTests);
