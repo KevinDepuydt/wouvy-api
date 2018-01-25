@@ -3,6 +3,7 @@ import _ from 'lodash';
 import slug from 'slug';
 import Workflow from '../models/workflow';
 import User from '../models/user';
+import Member from '../models/member';
 import { errorHandler } from '../helpers/error-messages';
 
 /**
@@ -49,6 +50,12 @@ const update = (req, res) => {
 
   const workflowEnabledFeatures = _.assign({}, workflow.enabledFeatures);
 
+  // prevent empty password
+  if (!req.body.password.length) {
+    delete req.body.password;
+    console.log('delete password from req.body', req.body);
+  }
+
   workflow = _.extend(workflow, req.body);
 
   if (req.body.enabledFeatures) {
@@ -78,11 +85,19 @@ const remove = (req, res) => {
  * List of Workflows
  */
 const list = (req, res) => {
-  Workflow.find({ $or: [{ user: req.user }, { 'members.user': { $in: [req.user] } }] }, '-password')
-    .sort('-created')
-    .deepPopulate('user members.user')
-    .exec()
-    .then(workflows => res.jsonp(workflows))
+  const user = req.user;
+
+  Member.find({ user }, '_id')
+    .then((members) => {
+      const membersIds = members.map(m => m._id);
+      console.log('found members for user', user._id, members);
+      Workflow.find({ $or: [{ user: req.user }, { members: { $in: membersIds } }] }, '-password')
+        .sort('-created')
+        .deepPopulate('user members.user')
+        .exec()
+        .then(workflows => res.jsonp(workflows))
+        .catch(err => res.status(500).send(errorHandler(err)));
+    })
     .catch(err => res.status(500).send(errorHandler(err)));
 };
 
@@ -98,31 +113,27 @@ const search = (req, res) => {
     .catch(err => res.status(500).send(errorHandler(err)));
 };
 
-/**
- * List possible user for adding new members
- */
-const listPossibleMembers = (req, res) => {
-  const workflow = req.workflow;
-  const ids = workflow.members.map(m => m.user._id);
-
-  User.find({ $and: [{ _id: { $nin: ids } }, { _id: { $ne: workflow.user._id } }] })
-    .then(users => res.jsonp(users))
-    .catch(err => res.status(500).send(errorHandler(err)));
-};
-
 const authenticate = (req, res) => {
   const user = req.user;
   const workflow = req.workflow;
 
   if (workflow.authenticate(req.body.password)) {
-    workflow.members.push({ user });
-    workflow.save()
-      .then((savedWorkflow) => {
-        savedWorkflow.password = undefined;
-        res.jsonp({
-          message: `Tu es maintenant membre du workflow ${savedWorkflow.name}`,
-          workflow: savedWorkflow,
-        });
+    // add member
+    const member = new Member({ user, workflowId: workflow._id });
+    member.save()
+      .then(() => {
+        // add saved member to the workflow
+        workflow.members.push(member);
+        workflow.save()
+          .then((savedWorkflow) => {
+            // return saved workflow
+            savedWorkflow.password = undefined;
+            res.jsonp({
+              message: `Tu es maintenant membre du workflow ${savedWorkflow.name}`,
+              workflow: savedWorkflow,
+            });
+          })
+          .catch(err => res.status(500).send(errorHandler(err)));
       })
       .catch(err => res.status(500).send(errorHandler(err)));
   } else {
@@ -142,8 +153,7 @@ const workflowByID = (req, res, next, id) => {
 
   Workflow
     .findById(id)
-    .populate('user', 'displayName')
-    .deepPopulate('documents questions questions.user news sponsors photos votes votes.answers tagClouds members members.user')
+    .deepPopulate('user members members.user')
     .exec()
     .then((workflow) => {
       if (!workflow) {
@@ -162,8 +172,7 @@ const workflowByIdOrSlug = (req, res, next, id) => {
   if (mongoose.Types.ObjectId.isValid(id)) {
     Workflow
       .findById(id)
-      .populate('user', 'displayName')
-      .deepPopulate('documents questions questions.user news sponsors photos votes votes.answers tagClouds members.user')
+      .deepPopulate('user members members.user')
       .exec()
       .then((workflow) => {
         if (!workflow) {
@@ -176,8 +185,7 @@ const workflowByIdOrSlug = (req, res, next, id) => {
   } else {
     Workflow
       .findOne({ slug: id })
-      .populate('user', 'displayName email profileImageURL')
-      .deepPopulate('documents questions questions.user news sponsors photos votes votes.answers tagClouds members.user')
+      .deepPopulate('user members members.user')
       .exec()
       .then((workflow) => {
         if (!workflow) {
@@ -197,7 +205,6 @@ export {
   remove,
   list,
   search,
-  listPossibleMembers,
   authenticate,
   workflowByID,
   workflowByIdOrSlug,
