@@ -77,7 +77,7 @@ const workflowsTests = () => {
 
   describe('Update', () => {
     it('it should PUT a workflow', (done) => {
-      const updates = { enabledFeatures: { documents: true } };
+      const updates = { name: 'WorkflowUpdated' };
       const user = new User(USER_DATA);
       user.save((errorUser, savedUser) => {
         const workflow = new Workflow({ name: 'Workflow', user: savedUser });
@@ -88,10 +88,8 @@ const workflowsTests = () => {
             .end((err, res) => {
               res.should.have.status(200);
               res.body.should.be.a('object');
-              res.body.name.should.be.eql('Workflow');
+              res.body.name.should.be.eql('WorkflowUpdated');
               res.body.user._id.should.be.eql(savedUser._id.toString());
-              res.body.enabledFeatures.documents.should.be.eql(true);
-              res.body.enabledFeatures.tagClouds.should.be.eql(false);
               done();
             });
         });
