@@ -53,7 +53,6 @@ const update = (req, res) => {
   // prevent empty password
   if (!req.body.password.length) {
     delete req.body.password;
-    console.log('delete password from req.body', req.body);
   }
 
   workflow = _.extend(workflow, req.body);
@@ -90,7 +89,6 @@ const list = (req, res) => {
   Member.find({ user }, '_id')
     .then((members) => {
       const membersIds = members.map(m => m._id);
-      console.log('found members for user', user._id, members);
       Workflow.find({ $or: [{ user: req.user }, { members: { $in: membersIds } }] }, '-password')
         .sort('-created')
         .deepPopulate('user members.user')
