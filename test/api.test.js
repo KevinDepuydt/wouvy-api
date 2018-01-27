@@ -13,6 +13,7 @@ import threadsTests from './threads';
 import tasksTests from './tasks';
 import votesTests from './votes';
 import workflowsTests from './workflows';
+import membersTests from './members';
 
 describe('API', () => {
   before((done) => {
@@ -39,4 +40,5 @@ describe('API', () => {
   describe('Tasks', tasksTests);
   describe('Votes', votesTests);
   describe('Workflows', workflowsTests);
+  describe('Members', membersTests);
 });

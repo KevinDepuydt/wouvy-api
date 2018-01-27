@@ -1,7 +1,6 @@
 import authenticationRoutes from './authentication';
-import usersRoutes from './users';
-import workflowsRoutes from './workflows';
 import documentsRoutes from './documents';
+import membersRoutes from './members';
 import newsRoutes from './news';
 import photosRoutes from './photos';
 import questionsRoutes from './questions';
@@ -10,15 +9,16 @@ import sponsorsRoutes from './sponsors';
 import tagCloudsRoutes from './tagclouds';
 import tasksRoutes from './tasks';
 import threadsRoutes from './threads';
+import usersRoutes from './users';
 import votesRoutes from './votes';
+import workflowsRoutes from './workflows';
 
 // server set routes in order of routes array
 // authentication have to stay in first position to secure other routes
 const routes = [
   authenticationRoutes,
-  usersRoutes,
-  workflowsRoutes,
   documentsRoutes,
+  membersRoutes,
   newsRoutes,
   photosRoutes,
   questionsRoutes,
@@ -27,7 +27,9 @@ const routes = [
   tagCloudsRoutes,
   tasksRoutes,
   threadsRoutes,
+  usersRoutes,
   votesRoutes,
+  workflowsRoutes,
 ];
 
 export default routes;
