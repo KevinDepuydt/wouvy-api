@@ -20,6 +20,10 @@ workflowsRoutes.route('/workflows/:workflowId')
 workflowsRoutes.route('/workflows/:workflowId/authenticate')
   .post(workflow.authenticate);
 
+// Workflow authenticate
+workflowsRoutes.route('/workflows/:workflowId/leave')
+  .get(workflow.leave);
+
 // Finish by binding the Workflow middleware
 workflowsRoutes.param('workflowId', workflow.workflowByID);
 

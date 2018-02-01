@@ -1,11 +1,9 @@
 import mongoose from 'mongoose';
 import deepPopulate from 'mongoose-deep-populate';
 import uniqueValidator from 'mongoose-unique-validator';
-import env from '../config/env';
 
 const Schema = mongoose.Schema;
 const deepPopulatePlugin = deepPopulate(mongoose);
-const rights = env.rights;
 
 /**
  * Member Schema
@@ -21,15 +19,10 @@ const MemberSchema = new Schema({
     ref: 'Workflow',
     required: true,
   },
-  rights: {
-    workflow: {
-      type: Number,
-      default: rights.NONE.level,
-    },
-    member: {
-      type: Number,
-      default: rights.NONE.level,
-    },
+  role: {
+    type: String,
+    enum: ['member', 'moderator', 'admin'],
+    default: 'member',
   },
   created: {
     type: Date,

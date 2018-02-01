@@ -1,4 +1,5 @@
 export const getErrorMessage = (error) => {
+  console.log(error);
   const errorMessages = [];
   if (error.errors) {
     const keys = Object.keys(error.errors);

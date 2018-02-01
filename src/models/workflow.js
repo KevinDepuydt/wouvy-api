@@ -63,7 +63,7 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
       select: 'email',
     },
     'members.user': {
-      select: 'email',
+      select: 'email username lastname firstname picture',
     },
   },
 });
@@ -77,6 +77,16 @@ WorkflowSchema.pre('save', function preSave(next) {
   if (this.password && this.isModified('password')) {
     this.password = this.hashPassword(this.password);
   }
+
+  next();
+});
+
+/**
+ * Hook a post remove method
+ */
+WorkflowSchema.post('remove', function postRemove(next) {
+  // remove members
+  this.members.forEach(m => m.remove());
 
   next();
 });

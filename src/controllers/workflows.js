@@ -133,6 +133,34 @@ const authenticate = (req, res) => {
   }
 };
 
+const leave = (req, res) => {
+  const user = req.user;
+  const workflow = req.workflow;
+
+  console.log(workflow.user, user);
+  if (workflow.user._id.toString() === user._id.toString()) {
+    res.status(400).send({ message: 'Vous ne pouvez pas quitter un workflow dont vous êtes propriétaire' });
+  }
+
+  Member.findOne({ user: user._id, workflowId: workflow._id })
+    .then((member) => {
+      if (!member) {
+        res.status(404).send({ message: "Ce membre n'existe pas" });
+      }
+      workflow.members.remove({ _id: member._id });
+      member.remove()
+        .then(() => {
+          workflow.save()
+            .then((savedWorkflow) => {
+              res.jsonp(savedWorkflow);
+            })
+            .catch(err => res.status(500).send(errorHandler(err)));
+        })
+        .catch(err => res.status(500).send(errorHandler(err)));
+    })
+    .catch(err => res.status(500).send(errorHandler(err)));
+};
+
 /**
  * Workflow middleware
  */
@@ -198,6 +226,7 @@ export {
   list,
   search,
   authenticate,
+  leave,
   workflowByID,
   workflowByIdOrSlug,
 };
