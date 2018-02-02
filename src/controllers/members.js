@@ -3,6 +3,7 @@ import _ from 'lodash';
 import Member from '../models/member';
 import env from '../config/env';
 import { prepareForClient } from '../helpers/workflows';
+import { errorHandler } from '../helpers/error-messages';
 
 const rights = env.rights;
 
@@ -11,20 +12,47 @@ const rights = env.rights;
  */
 const create = (req, res) => {
   const workflow = req.workflow;
-  const member = new Member(req.body);
 
-  // set workflowId for member
-  member.workflowId = workflow._id;
-
-  member.save()
-    .then((savedMember) => {
-      console.log('add member', savedMember);
-      workflow.members.push(savedMember);
+  if (req.body.users) { // many members
+    const membersPromises = req.body.users.map(user => new Promise((resolve) => {
+      const member = new Member({ user, workflowId: workflow._id });
+      member.save()
+        .then((saved) => {
+          saved.populate({ path: 'user', select: '-password -resetToken' }, (err, populated) => {
+            resolve({ success: true, member: populated });
+          });
+        })
+        .catch(err => resolve({ success: false, error: errorHandler(err) }));
+    }));
+    Promise.all(membersPromises).then((results) => {
+      const errors = results.filter(r => r.success === false).map(r => r.error);
+      const newMembers = results.filter(r => r.success === true).map(r => r.member);
+      // then add members to workflow
+      workflow.members = workflow.members.concat(newMembers);
       workflow.save()
-        .then(savedWorkflow => res.jsonp(prepareForClient(savedWorkflow, req.user)))
+        .then((savedWorkflow) => {
+          res.jsonp({ workflow: prepareForClient(savedWorkflow, req.user), errors });
+        })
         .catch(err => res.status(500).send({ message: err }));
-    })
-    .catch(err => res.status(500).send({ message: err }));
+    });
+  } else { // one member
+    const member = new Member({ user: req.body.user, workflowId: workflow._id });
+    member.save()
+      .then((saved) => {
+        saved.populate({ path: 'user', select: '-password -resetToken' }, (err, populated) => {
+          workflow.members.push(populated);
+          workflow.save()
+            .then((savedWorkflow) => {
+              res.jsonp({
+                workflow: prepareForClient(savedWorkflow, req.user),
+                errors: [],
+              });
+            })
+            .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
+        });
+      })
+      .catch(err => res.status(500).send({ message: err }));
+  }
 };
 
 /**
