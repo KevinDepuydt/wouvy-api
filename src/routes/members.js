@@ -4,11 +4,11 @@ import { workflowByID } from '../controllers/workflows';
 
 const membersRoutes = Router();
 
-membersRoutes.route('/members')
+membersRoutes.route('/workflows/:workflowId/members')
   .get(member.list)
   .post(member.create);
 
-membersRoutes.route('/members/:memberId')
+membersRoutes.route('/workflows/:workflowId/members/:memberId')
   .get(member.read)
   .put(member.update);
 

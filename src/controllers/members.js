@@ -10,10 +10,20 @@ const rights = env.rights;
  * Create a Member
  */
 const create = (req, res) => {
+  const workflow = req.workflow;
   const member = new Member(req.body);
 
+  // set workflowId for member
+  member.workflowId = workflow._id;
+
   member.save()
-    .then(savedDoc => res.jsonp(savedDoc))
+    .then((savedMember) => {
+      console.log('add member', savedMember);
+      workflow.members.push(savedMember);
+      workflow.save()
+        .then(savedWorkflow => res.jsonp(prepareForClient(savedWorkflow, req.user)))
+        .catch(err => res.status(500).send({ message: err }));
+    })
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -35,16 +45,10 @@ const read = (req, res) => {
 const update = (req, res) => {
   let member = req.member;
 
-  const memberRights = _.assign({}, member.rights);
-
   member = _.extend(member, req.body);
 
-  if (req.body.rights) {
-    member.rights = _.extend(memberRights, req.body.rights);
-  }
-
   member.save()
-    .then(savedDoc => res.jsonp(savedDoc))
+    .then(savedMember => res.jsonp(savedMember))
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -71,7 +75,11 @@ const remove = (req, res) => {
  * List of Member
  */
 const list = (req, res) => {
-  Member.find().sort('-created').exec()
+  const workflow = req.workflow;
+
+  Member.find({ workflowId: workflow._id })
+    .sort('-created')
+    .exec()
     .then(members => res.jsonp(members))
     .catch(err => res.status(500).send({ message: err }));
 };
