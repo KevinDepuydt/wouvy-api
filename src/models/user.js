@@ -51,6 +51,14 @@ const UserSchema = new Schema({
   },
 });
 
+/**
+ * Search indexes
+ */
+UserSchema.index({ email: 'text', firstname: 'text', lastname: 'text', username: 'text' });
+
+/**
+ * Unique plugin
+ */
 UserSchema.plugin(uniqueValidator);
 
 /**
