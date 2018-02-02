@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import _ from 'lodash';
 import Member from '../models/member';
 import env from '../config/env';
+import { prepareForClient } from '../helpers/workflows';
 
 const rights = env.rights;
 
@@ -51,10 +52,18 @@ const update = (req, res) => {
  * Remove an Member
  */
 const remove = (req, res) => {
+  const workflow = req.workflow;
   const member = req.member;
 
-  member.remove()
-    .then(removedMember => res.jsonp(removedMember))
+  // remove member from workflow
+  workflow.members = _.filter(workflow.members, m => m._id.toString() !== member._id.toString());
+
+  workflow.save()
+    .then((savedWorkflow) => {
+      member.remove()
+        .then(() => res.jsonp(prepareForClient(savedWorkflow, req.user)))
+        .catch(err => res.status(500).send({ message: err }));
+    })
     .catch(err => res.status(500).send({ message: err }));
 };
 

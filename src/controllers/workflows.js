@@ -2,9 +2,9 @@ import mongoose from 'mongoose';
 import _ from 'lodash';
 import slug from 'slug';
 import Workflow from '../models/workflow';
-import User from '../models/user';
 import Member from '../models/member';
 import { errorHandler } from '../helpers/error-messages';
+import { prepareForClient } from '../helpers/workflows';
 
 /**
  * Create a Workflow
@@ -30,16 +30,7 @@ const create = (req, res) => {
  * Show the current Workflow
  */
 const read = (req, res) => {
-  const workflow = req.workflow ? req.workflow.toJSON() : {};
-
-  // custom data that isn't persisted to mongodb
-  if (req.user && workflow.user) {
-    workflow.isOwner = workflow.user._id.toString() === req.user._id.toString();
-  }
-
-  // here add extra rights, things, whatever
-
-  res.jsonp(workflow);
+  res.jsonp(prepareForClient(req.workflow, req.user));
 };
 
 /**
@@ -57,20 +48,19 @@ const update = (req, res) => {
 
   workflow.save()
     .then((savedWorkflow) => {
-      savedWorkflow.password = undefined;
-      res.jsonp(savedWorkflow);
+      res.jsonp(prepareForClient(savedWorkflow, req.user));
     })
     .catch(err => res.status(500).send(errorHandler(err)));
 };
 
 /**
- * Remove an Workflow
+ * Remove a Workflow
  */
 const remove = (req, res) => {
   const workflow = req.workflow;
 
   workflow.remove()
-    .then(removedWorkflow => res.jsonp(removedWorkflow))
+    .then(removedWorkflow => res.jsonp(prepareForClient(removedWorkflow, req.user)))
     .catch(err => res.status(500).send(errorHandler(err)));
 };
 
@@ -119,10 +109,9 @@ const authenticate = (req, res) => {
         workflow.save()
           .then((savedWorkflow) => {
             // return saved workflow
-            savedWorkflow.password = undefined;
             res.jsonp({
               message: `Tu es maintenant membre du workflow ${savedWorkflow.name}`,
-              workflow: savedWorkflow,
+              workflow: prepareForClient(savedWorkflow, req.user),
             });
           })
           .catch(err => res.status(500).send(errorHandler(err)));
@@ -152,7 +141,7 @@ const leave = (req, res) => {
         .then(() => {
           workflow.save()
             .then((savedWorkflow) => {
-              res.jsonp(savedWorkflow);
+              res.jsonp(prepareForClient(savedWorkflow, req.user));
             })
             .catch(err => res.status(500).send(errorHandler(err)));
         })
