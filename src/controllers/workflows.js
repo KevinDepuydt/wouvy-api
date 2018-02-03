@@ -1,10 +1,24 @@
+import path from 'path';
 import mongoose from 'mongoose';
 import _ from 'lodash';
-import slug from 'slug';
+import nodemailer from 'nodemailer';
+import hbs from 'nodemailer-express-handlebars';
+import jwt from 'jsonwebtoken';
+import env from '../config/env';
 import Workflow from '../models/workflow';
 import Member from '../models/member';
 import { errorHandler } from '../helpers/error-messages';
 import { prepareWorkflow } from '../helpers/workflows';
+// import slug from 'slug';
+
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
+const smtpTransport = nodemailer.createTransport(env.mailer.options);
+smtpTransport.use('compile', hbs({
+  viewEngine: 'handlebars',
+  viewPath: path.resolve(path.join(__dirname, '..', 'templates')),
+  extName: '.html',
+}));
 
 /**
  * Create a Workflow
@@ -148,6 +162,50 @@ const leave = (req, res) => {
 };
 
 /**
+ * Workflow invitation
+ */
+const invitation = (req, res) => {
+  const user = req.user;
+  const workflow = req.workflow;
+  const emails = req.body.emails.filter(e => EMAIL_REGEX.test(e));
+
+  emails.map(e => new Promise((resolve) => {
+    const token = jwt.sign(e, env.jwtSecret, { expiresIn: '2h' });
+    workflow.accessTokens.push(token);
+    workflow.save()
+      .then(() => {
+        const mailOptions = {
+          to: e,
+          from: env.mailer.from,
+          subject: 'Invitation à rejoindre un Workflow sur Wouvy',
+          template: 'workflow-invitation',
+          context: {
+            userName: user.username || `${user.lastname} ${user.firstname}`,
+            userMail: user.email,
+            workflowName: workflow.name,
+            workflowAccessLink: `${env.appUrl}/invitation?token=${token}`,
+          },
+        };
+        smtpTransport.sendMail(mailOptions, (errMail) => {
+          if (!errMail) {
+            resolve({ success: true, message: `Invitation envoyé à ${e}` });
+          } else {
+            resolve({ success: false, message: `Echec de l'envoie de l'invitation à ${e}` });
+          }
+        });
+      })
+      .catch(err => resolve({ success: false, message: errorHandler(err) }));
+  }));
+
+  // send emails
+  Promise.all(emails).then((results) => {
+    const sentEmails = results.filter(r => r.success === true).map(r => r.message);
+    const errors = results.filter(r => r.success === false).map(r => r.message);
+    res.jsonp({ sentEmails, errors });
+  });
+};
+
+/**
  * Workflow middleware
  */
 const workflowByID = (req, res, next, id) => {
@@ -213,6 +271,7 @@ export {
   search,
   authenticate,
   leave,
+  invitation,
   workflowByID,
   workflowByIdOrSlug,
 };

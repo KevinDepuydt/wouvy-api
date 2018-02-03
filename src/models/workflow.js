@@ -36,6 +36,10 @@ const WorkflowSchema = new Schema({
     type: Schema.ObjectId,
     ref: 'Member',
   }],
+  accessTokens: [{
+    type: String,
+    default: [],
+  }],
   password: {
     type: String,
     default: null,
