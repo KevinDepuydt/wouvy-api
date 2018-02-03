@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import deepPopulate from 'mongoose-deep-populate';
 import uniqueValidator from 'mongoose-unique-validator';
+import env from '../config/env';
 
 const Schema = mongoose.Schema;
 const deepPopulatePlugin = deepPopulate(mongoose);
@@ -21,8 +22,8 @@ const MemberSchema = new Schema({
   },
   role: {
     type: String,
-    enum: ['member', 'moderator', 'admin'],
-    default: 'member',
+    enum: env.memberRoles,
+    default: env.memberRoles[0],
   },
   created: {
     type: Date,

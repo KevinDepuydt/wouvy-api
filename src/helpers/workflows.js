@@ -1,4 +1,4 @@
-export const prepareForClient = (workflow, user) => {
+export const prepareWorkflow = (workflow, user) => {
   const wf = workflow ? workflow.toJSON() : {};
 
   // remove password from workflow

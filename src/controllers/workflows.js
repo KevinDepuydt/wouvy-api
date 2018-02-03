@@ -4,7 +4,7 @@ import slug from 'slug';
 import Workflow from '../models/workflow';
 import Member from '../models/member';
 import { errorHandler } from '../helpers/error-messages';
-import { prepareForClient } from '../helpers/workflows';
+import { prepareWorkflow } from '../helpers/workflows';
 
 /**
  * Create a Workflow
@@ -14,15 +14,8 @@ const create = (req, res) => {
 
   workflow.user = req.user;
 
-  if (!workflow.slug.length) {
-    workflow.slug = slug(workflow.name);
-  }
-
   workflow.save()
-    .then((savedWorkflow) => {
-      savedWorkflow.password = undefined;
-      res.jsonp(savedWorkflow);
-    })
+    .then(savedWorkflow => res.jsonp(prepareWorkflow(savedWorkflow, req.user)))
     .catch(err => res.status(500).send(errorHandler(err)));
 };
 
@@ -30,7 +23,7 @@ const create = (req, res) => {
  * Show the current Workflow
  */
 const read = (req, res) => {
-  res.jsonp(prepareForClient(req.workflow, req.user));
+  res.jsonp(prepareWorkflow(req.workflow, req.user));
 };
 
 /**
@@ -48,7 +41,7 @@ const update = (req, res) => {
 
   workflow.save()
     .then((savedWorkflow) => {
-      res.jsonp(prepareForClient(savedWorkflow, req.user));
+      res.jsonp(prepareWorkflow(savedWorkflow, req.user));
     })
     .catch(err => res.status(500).send(errorHandler(err)));
 };
@@ -60,7 +53,7 @@ const remove = (req, res) => {
   const workflow = req.workflow;
 
   workflow.remove()
-    .then(removedWorkflow => res.jsonp(prepareForClient(removedWorkflow, req.user)))
+    .then(removedWorkflow => res.jsonp(prepareWorkflow(removedWorkflow, req.user)))
     .catch(err => res.status(500).send(errorHandler(err)));
 };
 
@@ -111,7 +104,7 @@ const authenticate = (req, res) => {
             // return saved workflow
             res.jsonp({
               message: `Tu es maintenant membre du workflow ${savedWorkflow.name}`,
-              workflow: prepareForClient(savedWorkflow, req.user),
+              workflow: prepareWorkflow(savedWorkflow, req.user),
             });
           })
           .catch(err => res.status(500).send(errorHandler(err)));
@@ -141,7 +134,7 @@ const leave = (req, res) => {
         .then(() => {
           workflow.save()
             .then((savedWorkflow) => {
-              res.jsonp(prepareForClient(savedWorkflow, req.user));
+              res.jsonp(prepareWorkflow(savedWorkflow, req.user));
             })
             .catch(err => res.status(500).send(errorHandler(err)));
         })

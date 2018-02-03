@@ -14,6 +14,7 @@ const WorkflowSchema = new Schema({
     type: Schema.ObjectId,
     ref: 'User',
   },
+  /*
   slug: {
     type: String,
     default: '',
@@ -21,6 +22,7 @@ const WorkflowSchema = new Schema({
     unique: 'Un workflow avec cette url personnalisé existe déjà',
     trim: true,
   },
+  */
   name: {
     type: String,
     required: 'Veuillez saisir un nom pour votre workflow.',
@@ -47,7 +49,7 @@ const WorkflowSchema = new Schema({
 /**
  * Search indexes
  */
-WorkflowSchema.index({ name: 'text', slug: 'text', description: 'text' });
+WorkflowSchema.index({ name: 'text', /* slug: 'text', */ description: 'text' });
 
 /**
  * Unique plugin
@@ -72,7 +74,7 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
  * Hook a pre save method to validate slug and has the password
  */
 WorkflowSchema.pre('save', function preSave(next) {
-  this.slug = this.slug.toLowerCase();
+  // this.slug = this.slug.toLowerCase();
 
   if (this.password && this.isModified('password')) {
     this.password = this.hashPassword(this.password);

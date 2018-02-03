@@ -24,6 +24,7 @@ const defaultEnv = {
   },
   jwtSecret: '@JwtSecretKey',
   jwtExpiresIn: '48h',
+  memberRoles: ['membre', 'moderateur', 'admin'],
   rights: {
     NONE: {
       level: 0,

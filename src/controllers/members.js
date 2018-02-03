@@ -1,11 +1,9 @@
 import mongoose from 'mongoose';
 import _ from 'lodash';
 import Member from '../models/member';
-import env from '../config/env';
-import { prepareForClient } from '../helpers/workflows';
+import { prepareWorkflow } from '../helpers/workflows';
+import { prepareMember } from '../helpers/members';
 import { errorHandler } from '../helpers/error-messages';
-
-const rights = env.rights;
 
 /**
  * Create a Member
@@ -31,7 +29,7 @@ const create = (req, res) => {
       workflow.members = workflow.members.concat(newMembers);
       workflow.save()
         .then((savedWorkflow) => {
-          res.jsonp({ workflow: prepareForClient(savedWorkflow, req.user), errors });
+          res.jsonp({ workflow: prepareWorkflow(savedWorkflow, req.user), errors });
         })
         .catch(err => res.status(500).send({ message: err }));
     });
@@ -44,7 +42,7 @@ const create = (req, res) => {
           workflow.save()
             .then((savedWorkflow) => {
               res.jsonp({
-                workflow: prepareForClient(savedWorkflow, req.user),
+                workflow: prepareWorkflow(savedWorkflow, req.user),
                 errors: [],
               });
             })
@@ -59,12 +57,7 @@ const create = (req, res) => {
  * Show the current Member
  */
 const read = (req, res) => {
-  const member = req.member ? req.member.toJSON() : {};
-
-  // is member moderator of the workflows
-  member.isModerator = member.rights.workflows === rights.MODERATE.value;
-
-  res.jsonp(member);
+  res.jsonp(prepareMember(req.member));
 };
 
 /**
@@ -76,7 +69,7 @@ const update = (req, res) => {
   member = _.extend(member, req.body);
 
   member.save()
-    .then(savedMember => res.jsonp(savedMember))
+    .then(savedMember => res.jsonp(prepareMember(savedMember)))
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -93,7 +86,7 @@ const remove = (req, res) => {
   workflow.save()
     .then((savedWorkflow) => {
       member.remove()
-        .then(() => res.jsonp(prepareForClient(savedWorkflow, req.user)))
+        .then(() => res.jsonp(prepareWorkflow(savedWorkflow, req.user)))
         .catch(err => res.status(500).send({ message: err }));
     })
     .catch(err => res.status(500).send({ message: err }));
@@ -123,6 +116,8 @@ const memberByID = (req, res, next, id) => {
   }
 
   Member.findById(id)
+    .populate('user', 'email lastname firstname username picture')
+    .exec()
     .then((member) => {
       if (!member) {
         return res.status(404).send({
