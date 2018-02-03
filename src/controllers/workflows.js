@@ -15,7 +15,11 @@ const create = (req, res) => {
   workflow.user = req.user;
 
   workflow.save()
-    .then(savedWorkflow => res.jsonp(prepareWorkflow(savedWorkflow, req.user)))
+    .then((saved) => {
+      saved.populate({ path: 'user', select: 'email' }, (err, populated) => {
+        res.jsonp(prepareWorkflow(populated, req.user));
+      });
+    })
     .catch(err => res.status(500).send(errorHandler(err)));
 };
 
