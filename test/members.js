@@ -17,6 +17,13 @@ chai.should();
 const USER_DATA = { email: 'test@wouvy.fr', firstname: 'First', lastname: 'Last', password: 'Password' };
 
 const membersTests = () => {
+  let workflow;
+
+  beforeEach((done) => {
+    workflow = new Workflow({ name: 'test' });
+    workflow.save().then(() => done());
+  });
+
   afterEach((done) => {
     User.remove({}, () => {
       Member.remove({}, () => done());
@@ -26,7 +33,7 @@ const membersTests = () => {
   describe('List', () => {
     it('it should GET all the members', (done) => {
       chai.request(BASE_API_URL)
-        .get('/api/members')
+        .get(`/api/workflows/${workflow._id}/members`)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('array');
@@ -39,17 +46,15 @@ const membersTests = () => {
   describe('Create', () => {
     it('it should POST a member', (done) => {
       const user = new User(USER_DATA);
-      const workflow = new Workflow({ name: 'test' });
       user.save((error, savedUser) => {
         const memberData = { user: savedUser, workflowId: workflow._id };
         chai.request(BASE_API_URL)
-          .post('/api/members')
+          .post(`/api/workflows/${workflow._id}/members`)
           .send(memberData)
           .end((err, res) => {
-            console.error(err);
             res.should.have.status(200);
             res.body.should.be.a('object');
-            res.body.user.should.be.eql(savedUser._id.toString());
+            res.body.workflow.members.length.should.be.eql(1);
             done();
           });
       });
@@ -59,17 +64,16 @@ const membersTests = () => {
   describe('Read', () => {
     it('it should GET a member by id', (done) => {
       const user = new User(USER_DATA);
-      const workflow = new Workflow({ name: 'test' });
       user.save((errorUser, savedUser) => {
         const member = new Member({ user: savedUser, workflowId: workflow._id });
         member.save((errorMember, savedMember) => {
           chai.request(BASE_API_URL)
-            .get(`/api/members/${savedMember._id}`)
+            .get(`/api/workflows/${workflow._id}/members/${savedMember._id}`)
             .end((err, res) => {
               res.should.have.status(200);
               res.body.should.be.a('object');
               res.body._id.should.be.eql(savedMember._id.toString());
-              res.body.user.should.be.eql(savedUser._id.toString());
+              res.body.user._id.should.be.eql(savedUser._id.toString());
               done();
             });
         });
@@ -79,20 +83,18 @@ const membersTests = () => {
 
   describe('Update', () => {
     it('it should PUT a member', (done) => {
-      const updates = { rights: { workflow: env.rights.PARTICIPATE.level } };
+      const updates = { role: 'admin' };
       const user = new User(USER_DATA);
-      const workflow = new Workflow({ name: 'test' });
       user.save((errorUser, savedUser) => {
         const member = new Member({ user: savedUser, workflowId: workflow._id });
         member.save((errorMember, savedMember) => {
           chai.request(BASE_API_URL)
-            .put(`/api/members/${savedMember._id}`)
+            .put(`/api/workflows/${workflow._id}/members/${savedMember._id}`)
             .send(updates)
             .end((err, res) => {
               res.should.have.status(200);
               res.body.should.be.a('object');
-              res.body.rights.workflow.should.be.eql(env.rights.PARTICIPATE.level);
-              res.body.rights.member.should.be.eql(env.rights.NONE.level);
+              res.body.role.should.be.eql('admin');
               done();
             });
         });
@@ -103,16 +105,15 @@ const membersTests = () => {
   describe('Remove', () => {
     it('it should DELETE a member', (done) => {
       const user = new User(USER_DATA);
-      const workflow = new Workflow({ name: 'test' });
       user.save((errorUser, savedUser) => {
         const member = new Member({ user: savedUser, workflowId: workflow._id });
         member.save((errorMember, savedMember) => {
           chai.request(BASE_API_URL)
-            .delete(`/api/members/${savedMember._id}`)
+            .delete(`/api/workflows/${workflow._id}/members/${savedMember._id}`)
             .end((err, res) => {
               res.should.have.status(200);
               res.body.should.be.a('object');
-              res.body.user.should.be.eql(savedUser._id.toString());
+              res.body._id.should.be.eql(workflow._id.toString());
               done();
             });
         });

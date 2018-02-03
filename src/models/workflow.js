@@ -86,11 +86,9 @@ WorkflowSchema.pre('save', function preSave(next) {
 /**
  * Hook a post remove method
  */
-WorkflowSchema.post('remove', function postRemove(next) {
+WorkflowSchema.post('remove', function postRemove(/* workflow */) {
   // remove members
   this.members.forEach(m => m.remove());
-
-  next();
 });
 
 /**
