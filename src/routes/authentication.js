@@ -57,14 +57,14 @@ authenticationRoutes.use((req, res, next) => {
     // verifies secret and checks exp
     jwt.verify(token, env.jwtSecret, (err, decoded) => {
       if (err) {
-        return res.status(403).send({ success: false, message: 'Authentication failed.' });
+        return res.status(403).send({ success: false, message: "Echec de l'authentification." });
       }
       req.user = decoded._doc;
       next();
     });
   } else {
     // if there is no token return an 403 error
-    return res.status(403).send({ message: 'Your not allowed to access this ressource.' });
+    return res.status(403).send({ message: "Vous n'êtes pas autorisé à accéder à cette ressource" });
   }
 });
 

@@ -14,7 +14,7 @@ const localStrategy = (passport) => {
 
       if (!user || !user.authenticate(password)) {
         return done(null, false, {
-          message: 'Authentication failed. Bad credentials.',
+          message: 'Identifiants incorrects.',
         });
       }
 
