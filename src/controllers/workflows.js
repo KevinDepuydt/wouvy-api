@@ -171,7 +171,7 @@ const invitation = (req, res) => {
   emails = emails.map(e => new Promise((resolve) => {
     const token = jwt.sign({ email: e, workflowId: workflow._id }, env.jwtSecret, { expiresIn: '1h' });
     if (workflow.accessTokens.indexOf(token) !== -1) {
-      resolve({ success: false, message: 'Token already exists' });
+      resolve({ success: false, message: 'Une invitation a déjà été généré pour cet email.' });
     }
     workflow.accessTokens.push(token);
     workflow.save()
