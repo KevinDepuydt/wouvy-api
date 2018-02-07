@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
 import _ from 'lodash';
+import isMongoId from 'validator/lib/isMongoId';
 import News from '../models/news';
 
 /**
@@ -60,7 +60,7 @@ const list = (req, res) => {
  * News middleware
  */
 const newsByID = (req, res, next, id) => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!isMongoId(id)) {
     return res.status(400).send({
       message: 'News id is not invalid',
     });

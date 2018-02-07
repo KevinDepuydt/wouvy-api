@@ -1,23 +1,23 @@
 import path from 'path';
-import mongoose from 'mongoose';
 import _ from 'lodash';
 import nodemailer from 'nodemailer';
 import hbs from 'nodemailer-express-handlebars';
 import jwt from 'jsonwebtoken';
+import isEmail from 'validator/lib/isEmail';
+import isMongoId from 'validator/lib/isMongoId';
 import env from '../config/env';
 import Workflow from '../models/workflow';
 import Member from '../models/member';
 import { errorHandler } from '../helpers/error-messages';
 import { prepareWorkflow } from '../helpers/workflows';
+import { getImagePath } from '../helpers/templates';
 // import slug from 'slug';
-
-const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
 const smtpTransport = nodemailer.createTransport(env.mailer.options);
 smtpTransport.use('compile', hbs({
   viewEngine: 'handlebars',
   viewPath: path.resolve(path.join(__dirname, '..', 'templates')),
-  extName: '.html',
+  extName: '.handlebars',
 }));
 
 /**
@@ -31,6 +31,7 @@ const create = (req, res) => {
   workflow.save()
     .then((saved) => {
       saved.populate({ path: 'user', select: 'email' }, (err, populated) => {
+        console.log('Populated', populated);
         res.jsonp(prepareWorkflow(populated, req.user));
       });
     })
@@ -167,10 +168,13 @@ const leave = (req, res) => {
 const invitation = (req, res) => {
   const user = req.user;
   const workflow = req.workflow;
-  const emails = req.body.emails.filter(e => EMAIL_REGEX.test(e));
+  let emails = req.body.emails.filter(e => isEmail(e));
 
-  emails.map(e => new Promise((resolve) => {
-    const token = jwt.sign(e, env.jwtSecret, { expiresIn: '2h' });
+  emails = emails.map(e => new Promise((resolve) => {
+    const token = jwt.sign({ email: e, workflowId: workflow._id }, env.jwtSecret, { expiresIn: '1h' });
+    if (workflow.accessTokens.indexOf(token) !== -1) {
+      resolve({ success: false, message: 'Token already exists' });
+    }
     workflow.accessTokens.push(token);
     workflow.save()
       .then(() => {
@@ -180,17 +184,19 @@ const invitation = (req, res) => {
           subject: 'Invitation à rejoindre un Workflow sur Wouvy',
           template: 'workflow-invitation',
           context: {
-            userName: user.username || `${user.lastname} ${user.firstname}`,
-            userMail: user.email,
+            userName: user.firstname.length > 0 ? user.firstname : (user.username || user.email),
             workflowName: workflow.name,
             workflowAccessLink: `${env.appUrl}/invitation?token=${token}`,
+            path: {
+              logo: getImagePath('logo.svg'),
+            },
           },
         };
         smtpTransport.sendMail(mailOptions, (errMail) => {
           if (!errMail) {
-            resolve({ success: true, message: `Invitation envoyé à ${e}` });
+            resolve({ success: true, email: e });
           } else {
-            resolve({ success: false, message: `Echec de l'envoie de l'invitation à ${e}` });
+            resolve({ success: false, email: e });
           }
         });
       })
@@ -199,17 +205,73 @@ const invitation = (req, res) => {
 
   // send emails
   Promise.all(emails).then((results) => {
-    const sentEmails = results.filter(r => r.success === true).map(r => r.message);
-    const errors = results.filter(r => r.success === false).map(r => r.message);
-    res.jsonp({ sentEmails, errors });
+    const success = results.filter(r => r.success === true).map(r => r.email);
+    const errors = results.filter(r => r.success === false).map(r => r.email);
+    res.jsonp({
+      total: results.length,
+      isSuccess: success.length === results.length,
+      success: {
+        number: success.length,
+        message: success.length > 0 ? `Invitation envoyé à ${success.join(', ')}` : null,
+      },
+      errors: {
+        number: errors.length,
+        message: errors.length > 0 ? `Echec de l'envoie de l'invitation à ${errors.join(', ')}` : null,
+      },
+    });
   });
+};
+
+const subscribe = (req, res) => {
+  const user = req.user;
+  const token = req.query.token;
+
+  if (!user) {
+    return res.status(403).send({ message: 'User not logged' });
+  }
+
+  Workflow.findOne({ accessTokens: { $in: [token] } })
+    .then((workflow) => {
+      jwt.verify(token, env.jwtSecret, (err, decoded) => {
+        if (err) {
+          console.log('Authentication failed', err);
+          return res.status(403).send({ success: false, message: 'Authentication invitation failed.' });
+        }
+        console.log('decoded', decoded);
+        const { email, workflowId } = decoded;
+        if (email !== user.email || workflowId.toString() !== workflow._id.toString()) {
+          console.log('Wrong token', user.email, email, workflowId, workflow._id, email !== user.email, workflowId.toString() !== workflow._id.toString(), email !== user.email || workflowId.toString() !== workflow._id.toString());
+          return res.status(403).send({ success: false, message: 'Wrong token.' });
+        }
+        // pull token and add new member from user
+        const member = new Member({ user, workflowId: workflow._id });
+        member.save()
+          .then((saved) => {
+            console.log('New saved member from user', saved, user._id);
+            workflow.accessTokens.pull(token);
+            workflow.members.push(saved);
+            workflow.save()
+              .then((savedWf) => {
+                res.jsonp({
+                  success: true,
+                  workflow: savedWf,
+                  member,
+                  message: 'Vous avez été ajouté au workflow!',
+                });
+              })
+              .catch(errWf => res.status(500).send(errorHandler(errWf)));
+          })
+          .catch(errMember => res.status(500).send(errorHandler(errMember)));
+      });
+    })
+    .catch(err => res.status(500).send(errorHandler(err)));
 };
 
 /**
  * Workflow middleware
  */
 const workflowByID = (req, res, next, id) => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!isMongoId(id)) {
     return res.status(400).send({
       message: 'Workflow id is not valid',
     });
@@ -233,33 +295,23 @@ const workflowByID = (req, res, next, id) => {
  * Workflow middleware to find by Id OR Slug
  */
 const workflowByIdOrSlug = (req, res, next, id) => {
-  if (mongoose.Types.ObjectId.isValid(id)) {
-    Workflow
-      .findById(id)
-      .deepPopulate('user members members.user')
-      .exec()
-      .then((workflow) => {
-        if (!workflow) {
-          return res.status(404).send({ message: 'Workflow not found' });
-        }
-        req.workflow = workflow;
-        next();
-      })
-      .catch(err => next(err));
-  } else {
-    Workflow
-      .findOne({ slug: id })
-      .deepPopulate('user members members.user')
-      .exec()
-      .then((workflow) => {
-        if (!workflow) {
-          return res.status(404).send({ message: 'Workflow not found' });
-        }
-        req.workflow = workflow;
-        next();
-      })
-      .catch(err => next(err));
+  if (!isMongoId(id)) {
+    return res.status(400).send({
+      message: 'Workflow id is not valid',
+    });
   }
+  Workflow
+    .findOne(isMongoId(id) ? { slug: id } : { _id: id })
+    .deepPopulate('user members members.user')
+    .exec()
+    .then((workflow) => {
+      if (!workflow) {
+        return res.status(404).send({ message: 'Workflow not found' });
+      }
+      req.workflow = workflow;
+      next();
+    })
+    .catch(err => next(err));
 };
 
 export {
@@ -272,6 +324,7 @@ export {
   authenticate,
   leave,
   invitation,
+  subscribe,
   workflowByID,
   workflowByIdOrSlug,
 };

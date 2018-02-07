@@ -28,6 +28,9 @@ workflowsRoutes.route('/workflows/:workflowId/leave')
 workflowsRoutes.route('/workflows/:workflowId/invitation')
   .post(workflow.invitation);
 
+workflowsRoutes.route('/workflow-subscribe')
+  .get(workflow.subscribe);
+
 // Finish by binding the Workflow middleware
 workflowsRoutes.param('workflowId', workflow.workflowByID);
 

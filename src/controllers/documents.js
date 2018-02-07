@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
 import _ from 'lodash';
+import isMongoId from 'validator/lib/isMongoId';
 import Document from '../models/document';
 
 /**
@@ -60,18 +60,14 @@ const list = (req, res) => {
  * Document middleware
  */
 const documentByID = (req, res, next, id) => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).send({
-      message: 'Document id is not valid',
-    });
+  if (!isMongoId(id)) {
+    return res.status(400).send({ message: 'Document id is not valid' });
   }
 
   Document.findById(id)
     .then((doc) => {
       if (!doc) {
-        return res.status(404).send({
-          message: 'Document not found',
-        });
+        return res.status(404).send({ message: 'Document not found' });
       }
       req.doc = doc;
       next();

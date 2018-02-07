@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
 import _ from 'lodash';
+import isMongoId from 'validator/lib/isMongoId';
 import Member from '../models/member';
 import { prepareWorkflow } from '../helpers/workflows';
 import { prepareMember } from '../helpers/members';
@@ -109,7 +109,7 @@ const list = (req, res) => {
  * Member middleware
  */
 const memberByID = (req, res, next, id) => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!isMongoId(id)) {
     return res.status(400).send({
       message: 'Member id is not valid',
     });

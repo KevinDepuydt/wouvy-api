@@ -50,7 +50,8 @@
     "passport-linkedin": "^1.0.0",
     "passport-local": "^1.0.0",
     "passport-twitter": "^1.0.4",
-    "slug": "^0.9.1"
+    "slug": "^0.9.1",
+    "validator": "^9.4.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
@@ -72,9 +73,5 @@
     "eslint-plugin-react": "^7.3.0",
     "mocha": "^4.0.0",
     "nodemon": "^1.11.0"
-  },
-  "engines": {
-    "node": "9.x.x",
-    "npm": "5.x.x"
   }
 }

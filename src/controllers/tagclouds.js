@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import isMongoId from 'validator/lib/isMongoId';
 import _ from 'lodash';
 import TagCloud from '../models/tagcloud';
 
@@ -60,7 +60,7 @@ const list = (req, res) => {
  * TagCloud middleware
  */
 const tagCloudByID = (req, res, next, id) => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!isMongoId(id)) {
     return res.status(400).send({
       message: 'TagCloud id is not valid',
     });

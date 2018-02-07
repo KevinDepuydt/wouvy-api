@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import isMongoId from 'validator/lib/isMongoId';
 import _ from 'lodash';
 import Vote from '../models/vote';
 
@@ -63,7 +63,7 @@ const list = (req, res) => {
  * Vote middleware
  */
 const voteByID = (req, res, next, id) => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!isMongoId(id)) {
     return res.status(400).send({
       message: 'Vote id is not valid',
     });

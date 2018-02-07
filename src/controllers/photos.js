@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import isMongoId from 'validator/lib/isMongoId';
 import _ from 'lodash';
 import Photo from '../models/photo';
 
@@ -60,7 +60,7 @@ const list = (req, res) => {
  * Photo middleware
  */
 const photoByID = (req, res, next, id) => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!isMongoId(id)) {
     return res.status(400).send({
       message: 'Photo id is not valid',
     });

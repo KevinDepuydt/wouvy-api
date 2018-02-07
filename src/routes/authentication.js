@@ -47,7 +47,7 @@ authenticationRoutes.route('/auth/github/callback').get(authentication.socialAut
 // authentication middleware
 authenticationRoutes.use((req, res, next) => {
   // check header or url parameters or post parameters for token
-  const token = req.body.token || req.query.token || req.headers['x-api-token'];
+  const token = req.headers['x-api-token'];
 
   // decode token
   // disable for tests
@@ -59,7 +59,6 @@ authenticationRoutes.use((req, res, next) => {
       if (err) {
         return res.status(403).send({ success: false, message: 'Authentication failed.' });
       }
-      // if everything is good, save to request for use in other routes
       req.user = decoded._doc;
       next();
     });

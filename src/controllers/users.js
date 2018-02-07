@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import isMongoId from 'validator/lib/isMongoId';
 import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 import env from '../config/env';
@@ -98,7 +98,7 @@ const list = (req, res) => {
  * User middleware
  */
 const userByID = (req, res, next, id) => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!isMongoId(id)) {
     return res.status(401).send({
       message: 'User id is not valid',
     });

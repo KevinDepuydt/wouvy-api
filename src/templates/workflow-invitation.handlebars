@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Workflow invitation</title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+  <style type="text/css">
+    body {
+      display: flex;
+      font-family: 'Open Sans', sans-serif;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .logo-link img {
+      height: 60px;
+      margin: 70px 0;
+    }
+    .logo-wouvy {
+      display: inline-block;
+      min-width: 50px;
+      height: 60px;
+    }
+    .wrapper {
+      flex: 1;
+    }
+    .extra-links {
+      height: 80px;
+      line-height: 80px;
+    }
+  </style>
+</head>
+<body>
+  <a href="https://www.wouvy.fr" class="logo-link logo-wouvy"><img src="{{logoPath}}" alt="Logo" /></a>
+  <div class="wrapper">
+    <h3>{{userName}} vous invite à rejoindre son Workflow.</h3>
+    <p>Rejoignez-le en quelques clics son worfklow et communiquez plus rapidement!</p>
+    <a href="{{workflowAccessLink}}" class="btn">Rejoindre</a>
+  </div>
+  <div class="extra-links">
+    <a href="https://www.wouvy.fr/">Mentions légales</a>
+    <a href="https://www.wouvy.fr/">Wouvy, qu'est ce que c'est ?</a>
+    <a href="https://www.wouvy.fr/">CGUV</a>
+  </div>
+</body>
+</html>
