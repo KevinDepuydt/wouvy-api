@@ -38,6 +38,7 @@ const WorkflowSchema = new Schema({
   }],
   accessTokens: [{
     type: String,
+    unique: 'Un token a déjà été attribué pour cet mail.',
     default: [],
   }],
   password: {

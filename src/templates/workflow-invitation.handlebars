@@ -4,43 +4,27 @@
   <meta charset="UTF-8">
   <title>Workflow invitation</title>
   <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
-  <style type="text/css">
-    body {
-      display: flex;
-      font-family: 'Open Sans', sans-serif;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
-    .logo-link img {
-      height: 60px;
-      margin: 70px 0;
-    }
-    .logo-wouvy {
-      display: inline-block;
-      min-width: 50px;
-      height: 60px;
-    }
-    .wrapper {
-      flex: 1;
-    }
-    .extra-links {
-      height: 80px;
-      line-height: 80px;
-    }
-  </style>
 </head>
-<body>
-  <a href="https://www.wouvy.fr" class="logo-link logo-wouvy"><img src="{{logoPath}}" alt="Logo" /></a>
-  <div class="wrapper">
-    <h3>{{userName}} vous invite à rejoindre son Workflow.</h3>
-    <p>Rejoignez-le en quelques clics son worfklow et communiquez plus rapidement!</p>
-    <a href="{{workflowAccessLink}}" class="btn">Rejoindre</a>
+<body style="background-color: #f1f2f3; font-family: 'Open Sans', sans-serif;">
+  <div style="text-align: center; padding: 50px 0;">
+    <a href="https://www.wouvy.fr"><img src="{{path.logo}}" alt="Logo" style="height: 70px; filter: grayscale(100%);" /></a>
   </div>
-  <div class="extra-links">
-    <a href="https://www.wouvy.fr/">Mentions légales</a>
-    <a href="https://www.wouvy.fr/">Wouvy, qu'est ce que c'est ?</a>
-    <a href="https://www.wouvy.fr/">CGUV</a>
+  <div style="background-color: #ffffff; width: 60%; margin: 0 auto; border-radius: 30px; padding: 50px; box-shadow: 0 0 15px 4px rgba(0, 0, 0, 0.3);">
+    <div style="text-align: center; margin-bottom: 10px;">
+      <img src="{{path.elliot}}" alt="Elliot" style="height: 60px;" />
+    </div>
+    <h3 style="text-decoration: none; font-size: 26px; color: #3f4147; margin-bottom: 15px;">{{userName}} vous invite à rejoindre son Workflow.</h3>
+    <p style="font-size: 16px; color: #677077;">Rejoignez-le en quelques clics et communiquez plus rapidement !</p>
+    <div style="margin: 30px 0 10px; text-align: center;">
+      <a href="{{workflowAccessLink}}" style="display: inline-block; padding: 12px 30px; font-size: 16px; border-radius: 20px; background-color: #ffd91b; color: white; text-decoration: none; box-shadow: 0 0 80px 5px rgba(255, 211, 31, 0.4);">
+        <span style="text-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);">Rejoindre</span>
+      </a>
+    </div>
+  </div>
+  <div style="text-align:center; padding: 30px 0 60px;">
+    <a href="https://www.wouvy.fr/" style="font-size:14px; color: #d1d1d1; padding: 0 10px;">Mentions légales</a>
+    <a href="https://www.wouvy.fr/" style="font-size:14px; color: #d1d1d1; padding: 0 10px; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0;">Wouvy, qu'est ce que c'est ?</a>
+    <a href="https://www.wouvy.fr/" style="font-size:14px; color: #d1d1d1; padding: 0 10px;">CGUV</a>
   </div>
 </body>
 </html>

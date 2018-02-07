@@ -31,7 +31,6 @@ const create = (req, res) => {
   workflow.save()
     .then((saved) => {
       saved.populate({ path: 'user', select: 'email' }, (err, populated) => {
-        console.log('Populated', populated);
         res.jsonp(prepareWorkflow(populated, req.user));
       });
     })
@@ -138,7 +137,6 @@ const leave = (req, res) => {
   const user = req.user;
   const workflow = req.workflow;
 
-  console.log(workflow.user, user);
   if (workflow.user._id.toString() === user._id.toString()) {
     res.status(400).send({ message: 'Vous ne pouvez pas quitter un workflow dont vous êtes propriétaire' });
   }
@@ -184,11 +182,12 @@ const invitation = (req, res) => {
           subject: 'Invitation à rejoindre un Workflow sur Wouvy',
           template: 'workflow-invitation',
           context: {
-            userName: user.firstname.length > 0 ? user.firstname : (user.username || user.email),
+            userName: user.firstname.length > 0 ? user.firstname : (user.username || 'Un utilisateur'),
             workflowName: workflow.name,
             workflowAccessLink: `${env.appUrl}/invitation?token=${token}`,
             path: {
-              logo: getImagePath('logo.svg'),
+              logo: getImagePath('logo-wouvy-gray.png'),
+              elliot: getImagePath('elliot.jpg'),
             },
           },
         };
@@ -232,22 +231,21 @@ const subscribe = (req, res) => {
 
   Workflow.findOne({ accessTokens: { $in: [token] } })
     .then((workflow) => {
+      if (!workflow) {
+        return res.status(200).send({ success: false, message: "Le token d'accès n'est pas valide" });
+      }
       jwt.verify(token, env.jwtSecret, (err, decoded) => {
         if (err) {
-          console.log('Authentication failed', err);
-          return res.status(403).send({ success: false, message: 'Authentication invitation failed.' });
+          return res.status(200).send({ success: false, message: "Le token d'accès n'est pas valide" });
         }
-        console.log('decoded', decoded);
         const { email, workflowId } = decoded;
         if (email !== user.email || workflowId.toString() !== workflow._id.toString()) {
-          console.log('Wrong token', user.email, email, workflowId, workflow._id, email !== user.email, workflowId.toString() !== workflow._id.toString(), email !== user.email || workflowId.toString() !== workflow._id.toString());
-          return res.status(403).send({ success: false, message: 'Wrong token.' });
+          return res.status(200).send({ success: false, message: "Le token d'accès n'est pas valide" });
         }
         // pull token and add new member from user
         const member = new Member({ user, workflowId: workflow._id });
         member.save()
           .then((saved) => {
-            console.log('New saved member from user', saved, user._id);
             workflow.accessTokens.pull(token);
             workflow.members.push(saved);
             workflow.save()
@@ -255,16 +253,24 @@ const subscribe = (req, res) => {
                 res.jsonp({
                   success: true,
                   workflow: savedWf,
-                  member,
                   message: 'Vous avez été ajouté au workflow!',
                 });
               })
-              .catch(errWf => res.status(500).send(errorHandler(errWf)));
+              .catch(errWf => res.status(200).send({
+                success: false,
+                message: errorHandler(errWf),
+              }));
           })
-          .catch(errMember => res.status(500).send(errorHandler(errMember)));
+          .catch(errMember => res.status(200).send({
+            success: false,
+            message: errorHandler(errMember),
+          }));
       });
     })
-    .catch(err => res.status(500).send(errorHandler(err)));
+    .catch(err => res.status(200).send({
+      success: false,
+      message: errorHandler(err),
+    }));
 };
 
 /**
