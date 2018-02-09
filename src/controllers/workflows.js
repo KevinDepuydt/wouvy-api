@@ -182,7 +182,7 @@ const invitation = (req, res) => {
           subject: 'Invitation à rejoindre un Workflow sur Wouvy',
           template: 'workflow-invitation',
           context: {
-            userName: user.firstname.length > 0 ? user.firstname : (user.username || 'Un utilisateur'),
+            userName: user.firstname.length > 0 ? user.firstname.capitalize() : (user.username || 'Un utilisateur'),
             workflowName: workflow.name,
             workflowAccessLink: `${env.appUrl}/invitation?token=${token}`,
             path: {
