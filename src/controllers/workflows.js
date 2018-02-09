@@ -211,7 +211,7 @@ const invitation = (req, res) => {
       isSuccess: success.length === results.length,
       success: {
         number: success.length,
-        message: success.length > 0 ? `Invitation envoyé à ${success.join(', ')}` : null,
+        message: success.length > 0 ? `Invitation envoyée à ${success.join(', ')}` : null,
       },
       errors: {
         number: errors.length,
