@@ -12,6 +12,8 @@ usersRoutes.route('/users/:userId')
   .put(user.update)
   .delete(user.remove);
 
+usersRoutes.route('/users/:userId/validate').get(user.validate);
+
 usersRoutes.route('/users/:userId/credentials').put(user.updateCredentials);
 
 usersRoutes.param('userId', user.userByID);

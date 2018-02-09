@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 import env from '../config/env';
 import User from '../models/user';
+import {errorHandler} from "../helpers/error-messages";
 
 /**
  * Create an User as an admin
@@ -95,6 +96,22 @@ const list = (req, res) => {
 };
 
 /**
+ * Validate user
+ */
+const validate = (req, res) => {
+  const user = req.user;
+  if (!req.user || !req.user._id) {
+    res.status(400).send({ message: 'User not valid' });
+  } else {
+    User.findById(user._id).then((found) => {
+      found.password = undefined;
+      const token = jwt.sign(found, env.jwtSecret, { expiresIn: env.jwtExpiresIn });
+      res.jsonp({ token });
+    }).catch(err => res.status(400).send({ message: errorHandler(err) }));
+  }
+};
+
+/**
  * User middleware
  */
 const userByID = (req, res, next, id) => {
@@ -117,4 +134,4 @@ const userByID = (req, res, next, id) => {
     .catch(err => next(err));
 };
 
-export { create, read, update, updateCredentials, remove, list, userByID };
+export { create, read, update, updateCredentials, remove, list, validate, userByID };
