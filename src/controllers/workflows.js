@@ -137,7 +137,7 @@ const leave = (req, res) => {
   const user = req.user;
   const workflow = req.workflow;
 
-  if (workflow.user._id.toString() === user._id.toString()) {
+  if (workflow.user && workflow.user._id.toString() === user._id.toString()) {
     res.status(400).send({ message: 'Vous ne pouvez pas quitter un workflow dont vous êtes propriétaire' });
   }
 
@@ -182,7 +182,7 @@ const invitation = (req, res) => {
           subject: 'Invitation à rejoindre un Workflow sur Wouvy',
           template: 'workflow-invitation',
           context: {
-            userName: user.firstname.length > 0 ? user.firstname.capitalize() : (user.username || 'Un utilisateur'),
+            userName: user.firstname.length > 0 ? _.capitalize(user.firstname) : user.username ? _.capitalize(user.username) : 'Un utilisateur',
             workflowName: workflow.name,
             workflowAccessLink: `${env.appUrl}/invitation?token=${token}`,
             path: {
