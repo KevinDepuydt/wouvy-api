@@ -11,13 +11,13 @@ const MessageSchema = new Schema({
     ref: 'User',
     required: true,
   },
-  message: {
+  text: {
     type: String,
-    required: 'Message vide',
+    required: 'Votre message est vide',
   },
-  file: {
+  attachment: {
     type: String,
-    default: '',
+    default: null,
   },
   created: {
     type: Date,

@@ -1,4 +1,6 @@
+import http from 'http';
 import express from 'express';
+import socketIo from 'socket.io';
 import passport from 'passport';
 import session from 'express-session';
 import bodyParser from 'body-parser';
@@ -86,15 +88,53 @@ const initErrorHandler = (app) => {
 };
 
 /**
+ * Initialize socket io default events
+ */
+const initSocketIO = (io, app) => {
+  // socket connect
+  io.on('connect', (socket) => {
+    console.log(`new socket ${socket.id} connected`);
+    // socket join à room
+    socket.on('join room', (room) => {
+      socket.join(room);
+      console.log(`${socket.id} join room ${room}`);
+      socket.emit('message', `room ${room} joined`);
+    });
+    // socket leave a room
+    socket.on('leave room', (room) => {
+      socket.leave(room);
+      console.log(`${socket.id} leave room ${room}`);
+      socket.emit('message', `room ${room} leaved`);
+    });
+    // socket disconnect
+    socket.on('disconnect', () => {
+      console.log(`socket ${socket.id} disconnected`);
+    });
+  });
+
+  // attach socket IO to requests
+  app.use((req, res, next) => {
+    req.io = io;
+    next();
+  });
+};
+
+/**
  * Initialize the Express application
  * @return app
  */
 export const init = () => {
   // Initialize express app
   const app = express();
+  // Initialize Socket.IO
+  const server = http.Server(app);
+  const io = socketIo(server);
 
   // Initialize Express middleware
   initMiddleware(app);
+
+  // Initialize socket IO
+  initSocketIO(io, app);
 
   // Initialize Passport strategies
   initPassportStrategies();
@@ -108,5 +148,5 @@ export const init = () => {
   // Initialize error routes
   initErrorHandler(app);
 
-  return app;
+  return server;
 };

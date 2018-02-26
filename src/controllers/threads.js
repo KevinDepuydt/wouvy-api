@@ -1,22 +1,35 @@
 import isMongoId from 'validator/lib/isMongoId';
 import _ from 'lodash';
 import Thread from '../models/thread';
+import Message from '../models/message';
+import { prepareWorkflow } from '../helpers/workflows';
+import { errorHandler } from '../helpers/error-messages';
 
 /**
  * Create a Thread
  */
 const create = (req, res) => {
-  const thread = new Thread(req.body);
-
-  /*
-  if (thread.users.indexOf(req.user) === -1) {
-    thread.users.push(req.user);
-  }
-  */
+  const workflow = req.workflow;
+  const user = req.user;
+  const thread = new Thread({ user, ...req.body });
 
   thread.save()
-    .then(savedThread => res.jsonp(savedThread))
-    .catch(err => res.status(500).send({ message: err }));
+    .then((saved) => {
+      saved
+        .populate({ path: 'owner', select: '-password -resetToken' })
+        .populate({ path: 'users', select: '-password -resetToken' }, (err, populated) => {
+          workflow.threads.push(populated);
+          workflow.save()
+            .then((savedWorkflow) => {
+              res.jsonp({
+                workflow: prepareWorkflow(savedWorkflow, req.user),
+                thread,
+              });
+            })
+            .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
+        });
+    })
+    .catch(err => res.status(500).send(errorHandler(err)));
 };
 
 /**
@@ -53,6 +66,10 @@ const update = (req, res) => {
 const remove = (req, res) => {
   const thread = req.thread;
 
+  if (thread.isDefault) {
+    return res.status(400).send({ message: 'Vous ne pouvez pas supprimer le thread général d\'un workflow' });
+  }
+
   thread.remove()
     .then(removedThread => res.jsonp(removedThread))
     .catch(err => res.status(500).send({ message: err }));
@@ -69,6 +86,27 @@ const list = (req, res) => {
 };
 
 /**
+ * Add message to thread
+ */
+const addMessage = (req, res) => {
+  const user = req.user;
+  const thread = req.thread;
+  const io = req.io;
+  const message = new Message({ user, ...req.body });
+
+  message.save()
+    .then((saved) => {
+      thread.messages.push(message);
+      thread.save();
+      saved.populate({ path: 'user', select: '-password -resetToken' }, (err, populated) => {
+        res.jsonp(populated);
+        io.to(`thread/${thread._id}`).emit('thread message', populated);
+      });
+    })
+    .catch(errMessage => res.status(500).send({ message: errMessage }));
+};
+
+/**
  * Thread middleware
  */
 const threadByID = (req, res, next, id) => {
@@ -78,12 +116,13 @@ const threadByID = (req, res, next, id) => {
     });
   }
 
-  Thread.findById(id)
+  Thread
+    .findById(id)
+    .deepPopulate('owner users messages messages.user')
+    .exec()
     .then((thread) => {
       if (!thread) {
-        return res.status(404).send({
-          message: 'Thread not found',
-        });
+        return res.status(404).send({ message: 'Thread not found' });
       }
       req.thread = thread;
       next();
@@ -91,4 +130,4 @@ const threadByID = (req, res, next, id) => {
     .catch(err => next(err));
 };
 
-export { create, read, update, remove, list, threadByID };
+export { create, read, update, remove, list, addMessage, threadByID };
