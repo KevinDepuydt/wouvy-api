@@ -10,11 +10,14 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import routes from '../../routes';
 import passportStrategies from '../../strategies';
+import env from '../env';
 
 /**
  * Initialize application middleware
  */
 const initMiddleware = (app) => {
+  // serve public static content
+  app.use('/static', express.static(`${__dirname}/public`));
   // request body parsing middleware, should be above methodOverride
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
@@ -34,7 +37,8 @@ const initMiddleware = (app) => {
   app.use(passport.session());
   // ALLOW CORS
   app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Origin', env.appUrl);
+    res.header('Access-Control-Allow-Credentials', true);
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, x-api-token');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     next();
