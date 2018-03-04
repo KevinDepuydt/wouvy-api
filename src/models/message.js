@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
@@ -23,6 +25,18 @@ const MessageSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+});
+
+/**
+ * Hook a pre save method to hash the password
+ */
+MessageSchema.post('remove', function postRemove() {
+  if (this.attachment) {
+    const filepath = path.join(__dirname, '..', '..', 'public', 'uploads', this.attachment);
+    if (fs.existsSync(filepath)) {
+      fs.unlinkSync(filepath);
+    }
+  }
 });
 
 export default mongoose.model('Message', MessageSchema);

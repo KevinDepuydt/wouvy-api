@@ -11,13 +11,12 @@ import morgan from 'morgan';
 import routes from '../../routes';
 import passportStrategies from '../../strategies';
 import env from '../env';
+import { getUpload } from '../../controllers/uploads';
 
 /**
  * Initialize application middleware
  */
 const initMiddleware = (app) => {
-  // serve public static content
-  app.use('/static', express.static(`${__dirname}/public`));
   // request body parsing middleware, should be above methodOverride
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
@@ -76,6 +75,9 @@ const initPassportStrategies = () => {
  * @param app
  */
 const initApiRoutes = (app) => {
+  // download uploaded files
+  app.use('/upload/:filename', getUpload);
+  // api routes
   routes.forEach(route => app.use('/api', route));
 };
 

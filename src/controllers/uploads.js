@@ -54,4 +54,11 @@ const uploadFile = (req, res) => {
   });
 };
 
-export { uploadFile };
+/**
+ * Download file
+ */
+const getUpload = (req, res) => {
+  res.download(`./public/uploads/${req.params.filename}`);
+};
+
+export { uploadFile, getUpload };

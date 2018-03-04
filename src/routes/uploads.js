@@ -5,4 +5,6 @@ const uploadsRoutes = Router();
 
 uploadsRoutes.route('/upload').post(upload.uploadFile);
 
+uploadsRoutes.route('/upload/:filename').get(upload.getUpload);
+
 export default uploadsRoutes;
