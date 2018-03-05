@@ -7,6 +7,7 @@ import isEmail from 'validator/lib/isEmail';
 import isMongoId from 'validator/lib/isMongoId';
 import env from '../config/env';
 import Workflow from '../models/workflow';
+import Thread from '../models/thread';
 import Member from '../models/member';
 import { errorHandler } from '../helpers/error-messages';
 import { prepareWorkflow } from '../helpers/workflows';
@@ -24,13 +25,14 @@ smtpTransport.use('compile', hbs({
  * Create a Workflow
  */
 const create = (req, res) => {
-  const workflow = new Workflow(req.body);
-
-  workflow.user = req.user;
+  const user = req.user;
+  const generalThread = new Thread({ name: 'Général', owner: user, isDefault: true });
+  const workflow = new Workflow({ owner: user, threads: [generalThread], ...req.body });
 
   workflow.save()
     .then((saved) => {
-      saved.populate({ path: 'user', select: 'email' }, (err, populated) => {
+      generalThread.save();
+      saved.populate({ path: 'owner', select: 'email' }, (err, populated) => {
         res.jsonp(prepareWorkflow(populated, req.user));
       });
     })
@@ -84,9 +86,9 @@ const list = (req, res) => {
   Member.find({ user }, '_id')
     .then((members) => {
       const membersIds = members.map(m => m._id);
-      Workflow.find({ $or: [{ user: req.user }, { members: { $in: membersIds } }] }, '-password')
+      Workflow.find({ $or: [{ owner: req.user }, { members: { $in: membersIds } }] }, '-password')
         .sort('-created')
-        .deepPopulate('user members.user')
+        .deepPopulate('owner members.user')
         .exec()
         .then(workflows => res.jsonp(workflows))
         .catch(err => res.status(500).send(errorHandler(err)));
@@ -100,7 +102,7 @@ const list = (req, res) => {
 const search = (req, res) => {
   Workflow.find({ $text: { $search: req.query.terms } }, '-password')
     .sort('-created')
-    .deepPopulate('user members.user')
+    .deepPopulate('owner members.user')
     .exec()
     .then(workflows => res.jsonp(workflows))
     .catch(err => res.status(500).send(errorHandler(err)));
@@ -137,7 +139,7 @@ const leave = (req, res) => {
   const user = req.user;
   const workflow = req.workflow;
 
-  if (workflow.user && workflow.user._id.toString() === user._id.toString()) {
+  if (workflow.owner._id.toString() === user._id.toString()) {
     res.status(400).send({ message: 'Vous ne pouvez pas quitter un workflow dont vous êtes propriétaire' });
   }
 
@@ -285,30 +287,7 @@ const workflowByID = (req, res, next, id) => {
 
   Workflow
     .findById(id)
-    .deepPopulate('user members members.user')
-    .exec()
-    .then((workflow) => {
-      if (!workflow) {
-        return res.status(404).send({ message: 'Workflow not found' });
-      }
-      req.workflow = workflow;
-      next();
-    })
-    .catch(err => next(err));
-};
-
-/**
- * Workflow middleware to find by Id OR Slug
- */
-const workflowByIdOrSlug = (req, res, next, id) => {
-  if (!isMongoId(id)) {
-    return res.status(400).send({
-      message: 'Workflow id is not valid',
-    });
-  }
-  Workflow
-    .findOne(isMongoId(id) ? { slug: id } : { _id: id })
-    .deepPopulate('user members members.user')
+    .deepPopulate('owner threads threads.users threads.owner threads.messages threads.messages.user members members.user')
     .exec()
     .then((workflow) => {
       if (!workflow) {
@@ -332,5 +311,4 @@ export {
   invitation,
   subscribe,
   workflowByID,
-  workflowByIdOrSlug,
 };

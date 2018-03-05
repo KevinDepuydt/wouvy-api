@@ -25,8 +25,16 @@ const create = (req, res) => {
     Promise.all(membersPromises).then((results) => {
       const errors = results.filter(r => r.success === false).map(r => r.error);
       const newMembers = results.filter(r => r.success === true).map(r => r.member);
-      // then add members to workflow
+      const ids = newMembers.map(m => m.user._id);
+      // add members to workflow
       workflow.members = workflow.members.concat(newMembers);
+      // add members to isDefault threads
+      workflow.threads.forEach((t) => {
+        if (t.isDefault) {
+          t.users = [...t.users, ...ids];
+          t.save();
+        }
+      });
       workflow.save()
         .then((savedWorkflow) => {
           res.jsonp({ workflow: prepareWorkflow(savedWorkflow, req.user), errors });
@@ -38,7 +46,15 @@ const create = (req, res) => {
     member.save()
       .then((saved) => {
         saved.populate({ path: 'user', select: '-password -resetToken' }, (err, populated) => {
+          // add members to workflow
           workflow.members.push(populated);
+          // add members to isDefault threads
+          workflow.threads.forEach((t) => {
+            if (t.isDefault) {
+              t.users.push(saved.user._id);
+              t.save();
+            }
+          });
           workflow.save()
             .then((savedWorkflow) => {
               res.jsonp({

@@ -1,4 +1,6 @@
+import http from 'http';
 import express from 'express';
+import socketIo from 'socket.io';
 import passport from 'passport';
 import session from 'express-session';
 import bodyParser from 'body-parser';
@@ -8,6 +10,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import routes from '../../routes';
 import passportStrategies from '../../strategies';
+import env from '../env';
+import { getUpload } from '../../controllers/uploads';
 
 /**
  * Initialize application middleware
@@ -32,7 +36,8 @@ const initMiddleware = (app) => {
   app.use(passport.session());
   // ALLOW CORS
   app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Origin', env.appUrl);
+    res.header('Access-Control-Allow-Credentials', true);
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, x-api-token');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     next();
@@ -70,6 +75,9 @@ const initPassportStrategies = () => {
  * @param app
  */
 const initApiRoutes = (app) => {
+  // download uploaded files
+  app.use('/upload/:filename', getUpload);
+  // api routes
   routes.forEach(route => app.use('/api', route));
 };
 
@@ -86,15 +94,53 @@ const initErrorHandler = (app) => {
 };
 
 /**
+ * Initialize socket io default events
+ */
+const initSocketIO = (io, app) => {
+  // socket connect
+  io.on('connect', (socket) => {
+    console.log(`new socket ${socket.id} connected`);
+    // socket join à room
+    socket.on('join room', (room) => {
+      socket.join(room);
+      console.log(`${socket.id} join room ${room}`);
+      socket.emit('message', `room ${room} joined`);
+    });
+    // socket leave a room
+    socket.on('leave room', (room) => {
+      socket.leave(room);
+      console.log(`${socket.id} leave room ${room}`);
+      socket.emit('message', `room ${room} leaved`);
+    });
+    // socket disconnect
+    socket.on('disconnect', () => {
+      console.log(`socket ${socket.id} disconnected`);
+    });
+  });
+
+  // attach socket IO to requests
+  app.use((req, res, next) => {
+    req.io = io;
+    next();
+  });
+};
+
+/**
  * Initialize the Express application
  * @return app
  */
 export const init = () => {
   // Initialize express app
   const app = express();
+  // Initialize Socket.IO
+  const server = http.Server(app);
+  const io = socketIo(server);
 
   // Initialize Express middleware
   initMiddleware(app);
+
+  // Initialize socket IO
+  initSocketIO(io, app);
 
   // Initialize Passport strategies
   initPassportStrategies();
@@ -108,5 +154,5 @@ export const init = () => {
   // Initialize error routes
   initErrorHandler(app);
 
-  return app;
+  return server;
 };

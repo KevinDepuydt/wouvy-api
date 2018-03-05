@@ -10,7 +10,7 @@ const deepPopulatePlugin = deepPopulate(mongoose);
  * Workflow Schema
  */
 const WorkflowSchema = new Schema({
-  user: {
+  owner: {
     type: Schema.ObjectId,
     ref: 'User',
   },
@@ -35,6 +35,10 @@ const WorkflowSchema = new Schema({
   members: [{
     type: Schema.ObjectId,
     ref: 'Member',
+  }],
+  threads: [{
+    type: Schema.ObjectId,
+    ref: 'Thread',
   }],
   accessTokens: [{
     type: String,
@@ -65,10 +69,16 @@ WorkflowSchema.plugin(uniqueValidator);
  */
 WorkflowSchema.plugin(deepPopulatePlugin, {
   populate: {
-    user: {
+    owner: {
       select: 'email',
     },
     'members.user': {
+      select: 'email username lastname firstname picture',
+    },
+    'threads.user': {
+      select: 'email username lastname firstname picture',
+    },
+    'threads.owner': {
       select: 'email username lastname firstname picture',
     },
   },
@@ -90,9 +100,10 @@ WorkflowSchema.pre('save', function preSave(next) {
 /**
  * Hook a post remove method
  */
-WorkflowSchema.post('remove', function postRemove(/* workflow */) {
+WorkflowSchema.post('remove', function postRemove() {
   // remove members
   this.members.forEach(m => m.remove());
+  this.threads.forEach(t => t.remove());
 });
 
 /**
