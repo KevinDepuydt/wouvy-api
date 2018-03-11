@@ -48,7 +48,6 @@ const uploadFile = (req, res) => {
   const uploader = upload.single('file');
   uploader(req, res, (err) => {
     if (err) {
-      console.log(err, JSON.stringify(err));
       return res.status(400).send(err);
     }
     res.status(200).send(req.file.filename);
