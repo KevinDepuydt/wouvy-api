@@ -16,7 +16,7 @@ import { getUpload } from '../../controllers/uploads';
 /**
  * Initialize application middleware
  */
-const initMiddleware = (app) => {
+const initMiddlewares = (app) => {
   // request body parsing middleware, should be above methodOverride
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
@@ -137,7 +137,7 @@ export const init = () => {
   const io = socketIo(server);
 
   // Initialize Express middleware
-  initMiddleware(app);
+  initMiddlewares(app);
 
   // Initialize socket IO
   initSocketIO(io, app);
