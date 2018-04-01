@@ -15,7 +15,7 @@ const MessageSchema = new Schema({
   },
   text: {
     type: String,
-    required: 'Votre message est vide',
+    default: '',
   },
   attachment: {
     type: String,

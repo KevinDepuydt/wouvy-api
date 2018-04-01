@@ -10,7 +10,7 @@ const developmentEnv = {
   port: process.env.PORT || 3000,
   host: process.env.HOST || '127.0.0.1',
   nodeEnv: process.env.NODE_ENV || 'development',
-  appUrl: process.env.APP_URL || 'https://wouvy-app-dev.herokuapp.com',
+  appUrl: process.env.APP_URL || 'http://localhost:4200',
   socialCredentials: {
     facebook: {
       clientID: process.env.FACEBOOK_ID || '120323061768094',

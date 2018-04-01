@@ -14,6 +14,7 @@ threadsRoutes.route('/workflows/:workflowId/threads/:threadId')
   .delete(thread.remove);
 
 threadsRoutes.route('/workflows/:workflowId/threads/:threadId/messages')
+  .get(thread.getMessages)
   .post(thread.addMessage);
 
 threadsRoutes.param('workflowId', workflowByID);

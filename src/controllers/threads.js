@@ -86,6 +86,22 @@ const list = (req, res) => {
 };
 
 /**
+ * Get messages
+ */
+const getMessages = (req, res) => {
+  const thread = req.thread;
+  const { start = 0, limit = 20 } = req.body.query;
+  console.log(`start from index ${start}, message limit ${limit}`);
+  // @TODO TO TEST
+  const ids = thread.messages.slice(start, limit);
+  Message.find({ _id: { $in: ids } })
+    .populate({ path: 'user', select: '-password -resetToken' })
+    .exec()
+    .then(messages => res.jsonp(messages))
+    .catch(errMessage => res.status(500).send({ message: errMessage }));
+};
+
+/**
  * Add message to thread
  */
 const addMessage = (req, res) => {
@@ -130,4 +146,4 @@ const threadByID = (req, res, next, id) => {
     .catch(err => next(err));
 };
 
-export { create, read, update, remove, list, addMessage, threadByID };
+export { create, read, update, remove, list, getMessages, addMessage, threadByID };
