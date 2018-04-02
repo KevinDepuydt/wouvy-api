@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import multer from 'multer';
 
@@ -55,10 +56,27 @@ const uploadFile = (req, res) => {
 };
 
 /**
+ * Delete a file
+ */
+const deleteFile = (req, res) => {
+  const filepath = `./public/uploads/${req.params.filename}`;
+  if (fs.existsSync(filepath)) {
+    fs.unlink(filepath, (err) => {
+      if (err) {
+        return res.status(400).send({ message: `Unable to delete ${req.params.filename}`, err });
+      }
+      res.status(200).send({ message: `File ${req.params.filename} has been deleted` });
+    });
+  } else {
+    res.status(404).send({ message: `File ${req.params.filename} not found` });
+  }
+};
+
+/**
  * Download file
  */
 const getUpload = (req, res) => {
   res.download(`./public/uploads/${req.params.filename}`);
 };
 
-export { uploadFile, getUpload };
+export { uploadFile, deleteFile, getUpload };
