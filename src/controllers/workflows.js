@@ -21,13 +21,25 @@ smtpTransport.use('compile', hbs({
   extName: '.handlebars',
 }));
 
+const defaultTags = [
+  { name: 'à faire', color: '#a8a3ed', readonly: true },
+  { name: 'urgent', color: '#64d4f5', readonly: true },
+  { name: 'très urgent', color: '#ffd91b', readonly: true },
+  { name: 'mémo', color: '#73df89', readonly: true },
+];
+
 /**
  * Create a Workflow
  */
 const create = (req, res) => {
   const user = req.user;
   const generalThread = new Thread({ name: 'Général', owner: user, isDefault: true });
-  const workflow = new Workflow({ owner: user, threads: [generalThread], ...req.body });
+  const workflow = new Workflow({
+    owner: user,
+    threads: [generalThread],
+    tags: defaultTags,
+    ...req.body,
+  });
 
   workflow.save()
     .then((saved) => {
@@ -287,7 +299,7 @@ const workflowByID = (req, res, next, id) => {
 
   Workflow
     .findById(id)
-    .deepPopulate('owner threads threads.users threads.owner threads.messages threads.messages.user members members.user')
+    .deepPopulate('owner threads threads.users threads.owner threads.messages threads.messages.user tasks tasks.owner tasks.users tasks.subTasks.users members members.user')
     .exec()
     .then((workflow) => {
       if (!workflow) {

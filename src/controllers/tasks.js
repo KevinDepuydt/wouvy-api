@@ -1,16 +1,32 @@
 import isMongoId from 'validator/lib/isMongoId';
 import _ from 'lodash';
 import Task from '../models/task';
+import { prepareWorkflow } from '../helpers/workflows';
+import { errorHandler } from '../helpers/error-messages';
 
 /**
  * Create a Task
  */
 const create = (req, res) => {
-  const task = new Task(req.body);
+  const workflow = req.workflow;
+  const user = req.user;
+  const task = new Task({ owner: user, ...req.body });
 
   task.save()
-    .then(savedTask => res.jsonp(savedTask))
-    .catch(err => res.status(500).send({ message: err }));
+    .then((saved) => {
+      saved.populate({ path: 'owner', select: 'username picture' }, (err, populated) => {
+        workflow.tasks.push(populated);
+        workflow.save()
+          .then((savedWorkflow) => {
+            res.jsonp({
+              workflow: prepareWorkflow(savedWorkflow, req.user),
+              task: populated,
+            });
+          })
+          .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
+      });
+    })
+    .catch(err => res.status(500).send(errorHandler(err)));
 };
 
 /**

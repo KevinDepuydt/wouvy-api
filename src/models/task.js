@@ -9,7 +9,11 @@ const Schema = mongoose.Schema;
  * Task Schema
  */
 const TaskSchema = new Schema({
-  title: {
+  owner: {
+    type: Schema.ObjectId,
+    ref: 'User',
+  },
+  name: {
     type: String,
     required: 'La tâche est vide',
   },

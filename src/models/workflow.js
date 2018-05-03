@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import deepPopulate from 'mongoose-deep-populate';
 import bcrypt from 'bcrypt';
 import uniqueValidator from 'mongoose-unique-validator';
+import TagSchema from './tag';
 
 const Schema = mongoose.Schema;
 const deepPopulatePlugin = deepPopulate(mongoose);
@@ -40,6 +41,11 @@ const WorkflowSchema = new Schema({
     type: Schema.ObjectId,
     ref: 'Thread',
   }],
+  tasks: [{
+    type: Schema.ObjectId,
+    ref: 'Task',
+  }],
+  tags: [TagSchema],
   accessTokens: [{
     type: String,
     default: [],
@@ -79,6 +85,15 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
       select: 'email username lastname firstname picture',
     },
     'threads.owner': {
+      select: 'email username lastname firstname picture',
+    },
+    'tasks.owner': {
+      select: 'email username lastname firstname picture',
+    },
+    'tasks.users': {
+      select: 'email username lastname firstname picture',
+    },
+    'tasks.subTasks.users': {
       select: 'email username lastname firstname picture',
     },
   },
