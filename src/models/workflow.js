@@ -87,6 +87,11 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
     'threads.owner': {
       select: 'email username lastname firstname picture',
     },
+    tasks: {
+      options: {
+        sort: { created: -1 },
+      },
+    },
     'tasks.owner': {
       select: 'email username lastname firstname picture',
     },
