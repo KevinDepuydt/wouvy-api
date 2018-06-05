@@ -25,9 +25,9 @@ const TaskSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  users: [{
+  members: [{
     type: Schema.ObjectId,
-    ref: 'User',
+    ref: 'Member',
   }],
   subTasks: [{
     title: {

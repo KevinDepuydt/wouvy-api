@@ -98,6 +98,9 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
     'tasks.users': {
       select: 'email username lastname firstname picture',
     },
+    'tasks.members.user': {
+      select: 'email username lastname firstname picture',
+    },
     'tasks.subTasks.users': {
       select: 'email username lastname firstname picture',
     },
