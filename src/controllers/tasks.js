@@ -14,17 +14,19 @@ const create = (req, res) => {
 
   task.save()
     .then((saved) => {
-      saved.populate({ path: 'owner', select: 'username picture' }, (err, populated) => {
-        workflow.tasks.push(populated);
-        workflow.save()
-          .then((savedWorkflow) => {
-            res.jsonp({
-              workflow: prepareWorkflow(savedWorkflow, req.user),
-              task: populated,
-            });
-          })
-          .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
-      });
+      saved
+        .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+        .populate({ path: 'owner', select: 'username picture' }, (err, populated) => {
+          workflow.tasks.push(populated);
+          workflow.save()
+            .then((savedWorkflow) => {
+              res.jsonp({
+                workflow: prepareWorkflow(savedWorkflow, req.user),
+                task: populated,
+              });
+            })
+            .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
+        });
     })
     .catch(err => res.status(500).send(errorHandler(err)));
 };
