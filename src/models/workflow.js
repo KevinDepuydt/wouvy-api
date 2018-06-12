@@ -46,6 +46,7 @@ const WorkflowSchema = new Schema({
     ref: 'Task',
   }],
   tags: [TagSchema],
+  tasksLabels: [TagSchema],
   accessTokens: [{
     type: String,
     default: [],

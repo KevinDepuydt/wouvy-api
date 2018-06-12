@@ -21,11 +21,10 @@ smtpTransport.use('compile', hbs({
   extName: '.handlebars',
 }));
 
-const defaultTags = [
-  { name: 'à faire', color: '#a8a3ed', readonly: true },
-  { name: 'urgent', color: '#64d4f5', readonly: true },
-  { name: 'très urgent', color: '#ffd91b', readonly: true },
+const tasksLabels = [
   { name: 'mémo', color: '#73df89', readonly: true },
+  { name: 'à faire', color: '#a8a3ed', readonly: true },
+  { name: 'urgent', color: '#ffd91b', readonly: true },
 ];
 
 /**
@@ -37,7 +36,7 @@ const create = (req, res) => {
   const workflow = new Workflow({
     owner: user,
     threads: [generalThread],
-    tags: defaultTags,
+    tasksLabels,
     ...req.body,
   });
 
@@ -102,7 +101,7 @@ const list = (req, res) => {
         .sort('-created')
         .deepPopulate('owner members.user')
         .exec()
-        .then(workflows => res.jsonp(workflows))
+        .then(workflows => res.jsonp(workflows.map(w => prepareWorkflow(w, req.user))))
         .catch(err => res.status(500).send(errorHandler(err)));
     })
     .catch(err => res.status(500).send(errorHandler(err)));

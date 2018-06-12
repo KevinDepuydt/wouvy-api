@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 // import env from '../config/env';
+import TagSchema from './tag';
 
 const Schema = mongoose.Schema;
 
@@ -43,10 +44,7 @@ const TaskSchema = new Schema({
       default: false,
     },
   }],
-  tags: [{
-    type: String,
-    default: [],
-  }],
+  tags: [TagSchema],
   deadline: {
     type: Date,
     default: null,
