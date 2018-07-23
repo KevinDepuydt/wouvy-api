@@ -22,7 +22,7 @@ const TaskSchema = new Schema({
     type: String,
     default: '',
   },
-  isDone: {
+  done: {
     type: Boolean,
     default: false,
   },
@@ -39,7 +39,7 @@ const TaskSchema = new Schema({
       type: Schema.ObjectId,
       ref: 'User',
     }],
-    isDone: {
+    done: {
       type: Boolean,
       default: false,
     },

@@ -36,14 +36,17 @@ const WorkflowSchema = new Schema({
   members: [{
     type: Schema.ObjectId,
     ref: 'Member',
+    default: [],
   }],
   threads: [{
     type: Schema.ObjectId,
     ref: 'Thread',
+    default: [],
   }],
   tasks: [{
     type: Schema.ObjectId,
     ref: 'Task',
+    default: [],
   }],
   tags: [TagSchema],
   tasksLabels: [TagSchema],

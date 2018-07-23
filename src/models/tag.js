@@ -14,10 +14,6 @@ const TagSchema = new Schema({
     type: String,
     required: true,
   },
-  readonly: {
-    type: Boolean,
-    default: false,
-  },
 });
 
 export default TagSchema;

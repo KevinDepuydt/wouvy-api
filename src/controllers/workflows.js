@@ -22,9 +22,9 @@ smtpTransport.use('compile', hbs({
 }));
 
 const tasksLabels = [
-  { name: 'mémo', color: '#73df89', readonly: true },
-  { name: 'à faire', color: '#a8a3ed', readonly: true },
-  { name: 'urgent', color: '#ffd91b', readonly: true },
+  { name: 'mémo', color: '#73df89' },
+  { name: 'à faire', color: '#a8a3ed' },
+  { name: 'urgent', color: '#ffd91b' },
 ];
 
 /**
@@ -44,6 +44,7 @@ const create = (req, res) => {
     .then((saved) => {
       generalThread.save();
       saved.populate({ path: 'owner', select: 'email' }, (err, populated) => {
+        console.log('Just created wf', populated);
         res.jsonp(prepareWorkflow(populated, req.user));
       });
     })
