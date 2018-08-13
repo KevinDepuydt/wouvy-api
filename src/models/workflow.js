@@ -62,6 +62,8 @@ const WorkflowSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+}, {
+  usePushEach: true,
 });
 
 /**
