@@ -26,6 +26,10 @@ const TaskSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  progress: {
+    type: Number,
+    default: 0,
+  },
   members: [{
     type: Schema.ObjectId,
     ref: 'Member',
@@ -35,9 +39,9 @@ const TaskSchema = new Schema({
       type: String,
       required: 'La sous-tâche est vide',
     },
-    users: [{
+    members: [{
       type: Schema.ObjectId,
-      ref: 'User',
+      ref: 'Member',
     }],
     done: {
       type: Boolean,
@@ -53,6 +57,17 @@ const TaskSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+});
+
+/**
+ * Hook a post remove method
+ */
+TaskSchema.pre('save', function preSave(next) {
+  // compute task progress
+  this.progress = this.subTasks.length > 0
+    ? Math.floor(((this.subTasks.filter(t => t.done).length * 100) / this.subTasks.length))
+    : this.isDone ? 100 : 0;
+  next();
 });
 
 export default mongoose.model('Task', TaskSchema);

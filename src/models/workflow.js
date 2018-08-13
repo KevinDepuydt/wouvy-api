@@ -105,7 +105,7 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
     'tasks.members.user': {
       select: 'email username lastname firstname picture',
     },
-    'tasks.subTasks.users': {
+    'tasks.subTasks.members.user': {
       select: 'email username lastname firstname picture',
     },
   },
