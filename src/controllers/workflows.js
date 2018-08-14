@@ -40,13 +40,21 @@ const create = (req, res) => {
     ...req.body,
   });
 
+  // add creator to workflow members admin
+  const member = new Member({ user, workflowId: workflow._id, role: 'admin' });
+  workflow.members.push(member);
+
   workflow.save()
     .then((saved) => {
       generalThread.save();
-      saved.populate({ path: 'owner', select: 'email' }, (err, populated) => {
-        console.log('Just created wf', populated);
-        res.jsonp(prepareWorkflow(populated, req.user));
-      });
+      member.save();
+      saved
+        .populate({ path: 'owner', select: 'email' })
+        .populate('members')
+        .populate({ path: 'members.user', select: 'email' }, (err, populated) => {
+          console.log('Just created wf', populated);
+          res.jsonp(prepareWorkflow(populated, req.user));
+        });
     })
     .catch(err => res.status(500).send(errorHandler(err)));
 };
