@@ -50,8 +50,15 @@ const update = (req, res) => {
   task = _.extend(task, req.body);
 
   task.save()
-    .then(savedTask => res.jsonp(savedTask))
-    .catch(err => res.status(500).send({ message: err }));
+    .then((saved) => {
+      saved
+        .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+        .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+        .populate({ path: 'owner', select: 'username picture' }, (err, populated) => {
+          res.jsonp(populated);
+        });
+    })
+    .catch(err => res.status(500).send(errorHandler(err)));
 };
 
 /**
