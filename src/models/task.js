@@ -26,6 +26,10 @@ const TaskSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  private: {
+    type: Boolean,
+    default: false,
+  },
   progress: {
     type: Number,
     default: 0,
@@ -64,9 +68,11 @@ const TaskSchema = new Schema({
  */
 TaskSchema.pre('save', function preSave(next) {
   // compute task progress
-  this.progress = this.subTasks.length > 0
-    ? Math.floor(((this.subTasks.filter(t => t.done).length * 100) / this.subTasks.length))
-    : this.isDone ? 100 : 0;
+  this.progress = this.done
+    ? 100
+    : this.subTasks.length > 0
+      ? Math.floor(((this.subTasks.filter(t => t.done).length * 100) / this.subTasks.length))
+      : 0;
   next();
 });
 
