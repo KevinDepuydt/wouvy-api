@@ -1,15 +1,29 @@
 import _ from 'lodash';
 import isMongoId from 'validator/lib/isMongoId';
 import Document from '../models/document';
+import {prepareWorkflow} from "../helpers/workflows";
+import {errorHandler} from "../helpers/error-messages";
 
 /**
  * Create a Document
  */
 const create = (req, res) => {
-  const doc = new Document(req.body);
+  const workflow = req.workflow;
+  const user = req.user;
+  const doc = new Document(Object.assign(req.body, { user }));
 
   doc.save()
-    .then(savedDoc => res.jsonp(savedDoc))
+    .then((saved) => {
+      workflow.documents.push(saved);
+      workflow.save()
+        .then((savedWorkflow) => {
+          res.jsonp({
+            workflow: prepareWorkflow(savedWorkflow, user),
+            document: saved,
+          });
+        })
+        .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
+    })
     .catch(err => res.status(500).send({ message: err }));
 };
 

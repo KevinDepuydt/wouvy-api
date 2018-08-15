@@ -307,7 +307,7 @@ const workflowByID = (req, res, next, id) => {
 
   Workflow
     .findById(id)
-    .deepPopulate('owner threads threads.users threads.owner threads.messages threads.messages.user tasks tasks.owner tasks.members tasks.members.user tasks.subTasks.members tasks.subTasks.members.user members members.user')
+    .deepPopulate('owner threads threads.users threads.owner threads.messages threads.messages.user tasks tasks.owner tasks.members tasks.members.user tasks.subTasks.members tasks.subTasks.members.user members members.user documents documents.user')
     .exec()
     .then((workflow) => {
       if (!workflow) {

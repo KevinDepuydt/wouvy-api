@@ -48,6 +48,11 @@ const WorkflowSchema = new Schema({
     ref: 'Task',
     default: [],
   }],
+  documents: [{
+    type: Schema.ObjectId,
+    ref: 'Document',
+    default: [],
+  }],
   tags: [TagSchema],
   tasksLabels: [TagSchema],
   accessTokens: [{
@@ -110,6 +115,9 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
     'tasks.subTasks.members.user': {
       select: 'email username lastname firstname picture',
     },
+    'documents.user': {
+      select: 'email username lastname firstname picture',
+    },
   },
 });
 
@@ -130,9 +138,10 @@ WorkflowSchema.pre('save', function preSave(next) {
  * Hook a post remove method
  */
 WorkflowSchema.post('remove', function postRemove() {
-  // remove members
+  // remove sub items
   this.members.forEach(m => m.remove());
   this.threads.forEach(t => t.remove());
+  this.documents.forEach(d => d.remove());
 });
 
 /**
