@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import isMongoId from 'validator/lib/isMongoId';
 import Document from '../models/document';
-import {prepareWorkflow} from "../helpers/workflows";
-import {errorHandler} from "../helpers/error-messages";
+import { prepareWorkflow } from '../helpers/workflows';
+import { errorHandler } from '../helpers/error-messages';
 
 /**
  * Create a Document
@@ -14,15 +14,17 @@ const create = (req, res) => {
 
   doc.save()
     .then((saved) => {
-      workflow.documents.push(saved);
-      workflow.save()
-        .then((savedWorkflow) => {
-          res.jsonp({
-            workflow: prepareWorkflow(savedWorkflow, user),
-            document: saved,
-          });
-        })
-        .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
+      saved.populate({ path: 'user', select: 'email firstname lastname email' }, (err, populated) => {
+        workflow.documents.push(populated);
+        workflow.save()
+          .then((savedWorkflow) => {
+            res.jsonp({
+              workflow: prepareWorkflow(savedWorkflow, user),
+              document: populated,
+            });
+          })
+          .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
+      });
     })
     .catch(err => res.status(500).send({ message: err }));
 };
