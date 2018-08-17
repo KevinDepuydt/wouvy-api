@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 import env from '../config/env';
 import User from '../models/user';
-import {errorHandler} from "../helpers/error-messages";
+import { errorHandler } from '../helpers/error-messages';
 
 /**
  * Create an User as an admin

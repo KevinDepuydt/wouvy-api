@@ -1,7 +1,23 @@
 import fs from 'fs';
+import _ from 'lodash';
 import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
+
+const platforms = {
+  drive: 'drive.google.com',
+  dropbox: 'dropbox.com',
+};
+
+const getPlatformFromFile = (file) => {
+  let platform = 'wouvy';
+  _.each(platforms, (item, key) => {
+    if (file.indexOf(item) !== -1) {
+      platform = key;
+    }
+  });
+  return platform;
+};
 
 /**
  * Document Schema
@@ -19,6 +35,11 @@ const DocSchema = new Schema({
     type: String,
     required: 'Votre document n‘est relié à aucun fichier',
   },
+  platform: {
+    type: String,
+    enum: ['drive', 'dropbox', 'wouvy'],
+    default: 'wouvy',
+  },
   description: {
     type: String,
     default: '',
@@ -31,6 +52,15 @@ const DocSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+});
+
+/**
+ * Get document platform
+ */
+DocSchema.pre('save', function preSave(next) {
+  // get link platform
+  this.platform = getPlatformFromFile(this.file);
+  next();
 });
 
 /**
