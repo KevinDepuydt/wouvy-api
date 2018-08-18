@@ -5,16 +5,18 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const platforms = {
-  drive: 'drive.google.com',
-  dropbox: 'dropbox.com',
+  drive: ['drive.google.com', 'docs.google.com'],
+  dropbox: ['dropbox.com'],
 };
 
 const getPlatformFromFile = (file) => {
   let platform = 'wouvy';
-  _.each(platforms, (item, key) => {
-    if (file.indexOf(item) !== -1) {
-      platform = key;
-    }
+  _.each(platforms, (items, key) => {
+    _.each(items, (item) => {
+      if (file.indexOf(item) !== -1) {
+        platform = key;
+      }
+    });
   });
   return platform;
 };
