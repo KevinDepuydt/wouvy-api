@@ -9,6 +9,7 @@ import { errorHandler } from '../helpers/error-messages';
  */
 const create = (req, res) => {
   const workflow = req.workflow;
+  const io = req.io;
   const user = req.user;
   const doc = new Document(Object.assign(req.body, { user }));
 
@@ -22,6 +23,7 @@ const create = (req, res) => {
               workflow: prepareWorkflow(savedWorkflow, user),
               document: populated,
             });
+            io.to(`w/${workflow._id}/documents`).emit('document-created', populated);
           })
           .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
       });
@@ -43,12 +45,19 @@ const read = (req, res) => {
  * Update a Document
  */
 const update = (req, res) => {
+  const workflow = req.workflow;
+  const io = req.io;
   let doc = req.doc;
 
   doc = _.extend(doc, req.body);
 
   doc.save()
-    .then(savedDoc => res.jsonp(savedDoc))
+    .then((saved) => {
+      saved.populate({ path: 'user', select: 'email firstname lastname email' }, (err, populated) => {
+        res.jsonp(populated);
+        io.to(`w/${workflow._id}/documents`).emit('document-updated', populated);
+      });
+    })
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -56,10 +65,15 @@ const update = (req, res) => {
  * Remove a Document
  */
 const remove = (req, res) => {
+  const workflow = req.workflow;
+  const io = req.io;
   const doc = req.doc;
 
   doc.remove()
-    .then(removedDoc => res.jsonp(removedDoc))
+    .then((removedDoc) => {
+      res.jsonp(removedDoc);
+      io.to(`w/${workflow._id}/documents`).emit('document-deleted', removedDoc);
+    })
     .catch(err => res.status(500).send({ message: err }));
 };
 
