@@ -116,7 +116,7 @@ const addMessage = (req, res) => {
       thread.save();
       saved.populate({ path: 'user', select: '-password -resetToken' }, (err, populated) => {
         res.jsonp(populated);
-        io.to(`thread/${thread._id}`).emit('thread message', populated);
+        io.to(`thread/${thread._id}`).emit('thread-message', populated);
       });
     })
     .catch(errMessage => res.status(500).send({ message: errMessage }));

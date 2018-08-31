@@ -10,6 +10,7 @@ import { errorHandler } from '../helpers/error-messages';
 const create = (req, res) => {
   const workflow = req.workflow;
   const user = req.user;
+  const io = req.io;
   const task = new Task({ owner: user, ...req.body });
 
   task.save()
@@ -24,6 +25,7 @@ const create = (req, res) => {
                 workflow: prepareWorkflow(savedWorkflow, req.user),
                 task: populated,
               });
+              io.to(`w/${workflow._id}/tasks`).emit('task-created', populated);
             })
             .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
         });
@@ -45,6 +47,8 @@ const read = (req, res) => {
  * Update a Task
  */
 const update = (req, res) => {
+  const workflow = req.workflow;
+  const io = req.io;
   let task = req.task;
 
   task = _.extend(task, req.body);
@@ -56,6 +60,7 @@ const update = (req, res) => {
         .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
         .populate({ path: 'owner', select: 'username picture' }, (err, populated) => {
           res.jsonp(populated);
+          io.to(`w/${workflow._id}/tasks`).emit('task-updated', populated);
         });
     })
     .catch(err => res.status(500).send(errorHandler(err)));
@@ -65,10 +70,15 @@ const update = (req, res) => {
  * Remove a Task
  */
 const remove = (req, res) => {
+  const workflow = req.workflow;
+  const io = req.io;
   const task = req.task;
 
   task.remove()
-    .then(removedTask => res.jsonp(removedTask))
+    .then((removedTask) => {
+      res.jsonp(removedTask);
+      io.to(`w/${workflow._id}/tasks`).emit('task-deleted', removedTask);
+    })
     .catch(err => res.status(500).send({ message: err }));
 };
 
