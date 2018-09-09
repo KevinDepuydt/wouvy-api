@@ -1,6 +1,7 @@
 import isMongoId from 'validator/lib/isMongoId';
 import _ from 'lodash';
 import Task from '../models/task';
+import Post from '../models/post';
 import { prepareWorkflow } from '../helpers/workflows';
 import { errorHandler } from '../helpers/error-messages';
 
@@ -28,6 +29,13 @@ const create = (req, res) => {
               io.to(`w/${workflow._id}/tasks`).emit('task-created', populated);
             })
             .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
+          // Post the task
+          if (!populated.private) {
+            const post = new Post({ user, workflow: workflow._id, type: 'task', data: { task: populated } });
+            post.save().then(() => {
+              io.to(`w/${workflow._id}/dashboard`).emit('post-created', post);
+            });
+          }
         });
     })
     .catch(err => res.status(500).send(errorHandler(err)));
@@ -78,6 +86,7 @@ const remove = (req, res) => {
     .then((removedTask) => {
       res.jsonp(removedTask);
       io.to(`w/${workflow._id}/tasks`).emit('task-deleted', removedTask);
+      io.to(`w/${workflow._id}/tasks/${removedTask._id}`).emit('task-item-deleted', removedTask);
     })
     .catch(err => res.status(500).send({ message: err }));
 };

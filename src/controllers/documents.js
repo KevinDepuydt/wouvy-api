@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import isMongoId from 'validator/lib/isMongoId';
 import Document from '../models/document';
+import Post from '../models/post';
 import { prepareWorkflow } from '../helpers/workflows';
 import { errorHandler } from '../helpers/error-messages';
 
@@ -26,6 +27,11 @@ const create = (req, res) => {
             io.to(`w/${workflow._id}/documents`).emit('document-created', populated);
           })
           .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
+        // Post the task
+        const post = new Post({ user, workflow: workflow._id, type: 'document', data: { document: populated } });
+        post.save().then(() => {
+          io.to(`w/${workflow._id}/dashboard`).emit('post-created', post);
+        });
       });
     })
     .catch(err => res.status(500).send({ message: err }));

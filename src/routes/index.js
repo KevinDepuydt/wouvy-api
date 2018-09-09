@@ -14,6 +14,7 @@ import votesRoutes from './votes';
 import workflowsRoutes from './workflows';
 import searchRoutes from './search';
 import uploadsRoutes from './uploads';
+import postsRoutes from './posts';
 
 // server set routes in order of routes array
 // authentication have to stay in first position to secure other routes
@@ -34,6 +35,7 @@ const routes = [
   workflowsRoutes,
   searchRoutes,
   uploadsRoutes,
+  postsRoutes,
 ];
 
 export default routes;
