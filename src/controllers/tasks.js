@@ -1,7 +1,7 @@
 import isMongoId from 'validator/lib/isMongoId';
 import _ from 'lodash';
 import Task from '../models/task';
-import Post from '../models/post';
+import NewsFeedItem from '../models/news-feed-item';
 import { prepareWorkflow } from '../helpers/workflows';
 import { errorHandler } from '../helpers/error-messages';
 
@@ -31,9 +31,9 @@ const create = (req, res) => {
             .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
           // Post the task
           if (!populated.private) {
-            const post = new Post({ user, workflow: workflow._id, type: 'task', data: { task: populated } });
-            post.save().then(() => {
-              io.to(`w/${workflow._id}/dashboard`).emit('post-created', post);
+            const item = new NewsFeedItem({ user, workflow: workflow._id, type: 'task', data: { task: populated } });
+            item.save().then(() => {
+              io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-created', item);
             });
           }
         });
@@ -111,6 +111,10 @@ const taskByID = (req, res, next, id) => {
   }
 
   Task.findById(id)
+    .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+    .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+    .populate({ path: 'owner', select: 'username picture' })
+    .exec()
     .then((task) => {
       if (!task) {
         return res.status(404).send({

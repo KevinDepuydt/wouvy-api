@@ -1,23 +1,31 @@
 import _ from 'lodash';
 import isMongoId from 'validator/lib/isMongoId';
 import Post from '../models/post';
+import NewsFeedItem from '../models/news-feed-item';
 
 /**
- * Create a Post
+ * Create a News
  */
 const create = (req, res) => {
-  const workflow = req.workflow;
   const user = req.user;
+  const workflow = req.workflow;
   const io = req.io;
-  const post = new Post(req.body);
+  const post = new Post(Object.assign(req.body, { user }));
 
   post.save()
-    .then(saved => res.jsonp(saved))
+    .then((saved) => {
+      // NewsFeedItem of the task
+      res.jsonp(saved);
+      const item = new NewsFeedItem({ user, workflow: workflow._id, type: 'post', data: { post } });
+      item.save().then(() => {
+        io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-created', item);
+      });
+    })
     .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
- * Show the current Post
+ * Show the current News
  */
 const read = (req, res) => {
   const post = req.wfPost ? req.wfPost.toJSON() : {};
@@ -27,7 +35,7 @@ const read = (req, res) => {
 };
 
 /**
- * Update a Post
+ * Update a News
  */
 const update = (req, res) => {
   let post = req.wfPost;
@@ -40,7 +48,7 @@ const update = (req, res) => {
 };
 
 /**
- * Remove an Post
+ * Remove an News
  */
 const remove = (req, res) => {
   const post = req.wfPost;
@@ -51,20 +59,16 @@ const remove = (req, res) => {
 };
 
 /**
- * List of Post
+ * List of News
  */
 const list = (req, res) => {
-  const workflow = req.workflow;
-  Post.find({ workflow })
-    .sort('-created')
-    .deepPopulate('user data.task data.task.owner data.text data.document')
-    .exec()
+  Post.find().sort('-created').exec()
     .then(posts => res.jsonp(posts))
     .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
- * Post middleware
+ * News middleware
  */
 const postByID = (req, res, next, id) => {
   if (!isMongoId(id)) {
@@ -74,13 +78,13 @@ const postByID = (req, res, next, id) => {
   }
 
   Post.findById(id)
-    .then((post) => {
-      if (!post) {
+    .then((wfPost) => {
+      if (!wfPost) {
         return res.status(404).send({
           message: 'Post not found',
         });
       }
-      req.wfPost = post;
+      req.wfPost = wfPost;
       next();
     })
     .catch(err => next(err));

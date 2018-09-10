@@ -14,6 +14,7 @@ import votesRoutes from './votes';
 import workflowsRoutes from './workflows';
 import searchRoutes from './search';
 import uploadsRoutes from './uploads';
+import newsFeedRoutes from './news-feed';
 import postsRoutes from './posts';
 
 // server set routes in order of routes array
@@ -35,6 +36,7 @@ const routes = [
   workflowsRoutes,
   searchRoutes,
   uploadsRoutes,
+  newsFeedRoutes,
   postsRoutes,
 ];
 
