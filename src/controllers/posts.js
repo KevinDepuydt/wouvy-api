@@ -17,8 +17,12 @@ const create = (req, res) => {
       // NewsFeedItem of the task
       res.jsonp(saved);
       const item = new NewsFeedItem({ user, workflow: workflow._id, type: 'post', data: { post } });
-      item.save().then(() => {
-        io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-created', item);
+      item.save().then((savedItem) => {
+        savedItem.populate({ path: 'user', select: 'email firstname lastname email username' }, (err, populated) => {
+          if (!err) {
+            io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-created', populated);
+          }
+        });
       });
     })
     .catch(err => res.status(500).send({ message: err }));
