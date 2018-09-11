@@ -53,6 +53,11 @@ const WorkflowSchema = new Schema({
     ref: 'Document',
     default: [],
   }],
+  polls: [{
+    type: Schema.ObjectId,
+    ref: 'Poll',
+    default: [],
+  }],
   tags: [TagSchema],
   tasksLabels: [TagSchema],
   accessTokens: [{
@@ -138,10 +143,11 @@ WorkflowSchema.pre('save', function preSave(next) {
  * Hook a post remove method
  */
 WorkflowSchema.post('remove', function postRemove() {
-  // remove sub items
   this.members.forEach(m => m.remove());
   this.threads.forEach(t => t.remove());
+  this.tasks.forEach(t => t.remove());
   this.documents.forEach(d => d.remove());
+  this.polls.forEach(p => p.remove());
 });
 
 /**
