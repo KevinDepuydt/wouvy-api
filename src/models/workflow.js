@@ -123,6 +123,9 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
     'documents.user': {
       select: 'email username lastname firstname picture',
     },
+    'polls.user': {
+      select: 'email username lastname firstname picture',
+    },
   },
 });
 

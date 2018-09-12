@@ -16,6 +16,7 @@ import searchRoutes from './search';
 import uploadsRoutes from './uploads';
 import newsFeedRoutes from './news-feed';
 import postsRoutes from './posts';
+import pollsRoutes from './polls';
 
 // server set routes in order of routes array
 // authentication have to stay in first position to secure other routes
@@ -38,6 +39,7 @@ const routes = [
   uploadsRoutes,
   newsFeedRoutes,
   postsRoutes,
+  pollsRoutes,
 ];
 
 export default routes;

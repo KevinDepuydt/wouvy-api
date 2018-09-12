@@ -4,7 +4,7 @@ import Post from '../models/post';
 import NewsFeedItem from '../models/news-feed-item';
 
 /**
- * Create a News
+ * Create a Post
  */
 const create = (req, res) => {
   const user = req.user;
@@ -29,7 +29,7 @@ const create = (req, res) => {
 };
 
 /**
- * Show the current News
+ * Show the current Post
  */
 const read = (req, res) => {
   const post = req.wfPost ? req.wfPost.toJSON() : {};
@@ -39,7 +39,7 @@ const read = (req, res) => {
 };
 
 /**
- * Update a News
+ * Update a Post
  */
 const update = (req, res) => {
   let post = req.wfPost;
@@ -52,7 +52,7 @@ const update = (req, res) => {
 };
 
 /**
- * Remove an News
+ * Remove a Post
  */
 const remove = (req, res) => {
   const post = req.wfPost;
@@ -63,7 +63,7 @@ const remove = (req, res) => {
 };
 
 /**
- * List of News
+ * List of Posts
  */
 const list = (req, res) => {
   Post.find().sort('-created').exec()
@@ -72,7 +72,7 @@ const list = (req, res) => {
 };
 
 /**
- * News middleware
+ * Post middleware
  */
 const postByID = (req, res, next, id) => {
   if (!isMongoId(id)) {

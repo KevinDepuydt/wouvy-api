@@ -5,16 +5,16 @@ const Schema = mongoose.Schema;
 /**
  * Poll Schema
  */
-const PollAnswerSchema = new Schema({
+const PollChoiceSchema = new Schema({
   text: {
     type: String,
-    required: 'La contenu de la réponse est vide',
+    required: 'La contenu du choix est vide',
   },
-  users: [{
+  votes: [{
     type: Schema.ObjectId,
     ref: 'User',
     default: [],
   }],
 });
 
-export default mongoose.model('PollAnswer', PollAnswerSchema);
+export default mongoose.model('PollChoice', PollChoiceSchema);
