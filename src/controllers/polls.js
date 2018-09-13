@@ -1,10 +1,9 @@
 import _ from 'lodash';
 import isMongoId from 'validator/lib/isMongoId';
 import Poll from '../models/poll';
-import PollChoice from '../models/poll-choice';
 import NewsFeedItem from '../models/news-feed-item';
-import {prepareWorkflow} from "../helpers/workflows";
-import {errorHandler} from "../helpers/error-messages";
+import { prepareWorkflow } from '../helpers/workflows';
+import { errorHandler } from '../helpers/error-messages';
 
 /**
  * Create a Poll
@@ -16,7 +15,7 @@ const create = (req, res) => {
   const poll = new Poll({
     user,
     topic: req.body.topic,
-    choices: req.body.choices.map(c => new PollChoice(c)),
+    choices: req.body.choices, // .map(c => new PollChoice(c)),
   });
 
   poll.save()
@@ -62,12 +61,17 @@ const read = (req, res) => {
  * Update a Poll
  */
 const update = (req, res) => {
+  const workflow = req.workflow;
+  const io = req.io;
   let poll = req.poll;
 
   poll = _.extend(poll, req.body);
 
   poll.save()
-    .then(saved => res.jsonp(saved))
+    .then((saved) => {
+      res.jsonp(saved);
+      io.to(`w/${workflow._id}/polls`).emit('poll-updated', saved);
+    })
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -75,10 +79,17 @@ const update = (req, res) => {
  * Remove a Poll
  */
 const remove = (req, res) => {
+  const workflow = req.workflow;
+  const io = req.io;
   const poll = req.poll;
 
   poll.remove()
-    .then(removed => res.jsonp(removed))
+    .then((removed) => {
+      res.jsonp(removed);
+      io.to(`w/${workflow._id}/polls`).emit('poll-deleted', removed);
+      workflow.polls.splice(workflow.polls.findIndex(p => p._id === poll._id), 1);
+      workflow.save();
+    })
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -104,6 +115,7 @@ const pollByID = (req, res, next, id) => {
   }
 
   Poll.findById(id)
+    .populate('choices')
     .then((poll) => {
       if (!poll) {
         return res.status(404).send({

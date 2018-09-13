@@ -10,7 +10,6 @@ import tagCloudsRoutes from './tagclouds';
 import tasksRoutes from './tasks';
 import threadsRoutes from './threads';
 import usersRoutes from './users';
-import votesRoutes from './votes';
 import workflowsRoutes from './workflows';
 import searchRoutes from './search';
 import uploadsRoutes from './uploads';
@@ -33,7 +32,6 @@ const routes = [
   tasksRoutes,
   threadsRoutes,
   usersRoutes,
-  votesRoutes,
   workflowsRoutes,
   searchRoutes,
   uploadsRoutes,

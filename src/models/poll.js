@@ -16,9 +16,19 @@ const PollSchema = new Schema({
     required: "La sujet du sondage n'a pas été renseignée",
   },
   choices: [{
+    text: {
+      type: String,
+      required: 'La contenu du choix est vide',
+    },
+    votes: [{
+      type: Schema.ObjectId,
+      ref: 'User',
+      default: [],
+    }],
+  }],
+  hasVoted: [{
     type: Schema.ObjectId,
-    ref: 'PollChoice',
-    unique: 'Ce choix fait déjà parti des choix du sondage',
+    ref: 'User',
     default: [],
   }],
   created: {
@@ -28,12 +38,7 @@ const PollSchema = new Schema({
 });
 
 PollSchema.pre('save', function preSave(next) {
-  this.choices.forEach(choice => choice.save());
-  next();
-});
-
-PollSchema.pre('remove', function preRemove(next) {
-  this.choices.forEach(choice => choice.remove());
+  this.hasVoted = this.choices.reduce((acc, choice) => acc.concat(choice.votes), []);
   next();
 });
 
