@@ -20,29 +20,27 @@ const create = (req, res) => {
 
   poll.save()
     .then((saved) => {
-      saved
-        .populate({ path: 'user', select: 'email firstname lastname email' })
-        .populate('choices', (err, populated) => {
-          workflow.polls.push(populated);
-          workflow.save()
-            .then((savedWorkflow) => {
-              res.jsonp({
-                workflow: prepareWorkflow(savedWorkflow, user),
-                poll: populated,
-              });
-              io.to(`w/${workflow._id}/polls`).emit('poll-created', populated);
-            })
-            .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
-          // NewsFeedItem of the task
-          const item = new NewsFeedItem({ user, workflow: workflow._id, type: 'poll', data: { poll } });
-          item.save().then((savedItem) => {
-            savedItem.populate({ path: 'user', select: 'email firstname lastname email username' }, (errItem, populatedItem) => {
-              if (!errItem) {
-                io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-created', populatedItem);
-              }
+      saved.populate({ path: 'user', select: 'email firstname lastname email' }, (err, populated) => {
+        workflow.polls.push(populated);
+        workflow.save()
+          .then((savedWorkflow) => {
+            res.jsonp({
+              workflow: prepareWorkflow(savedWorkflow, user),
+              poll: populated,
             });
+            io.to(`w/${workflow._id}/polls`).emit('poll-created', populated);
+          })
+          .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
+        // NewsFeedItem of the task
+        const item = new NewsFeedItem({ user, workflow: workflow._id, type: 'poll', data: { poll } });
+        item.save().then((savedItem) => {
+          savedItem.populate({ path: 'user', select: 'email firstname lastname email username' }, (errItem, populatedItem) => {
+            if (!errItem) {
+              io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-created', populatedItem);
+            }
           });
         });
+      });
     })
     .catch(err => res.status(500).send({ message: err }));
 };
@@ -69,8 +67,10 @@ const update = (req, res) => {
 
   poll.save()
     .then((saved) => {
-      res.jsonp(saved);
-      io.to(`w/${workflow._id}/polls`).emit('poll-updated', saved);
+      saved.populate({ path: 'user', select: 'email firstname lastname email' }, (err, populated) => {
+        res.jsonp(populated);
+        io.to(`w/${workflow._id}/polls`).emit('poll-updated', populated);
+      });
     })
     .catch(err => res.status(500).send({ message: err }));
 };

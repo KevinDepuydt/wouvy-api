@@ -79,6 +79,9 @@ NewsFeedItemSchema.plugin(deepPopulatePlugin, {
     'data.post.user': {
       select: 'email username lastname firstname picture',
     },
+    'data.poll.user': {
+      select: 'email username lastname firstname picture',
+    },
   },
 });
 

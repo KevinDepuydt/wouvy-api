@@ -57,7 +57,7 @@ const list = (req, res) => {
   const workflow = req.workflow;
   NewsFeedItem.find({ workflow })
     .sort('-created')
-    .deepPopulate('user data.task data.task.owner data.post data.post.user data.document')
+    .deepPopulate('user data.task data.task.owner data.post data.post.user data.document data.poll data.poll.user')
     .exec()
     .then(items => res.jsonp(items))
     .catch(err => res.status(500).send({ message: err }));

@@ -106,7 +106,7 @@ const list = (req, res) => {
   Member.find({ user }, '_id')
     .then((members) => {
       const membersIds = members.map(m => m._id);
-      Workflow.find({ $or: [{ owner: req.user }, { members: { $in: membersIds } }] }, '-password')
+      Workflow.find({ $or: [{ owner: req.user }, { members: { $in: membersIds } }] }, '-password -threads -polls -tasks -documents')
         .sort('-created')
         .deepPopulate('owner members.user')
         .exec()
