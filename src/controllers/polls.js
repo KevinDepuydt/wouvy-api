@@ -70,6 +70,16 @@ const update = (req, res) => {
       saved.populate({ path: 'user', select: 'email firstname lastname email' }, (err, populated) => {
         res.jsonp(populated);
         io.to(`w/${workflow._id}/polls`).emit('poll-updated', populated);
+        NewsFeedItem
+          .findOne({ 'data.poll': populated })
+          .populate('data.poll')
+          .populate({ path: 'user', select: 'email firstname lastname email username' })
+          .exec()
+          .then((newsFeedItem) => {
+            if (newsFeedItem._id) {
+              io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-updated', newsFeedItem);
+            }
+          });
       });
     })
     .catch(err => res.status(500).send({ message: err }));
