@@ -87,6 +87,13 @@ const remove = (req, res) => {
       res.jsonp(removedTask);
       io.to(`w/${workflow._id}/tasks`).emit('task-deleted', removedTask);
       io.to(`w/${workflow._id}/tasks/${removedTask._id}`).emit('task-item-deleted', removedTask);
+      workflow.tasks.splice(workflow.tasks.findIndex(p => p._id === removedTask._id), 1);
+      workflow.save();
+      NewsFeedItem.findOneAndRemove({ 'data.task': removedTask._id })
+        .then((removedItem) => {
+          io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-deleted', removedItem);
+        })
+        .catch(err => res.status(500).send({ message: err }));
     })
     .catch(err => res.status(500).send({ message: err }));
 };

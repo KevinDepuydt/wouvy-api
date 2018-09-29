@@ -1,6 +1,10 @@
 import _ from 'lodash';
 import isMongoId from 'validator/lib/isMongoId';
 import NewsFeedItem from '../models/news-feed-item';
+import Poll from '../models/poll';
+import Document from '../models/document';
+import Task from '../models/task';
+import Post from '../models/post';
 
 /**
  * Create a NewsFeedItem
@@ -43,10 +47,50 @@ const update = (req, res) => {
  * Remove an NewsFeedItem
  */
 const remove = (req, res) => {
+  const workflow = req.workflow;
+  const io = req.io;
   const item = req.newsFeedItem;
 
   item.remove()
-    .then(removed => res.jsonp(removed))
+    .then((removed) => {
+      res.jsonp(removed);
+      io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-deleted', removed);
+      console.log('news feed item removed', removed);
+      if (removed.data.task) {
+        console.log('Remove task', removed.data.task);
+        removed.data.task.remove()
+          .then((removedTask) => {
+            io.to(`w/${workflow._id}/tasks`).emit('task-deleted', removedTask);
+            workflow.tasks.splice(workflow.tasks.findIndex(p => p._id === removedTask._id), 1);
+            workflow.save();
+          })
+          .catch(err => res.status(500).send({ message: err }));
+      }
+      if (removed.data.document) {
+        removed.data.document.remove()
+          .then((removedDocument) => {
+            io.to(`w/${workflow._id}/documents`).emit('document-deleted', removedDocument);
+            workflow.documents.splice(
+              workflow.documents.findIndex(p => p._id === removedDocument._id),
+              1,
+            );
+            workflow.save();
+          })
+          .catch(err => res.status(500).send({ message: err }));
+      }
+      if (removed.data.poll) {
+        removed.data.poll.remove()
+          .then((removedPoll) => {
+            io.to(`w/${workflow._id}/polls`).emit('poll-deleted', removedPoll);
+            workflow.polls.splice(workflow.polls.findIndex(p => p._id === removedPoll._id), 1);
+            workflow.save();
+          })
+          .catch(err => res.status(500).send({ message: err }));
+      }
+      if (removed.data.post) {
+        removed.data.post.remove();
+      }
+    })
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -73,7 +117,13 @@ const newsFeedItemByID = (req, res, next, id) => {
     });
   }
 
-  NewsFeedItem.findById(id)
+  NewsFeedItem
+    .findById(id)
+    .populate('data.poll')
+    .populate('data.task')
+    .populate('data.post')
+    .populate('data.document')
+    .exec()
     .then((item) => {
       if (!item) {
         return res.status(404).send({

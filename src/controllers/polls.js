@@ -99,6 +99,12 @@ const remove = (req, res) => {
       io.to(`w/${workflow._id}/polls`).emit('poll-deleted', removed);
       workflow.polls.splice(workflow.polls.findIndex(p => p._id === poll._id), 1);
       workflow.save();
+      NewsFeedItem.findOneAndRemove({ 'data.poll': removed._id })
+        .then((removedItem) => {
+          console.log('Associated item', removedItem);
+          io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-deleted', removedItem);
+        })
+        .catch(err => res.status(500).send({ message: err }));
     })
     .catch(err => res.status(500).send({ message: err }));
 };

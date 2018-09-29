@@ -79,6 +79,13 @@ const remove = (req, res) => {
     .then((removedDoc) => {
       res.jsonp(removedDoc);
       io.to(`w/${workflow._id}/documents`).emit('document-deleted', removedDoc);
+      workflow.documents.splice(workflow.documents.findIndex(p => p._id === removedDoc._id), 1);
+      workflow.save();
+      NewsFeedItem.findOneAndRemove({ 'data.document': removedDoc._id })
+        .then((removedItem) => {
+          io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-deleted', removedItem);
+        })
+        .catch(err => res.status(500).send({ message: err }));
     })
     .catch(err => res.status(500).send({ message: err }));
 };

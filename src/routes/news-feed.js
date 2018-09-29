@@ -14,6 +14,6 @@ newsFeedRoutes.route('/workflows/:workflowId/news-feed/:newsFeedItemId')
   .delete(newsFeed.remove);
 
 newsFeedRoutes.param('workflowId', workflowByID);
-newsFeedRoutes.param('postId', newsFeed.newsFeedItemByID);
+newsFeedRoutes.param('newsFeedItemId', newsFeed.newsFeedItemByID);
 
 export default newsFeedRoutes;
