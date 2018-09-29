@@ -1,18 +1,11 @@
 import _ from 'lodash';
 import isMongoId from 'validator/lib/isMongoId';
 import NewsFeedItem from '../models/news-feed-item';
-import Poll from '../models/poll';
-import Document from '../models/document';
-import Task from '../models/task';
-import Post from '../models/post';
 
 /**
  * Create a NewsFeedItem
  */
 const create = (req, res) => {
-  const workflow = req.workflow;
-  const user = req.user;
-  const io = req.io;
   const item = new NewsFeedItem(req.body);
 
   item.save()
@@ -34,12 +27,21 @@ const read = (req, res) => {
  * Update a NewsFeedItem
  */
 const update = (req, res) => {
+  const workflow = req.workflow;
+  const io = req.io;
   let item = req.newsFeedItem;
+
+  // delete data
+  delete req.body.data;
+  delete req.body.user;
 
   item = _.extend(item, req.body);
 
   item.save()
-    .then(saved => res.jsonp(saved))
+    .then((saved) => {
+      res.jsonp(saved);
+      io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-updated', item);
+    })
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -119,10 +121,7 @@ const newsFeedItemByID = (req, res, next, id) => {
 
   NewsFeedItem
     .findById(id)
-    .populate('data.poll')
-    .populate('data.task')
-    .populate('data.post')
-    .populate('data.document')
+    .deepPopulate('user data.task data.task.owner data.post data.post.user data.document data.poll data.poll.user')
     .exec()
     .then((item) => {
       if (!item) {
@@ -130,6 +129,7 @@ const newsFeedItemByID = (req, res, next, id) => {
           message: 'NewsFeedItem not found',
         });
       }
+      console.log('News feed item', item._id);
       req.newsFeedItem = item;
       next();
     })
