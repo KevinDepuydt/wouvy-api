@@ -13,6 +13,9 @@ newsFeedRoutes.route('/workflows/:workflowId/news-feed/:newsFeedItemId')
   .put(newsFeed.update)
   .delete(newsFeed.remove);
 
+newsFeedRoutes.route('/workflows/:workflowId/news-feed/:newsFeedItemId/comments')
+  .post(newsFeed.addComment);
+
 newsFeedRoutes.param('workflowId', workflowByID);
 newsFeedRoutes.param('newsFeedItemId', newsFeed.newsFeedItemByID);
 

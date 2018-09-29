@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import isMongoId from 'validator/lib/isMongoId';
 import NewsFeedItem from '../models/news-feed-item';
+import Comment from '../models/comment';
 
 /**
  * Create a NewsFeedItem
@@ -103,9 +104,33 @@ const list = (req, res) => {
   const workflow = req.workflow;
   NewsFeedItem.find({ workflow })
     .sort('-created')
-    .deepPopulate('user data.task data.task.owner data.post data.post.user data.document data.poll data.poll.user')
+    .deepPopulate('user comments comments.user data.task data.task.owner data.post data.post.user data.document data.poll data.poll.user')
     .exec()
     .then(items => res.jsonp(items))
+    .catch(err => res.status(500).send({ message: err }));
+};
+
+/**
+ * Add comment to news feed item
+ */
+const addComment = (req, res) => {
+  const user = req.user;
+  const workflow = req.workflow;
+  const io = req.io;
+  const item = req.newsFeedItem;
+  const comment = new Comment(Object.assign(req.body, { user }));
+
+  comment.save()
+    .then((savedComment) => {
+      savedComment.populate({ path: 'user', select: '' }, (err, populated) => {
+        item.comments.push(populated);
+        item.save()
+          .then(() => {
+            res.jsonp(populated);
+            io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-updated', item);
+          });
+      });
+    })
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -121,7 +146,7 @@ const newsFeedItemByID = (req, res, next, id) => {
 
   NewsFeedItem
     .findById(id)
-    .deepPopulate('user data.task data.task.owner data.post data.post.user data.document data.poll data.poll.user')
+    .deepPopulate('user comments comments.user data.task data.task.owner data.post data.post.user data.document data.poll data.poll.user')
     .exec()
     .then((item) => {
       if (!item) {
@@ -136,4 +161,4 @@ const newsFeedItemByID = (req, res, next, id) => {
     .catch(err => next(err));
 };
 
-export { create, read, update, remove, list, newsFeedItemByID };
+export { create, read, update, remove, list, addComment, newsFeedItemByID };

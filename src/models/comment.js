@@ -9,15 +9,17 @@ const CommentSchema = new Schema({
   user: {
     type: Schema.ObjectId,
     ref: 'User',
+    required: true,
   },
   text: {
     type: String,
-    required: 'Le commentaire ne contient pas de texte',
+    required: 'Le commentaire est vide',
   },
-  likes: {
+  likes: [{
     type: Schema.ObjectId,
     ref: 'User',
-  },
+    default: [],
+  }],
   created: {
     type: Date,
     default: Date.now,

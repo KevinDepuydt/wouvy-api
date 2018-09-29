@@ -70,6 +70,9 @@ NewsFeedItemSchema.plugin(deepPopulatePlugin, {
     user: {
       select: 'email username lastname firstname picture',
     },
+    'comments.user': {
+      select: 'email username lastname firstname picture',
+    },
     'data.task': {
       select: '-private',
     },
