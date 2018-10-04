@@ -16,7 +16,12 @@ newsFeedRoutes.route('/workflows/:workflowId/news-feed/:newsFeedItemId')
 newsFeedRoutes.route('/workflows/:workflowId/news-feed/:newsFeedItemId/comments')
   .post(newsFeed.addComment);
 
+newsFeedRoutes.route('/workflows/:workflowId/news-feed/:newsFeedItemId/comments/:commentId')
+  .put(newsFeed.updateComment)
+  .delete(newsFeed.removeComment);
+
 newsFeedRoutes.param('workflowId', workflowByID);
 newsFeedRoutes.param('newsFeedItemId', newsFeed.newsFeedItemByID);
+newsFeedRoutes.param('commentId', newsFeed.commentByID);
 
 export default newsFeedRoutes;

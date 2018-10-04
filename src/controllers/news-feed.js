@@ -135,6 +135,53 @@ const addComment = (req, res) => {
 };
 
 /**
+ * Update comment of news feed item
+ */
+const updateComment = (req, res) => {
+  const workflow = req.workflow;
+  const io = req.io;
+  const item = req.newsFeedItem;
+  let comment = req.comment;
+
+  // delete data
+  delete req.body.user;
+
+  comment = _.extend(comment, req.body);
+
+  comment.save()
+    .then((savedComment) => {
+      savedComment.populate({ path: 'user', select: '' }, (err, populated) => {
+        res.jsonp(populated);
+        io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-comment-updated', { item: { _id: item._id }, comment: populated });
+      });
+    })
+    .catch(err => res.status(500).send({ message: err }));
+};
+
+/**
+ * Delete comment from news feed item
+ */
+const removeComment = (req, res) => {
+  const workflow = req.workflow;
+  const io = req.io;
+  const item = req.newsFeedItem;
+  const comment = req.comment;
+
+  comment.remove()
+    .then((removed) => {
+      const commentIdx = item.comments.findIndex(c => c._id === comment._id);
+      item.comments.splice(commentIdx, 1);
+      item.save()
+        .then(() => {
+          res.jsonp(removed);
+          io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-comment-deleted', { item: { _id: item._id }, comment });
+        })
+        .catch(err => res.status(500).send({ message: err }));
+    })
+    .catch(err => res.status(500).send({ message: err }));
+};
+
+/**
  * NewsFeedItem middleware
  */
 const newsFeedItemByID = (req, res, next, id) => {
@@ -154,11 +201,47 @@ const newsFeedItemByID = (req, res, next, id) => {
           message: 'NewsFeedItem not found',
         });
       }
-      console.log('News feed item', item._id);
       req.newsFeedItem = item;
       next();
     })
     .catch(err => next(err));
 };
 
-export { create, read, update, remove, list, addComment, newsFeedItemByID };
+/**
+ * NewsFeedItem comment middleware
+ */
+const commentByID = (req, res, next, id) => {
+  if (!isMongoId(id)) {
+    return res.status(400).send({
+      message: 'Comment id is not invalid',
+    });
+  }
+
+  Comment
+    .findById(id)
+    .populate({ path: 'user', select: '' })
+    .exec()
+    .then((item) => {
+      if (!item) {
+        return res.status(404).send({
+          message: 'NewsFeedItem not found',
+        });
+      }
+      req.comment = item;
+      next();
+    })
+    .catch(err => next(err));
+};
+
+export {
+  create,
+  read,
+  update,
+  remove,
+  list,
+  addComment,
+  updateComment,
+  removeComment,
+  newsFeedItemByID,
+  commentByID,
+};
