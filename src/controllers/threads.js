@@ -11,7 +11,7 @@ import { errorHandler } from '../helpers/error-messages';
 const create = (req, res) => {
   const workflow = req.workflow;
   const user = req.user;
-  const thread = new Thread({ user, ...req.body });
+  const thread = new Thread({ owner: user, ...req.body });
 
   thread.save()
     .then((saved) => {
@@ -23,7 +23,7 @@ const create = (req, res) => {
             .then((savedWorkflow) => {
               res.jsonp({
                 workflow: prepareWorkflow(savedWorkflow, req.user),
-                thread,
+                thread: populated,
               });
             })
             .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
@@ -116,7 +116,7 @@ const addMessage = (req, res) => {
       thread.save();
       saved.populate({ path: 'user', select: '-password -resetToken' }, (err, populated) => {
         res.jsonp(populated);
-        io.to(`thread/${thread._id}`).emit('thread message', populated);
+        io.to(`thread/${thread._id}`).emit('thread-message', populated);
       });
     })
     .catch(errMessage => res.status(500).send({ message: errMessage }));

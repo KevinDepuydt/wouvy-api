@@ -1,21 +1,48 @@
 import fs from 'fs';
+import _ from 'lodash';
 import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
+
+const platforms = {
+  drive: ['drive.google.com', 'docs.google.com'],
+  dropbox: ['dropbox.com'],
+};
+
+const getPlatformFromFile = (file) => {
+  let platform = 'wouvy';
+  _.each(platforms, (items, key) => {
+    _.each(items, (item) => {
+      if (file.indexOf(item) !== -1) {
+        platform = key;
+      }
+    });
+  });
+  return platform;
+};
 
 /**
  * Document Schema
  */
 const DocSchema = new Schema({
+  user: {
+    type: Schema.ObjectId,
+    ref: 'User',
+  },
   name: {
     type: String,
     required: 'Saisissez le nom de votre document',
   },
-  description: {
-    type: String,
-    default: '',
-  },
   file: {
+    type: String,
+    required: 'Votre document n‘est relié à aucun fichier',
+  },
+  platform: {
+    type: String,
+    enum: ['drive', 'dropbox', 'wouvy'],
+    default: 'wouvy',
+  },
+  description: {
     type: String,
     default: '',
   },
@@ -30,10 +57,19 @@ const DocSchema = new Schema({
 });
 
 /**
+ * Get document platform
+ */
+DocSchema.pre('save', function preSave(next) {
+  // get link platform
+  this.platform = getPlatformFromFile(this.file);
+  next();
+});
+
+/**
  * Remove document file
  */
 DocSchema.pre('remove', function preRemove(next) {
-  fs.unlink(`./public/uploads/documents/${this.file}`, () => next());
+  fs.unlink(`./public/uploads/${this.file}`, () => next());
 });
 
 export default mongoose.model('Document', DocSchema);

@@ -101,13 +101,13 @@ const initSocketIO = (io, app) => {
   io.on('connect', (socket) => {
     console.log(`new socket ${socket.id} connected`);
     // socket join à room
-    socket.on('join room', (room) => {
+    socket.on('join-room', (room) => {
       socket.join(room);
       console.log(`${socket.id} join room ${room}`);
       socket.emit('message', `room ${room} joined`);
     });
     // socket leave a room
-    socket.on('leave room', (room) => {
+    socket.on('leave-room', (room) => {
       socket.leave(room);
       console.log(`${socket.id} leave room ${room}`);
       socket.emit('message', `room ${room} leaved`);

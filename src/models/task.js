@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 // import env from '../config/env';
+import TagSchema from './tag';
 
 const Schema = mongoose.Schema;
 
@@ -9,7 +10,11 @@ const Schema = mongoose.Schema;
  * Task Schema
  */
 const TaskSchema = new Schema({
-  title: {
+  owner: {
+    type: Schema.ObjectId,
+    ref: 'User',
+  },
+  name: {
     type: String,
     required: 'La tâche est vide',
   },
@@ -17,32 +22,37 @@ const TaskSchema = new Schema({
     type: String,
     default: '',
   },
-  isDone: {
+  done: {
     type: Boolean,
     default: false,
   },
-  users: [{
+  private: {
+    type: Boolean,
+    default: false,
+  },
+  progress: {
+    type: Number,
+    default: 0,
+  },
+  members: [{
     type: Schema.ObjectId,
-    ref: 'User',
+    ref: 'Member',
   }],
   subTasks: [{
     title: {
       type: String,
       required: 'La sous-tâche est vide',
     },
-    users: [{
+    members: [{
       type: Schema.ObjectId,
-      ref: 'User',
+      ref: 'Member',
     }],
-    isDone: {
+    done: {
       type: Boolean,
       default: false,
     },
   }],
-  tags: [{
-    type: String,
-    default: [],
-  }],
+  tags: [TagSchema],
   deadline: {
     type: Date,
     default: null,
@@ -51,6 +61,19 @@ const TaskSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+});
+
+/**
+ * Hook a post remove method
+ */
+TaskSchema.pre('save', function preSave(next) {
+  // compute task progress
+  this.progress = this.done
+    ? 100
+    : this.subTasks.length > 0
+      ? Math.floor(((this.subTasks.filter(t => t.done).length * 100) / this.subTasks.length))
+      : 0;
+  next();
 });
 
 export default mongoose.model('Task', TaskSchema);

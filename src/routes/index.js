@@ -10,10 +10,12 @@ import tagCloudsRoutes from './tagclouds';
 import tasksRoutes from './tasks';
 import threadsRoutes from './threads';
 import usersRoutes from './users';
-import votesRoutes from './votes';
 import workflowsRoutes from './workflows';
 import searchRoutes from './search';
 import uploadsRoutes from './uploads';
+import newsFeedRoutes from './news-feed';
+import postsRoutes from './posts';
+import pollsRoutes from './polls';
 
 // server set routes in order of routes array
 // authentication have to stay in first position to secure other routes
@@ -30,10 +32,12 @@ const routes = [
   tasksRoutes,
   threadsRoutes,
   usersRoutes,
-  votesRoutes,
   workflowsRoutes,
   searchRoutes,
   uploadsRoutes,
+  newsFeedRoutes,
+  postsRoutes,
+  pollsRoutes,
 ];
 
 export default routes;
