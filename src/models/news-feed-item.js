@@ -60,6 +60,8 @@ const NewsFeedItemSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+}, {
+  usePushEach: true,
 });
 
 /**
