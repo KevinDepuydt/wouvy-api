@@ -120,28 +120,19 @@ const addComment = (req, res) => {
   const item = req.newsFeedItem;
   const comment = new Comment(Object.assign(req.body, { user }));
 
-  console.log('COMMENT TO ADD', comment);
-
   comment.save()
     .then((savedComment) => {
-      try {
-        savedComment.populate({ path: 'user', select: 'email username lastname firstname picture' }, (err, populated) => {
-          item.comments.push(populated);
-          item.save()
-            .then(() => {
-              res.jsonp(populated);
-              io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-updated', item);
-            })
-            .catch(errBis => res.status(500).send({ message: errBis, step: 1 }));
-        });
-      } catch (error) {
-        return res.status(500).send({ error });
-      }
+      savedComment.populate({ path: 'user', select: 'email username lastname firstname picture' }, (err, populated) => {
+        item.comments.push(populated);
+        item.save()
+          .then(() => {
+            res.jsonp(populated);
+            io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-updated', item);
+          })
+          .catch(errBis => res.status(500).send({ message: errBis, step: 1 }));
+      });
     })
-    .catch((errCommentSave) => {
-      console.log('ERR COMMENT SAVE', errCommentSave);
-      return res.status(500).send({ message: errCommentSave, step: 3 });
-    });
+    .catch(errCommentSave => res.status(500).send({ message: errCommentSave, step: 3 }));
 };
 
 /**
