@@ -132,7 +132,7 @@ const addComment = (req, res) => {
             io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-updated', item);
           })
           .catch(errBis => res.status(500).send({ message: errBis, step: 1 }));
-      }).catch(errBos => res.status(500).send({ message: errBos, step: 2 }));
+      });
     })
     .catch((errCommentSave) => {
       console.log('ERR COMMENT SAVE', errCommentSave);
