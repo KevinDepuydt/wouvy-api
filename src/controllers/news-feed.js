@@ -120,6 +120,8 @@ const addComment = (req, res) => {
   const item = req.newsFeedItem;
   const comment = new Comment(Object.assign(req.body, { user }));
 
+  console.log('COMMENT TO ADD', comment);
+
   comment.save()
     .then((savedComment) => {
       savedComment.populate({ path: 'user', select: '' }, (err, populated) => {
@@ -132,7 +134,10 @@ const addComment = (req, res) => {
           .catch(errBis => res.status(500).send({ message: errBis, step: 1 }));
       }).catch(errBos => res.status(500).send({ message: errBos, step: 2 }));
     })
-    .catch(errBas => res.status(500).send({ message: errBas, step: 3 }));
+    .catch((errCommentSave) => {
+      console.log('ERR COMMENT SAVE', errCommentSave);
+      return res.status(500).send({ message: errCommentSave, step: 3 });
+    });
 };
 
 /**
