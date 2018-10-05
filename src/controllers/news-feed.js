@@ -129,10 +129,10 @@ const addComment = (req, res) => {
             res.jsonp(populated);
             io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-updated', item);
           })
-          .catch(err => res.status(500).send({ message: err }));
-      }).catch(err => res.status(500).send({ message: err }));
+          .catch(errBis => res.status(500).send({ message: errBis, step: 1 }));
+      }).catch(errBos => res.status(500).send({ message: errBos, step: 2 }));
     })
-    .catch(err => res.status(500).send({ message: err }));
+    .catch(errBas => res.status(500).send({ message: errBas, step: 3 }));
 };
 
 /**
