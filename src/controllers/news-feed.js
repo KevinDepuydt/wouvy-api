@@ -124,15 +124,19 @@ const addComment = (req, res) => {
 
   comment.save()
     .then((savedComment) => {
-      savedComment.populate({ path: 'user', select: 'email username lastname firstname picture' }, (err, populated) => {
-        item.comments.push(populated);
-        item.save()
-          .then(() => {
-            res.jsonp(populated);
-            io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-updated', item);
-          })
-          .catch(errBis => res.status(500).send({ message: errBis, step: 1 }));
-      });
+      try {
+        savedComment.populate({ path: 'user', select: 'email username lastname firstname picture' }, (err, populated) => {
+          item.comments.push(populated);
+          item.save()
+            .then(() => {
+              res.jsonp(populated);
+              io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-updated', item);
+            })
+            .catch(errBis => res.status(500).send({ message: errBis, step: 1 }));
+        });
+      } catch (error) {
+        return res.status(500).send({ error });
+      }
     })
     .catch((errCommentSave) => {
       console.log('ERR COMMENT SAVE', errCommentSave);
