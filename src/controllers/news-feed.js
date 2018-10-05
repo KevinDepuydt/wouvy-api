@@ -128,8 +128,9 @@ const addComment = (req, res) => {
           .then(() => {
             res.jsonp(populated);
             io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-updated', item);
-          });
-      });
+          })
+          .catch(err => res.status(500).send({ message: err }));
+      }).catch(err => res.status(500).send({ message: err }));
     })
     .catch(err => res.status(500).send({ message: err }));
 };
