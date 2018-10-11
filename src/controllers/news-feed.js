@@ -58,38 +58,6 @@ const remove = (req, res) => {
     .then((removed) => {
       res.jsonp(removed);
       io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-deleted', removed);
-      console.log('news feed item removed', removed);
-      if (removed.data.task) {
-        console.log('Remove task', removed.data.task);
-        removed.data.task.remove()
-          .then((removedTask) => {
-            io.to(`w/${workflow._id}/tasks`).emit('task-deleted', removedTask);
-            workflow.tasks.splice(workflow.tasks.findIndex(p => p._id === removedTask._id), 1);
-            workflow.save();
-          })
-          .catch(err => res.status(500).send({ message: err }));
-      }
-      if (removed.data.document) {
-        removed.data.document.remove()
-          .then((removedDocument) => {
-            io.to(`w/${workflow._id}/documents`).emit('document-deleted', removedDocument);
-            workflow.documents.splice(
-              workflow.documents.findIndex(p => p._id === removedDocument._id),
-              1,
-            );
-            workflow.save();
-          })
-          .catch(err => res.status(500).send({ message: err }));
-      }
-      if (removed.data.poll) {
-        removed.data.poll.remove()
-          .then((removedPoll) => {
-            io.to(`w/${workflow._id}/polls`).emit('poll-deleted', removedPoll);
-            workflow.polls.splice(workflow.polls.findIndex(p => p._id === removedPoll._id), 1);
-            workflow.save();
-          })
-          .catch(err => res.status(500).send({ message: err }));
-      }
       if (removed.data.post) {
         removed.data.post.remove();
       }
