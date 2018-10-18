@@ -34,6 +34,8 @@ const ThreadSchema = new Schema({
     type: Boolean,
     default: false,
   },
+}, {
+  usePushEach: true,
 });
 
 /**
