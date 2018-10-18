@@ -24,6 +24,8 @@ const CommentSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+}, {
+  usePushEach: true,
 });
 
 export default mongoose.model('Comment', CommentSchema);
