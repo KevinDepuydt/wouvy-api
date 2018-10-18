@@ -49,12 +49,10 @@ const NewsFeedItemSchema = new Schema({
   likes: [{
     type: Schema.ObjectId,
     ref: 'User',
-    default: [],
   }],
   comments: [{
     type: Schema.ObjectId,
     ref: 'Comment',
-    default: [],
   }],
   created: {
     type: Date,

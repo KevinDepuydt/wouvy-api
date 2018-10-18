@@ -35,15 +35,21 @@ const update = (req, res) => {
   // delete data
   delete req.body.data;
   delete req.body.user;
+  delete req.body.comments;
 
   item = _.extend(item, req.body);
+
+  console.log('item', item.comments);
 
   item.save()
     .then((saved) => {
       res.jsonp(saved);
       io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-updated', item);
     })
-    .catch(err => res.status(500).send({ message: err }));
+    .catch((err) => {
+      console.log('ERR', err);
+      return res.status(500).send({ message: err });
+    });
 };
 
 /**
