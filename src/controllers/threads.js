@@ -110,6 +110,8 @@ const addMessage = (req, res) => {
   const io = req.io;
   const message = new Message({ user, ...req.body });
 
+  console.log('Add message', `w/${req.workflow._id}`);
+
   message.save()
     .then((saved) => {
       thread.messages.push(message);
@@ -117,6 +119,7 @@ const addMessage = (req, res) => {
       saved.populate({ path: 'user', select: '-password -resetToken' }, (err, populated) => {
         res.jsonp(populated);
         io.to(`thread/${thread._id}`).emit('thread-message', populated);
+        io.to(`w/${req.workflow._id}`).emit('thread-message', populated);
       });
     })
     .catch(errMessage => res.status(500).send({ message: errMessage }));
