@@ -110,8 +110,6 @@ const addMessage = (req, res) => {
   const io = req.io;
   const message = new Message({ user, ...req.body });
 
-  console.log('Add message', `w/${req.workflow._id}`);
-
   message.save()
     .then((saved) => {
       thread.messages.push(message);
