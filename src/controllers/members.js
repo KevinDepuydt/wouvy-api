@@ -115,6 +115,7 @@ const list = (req, res) => {
   const workflow = req.workflow;
 
   Member.find({ workflowId: workflow._id })
+    .populate('user', 'email lastname firstname username picture')
     .sort('-created')
     .exec()
     .then(members => res.jsonp(members))
