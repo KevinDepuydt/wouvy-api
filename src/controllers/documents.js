@@ -82,7 +82,11 @@ const remove = (req, res) => {
  * List of Documents
  */
 const list = (req, res) => {
-  Document.find({ workflow: req.workflow._id }).sort('-created').exec()
+  Document
+    .find({ workflow: req.workflow._id })
+    .populate({ path: 'user', select: 'email firstname lastname email' })
+    .sort('-created')
+    .exec()
     .then(documents => res.jsonp(documents))
     .catch(err => res.status(500).send({ message: err }));
 };

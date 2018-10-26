@@ -48,7 +48,7 @@ const create = (req, res) => {
       res.jsonp({ members, errors });
     });
   } else { // one member
-    const member = new Member({ user: req.body.user, workflowId: workflow._id });
+    const member = new Member({ user: req.body.user, workflow });
     member.save()
       .then((saved) => {
         saved.populate({ path: 'user', select: '-password -resetToken' }, (err, populated) => {
@@ -61,7 +61,7 @@ const create = (req, res) => {
               console.log('Error adding members to workflow', errWf);
             });
           // add member to defaults threads
-          Thread.findAndModify(
+          Thread.findOneAndUpdate(
             { workflow: workflow._id, isDefault: true },
             { $push: { users: populated.user._id } },
           ).then((updated) => {

@@ -12,26 +12,18 @@ const create = (req, res) => {
   const workflow = req.workflow;
   const user = req.user;
   const io = req.io;
-  const task = new Task({  workflow, user, ...req.body });
+  const task = new Task({ workflow, user, ...req.body });
 
   task.save()
     .then((saved) => {
       saved
         .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
         .populate({ path: 'user', select: 'username picture' }, (err, populated) => {
-          workflow.tasks.push(populated);
-          workflow.save()
-            .then((savedWorkflow) => {
-              res.jsonp({
-                workflow: prepareWorkflow(savedWorkflow, req.user),
-                task: populated,
-              });
-              io.to(`w/${workflow._id}/tasks`).emit('task-created', populated);
-            })
-            .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
+          res.jsonp(populated);
+          io.to(`w/${workflow._id}/tasks`).emit('task-created', populated);
           // Post the task
           if (!populated.private) {
-            const item = new NewsFeedItem({ user, workflow: workflow._id, type: 'task', data: { task: populated } });
+            const item = new NewsFeedItem({ user, workflow, type: 'task', data: { task: populated } });
             item.save().then(() => {
               io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-created', item);
             });
@@ -87,8 +79,6 @@ const remove = (req, res) => {
       res.jsonp(removedTask);
       io.to(`w/${workflow._id}/tasks`).emit('task-deleted', removedTask);
       io.to(`w/${workflow._id}/tasks/${removedTask._id}`).emit('task-item-deleted', removedTask);
-      workflow.tasks.splice(workflow.tasks.findIndex(p => p._id === removedTask._id), 1);
-      workflow.save();
       NewsFeedItem.findOneAndRemove({ 'data.task': removedTask._id })
         .then((removedItem) => {
           io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-deleted', removedItem);
