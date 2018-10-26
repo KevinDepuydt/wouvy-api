@@ -76,7 +76,7 @@ NewsFeedItemSchema.plugin(deepPopulatePlugin, {
     'data.task': {
       select: '-private',
     },
-    'data.task.owner': {
+    'data.task.user': {
       select: 'email username lastname firstname picture',
     },
     'data.post.user': {

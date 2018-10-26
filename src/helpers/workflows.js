@@ -5,8 +5,8 @@ export const prepareWorkflow = (workflow, user) => {
   delete wf.password;
 
   // custom data that isn't persisted to mongodb
-  if (user && wf.owner) {
-    wf.isOwner = wf.owner._id.toString() === user._id.toString();
+  if (user && wf.user) {
+    wf.isOwner = wf.user._id.toString() === user._id.toString();
   }
 
   return wf;

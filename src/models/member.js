@@ -10,14 +10,14 @@ const deepPopulatePlugin = deepPopulate(mongoose);
  * Member Schema
  */
 const MemberSchema = new Schema({
+  workflow: {
+    type: Schema.ObjectId,
+    ref: 'Workflow',
+    required: 'Workflow is missing',
+  },
   user: {
     type: Schema.ObjectId,
     ref: 'User',
-    required: true,
-  },
-  workflowId: {
-    type: Schema.ObjectId,
-    ref: 'Workflow',
     required: true,
   },
   role: {

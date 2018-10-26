@@ -11,7 +11,7 @@ const deepPopulatePlugin = deepPopulate(mongoose);
  * Workflow Schema
  */
 const WorkflowSchema = new Schema({
-  owner: {
+  user: {
     type: Schema.ObjectId,
     ref: 'User',
   },
@@ -91,7 +91,7 @@ WorkflowSchema.plugin(uniqueValidator);
  */
 WorkflowSchema.plugin(deepPopulatePlugin, {
   populate: {
-    owner: {
+    user: {
       select: 'email',
     },
     'members.user': {
@@ -100,7 +100,7 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
     'threads.user': {
       select: 'email username lastname firstname picture',
     },
-    'threads.owner': {
+    'threads.user': {
       select: 'email username lastname firstname picture',
     },
     tasks: {
@@ -108,7 +108,7 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
         sort: { created: -1 },
       },
     },
-    'tasks.owner': {
+    'tasks.user': {
       select: 'email username lastname firstname picture',
     },
     'tasks.users': {

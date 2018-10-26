@@ -12,13 +12,13 @@ const create = (req, res) => {
   const workflow = req.workflow;
   const user = req.user;
   const io = req.io;
-  const task = new Task({ owner: user, ...req.body });
+  const task = new Task({ user: user, ...req.body });
 
   task.save()
     .then((saved) => {
       saved
         .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
-        .populate({ path: 'owner', select: 'username picture' }, (err, populated) => {
+        .populate({ path: 'user', select: 'username picture' }, (err, populated) => {
           workflow.tasks.push(populated);
           workflow.save()
             .then((savedWorkflow) => {
@@ -66,7 +66,7 @@ const update = (req, res) => {
       saved
         .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
         .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
-        .populate({ path: 'owner', select: 'username picture' }, (err, populated) => {
+        .populate({ path: 'user', select: 'username picture' }, (err, populated) => {
           res.jsonp(populated);
           io.to(`w/${workflow._id}/tasks`).emit('task-updated', populated);
         });
@@ -120,7 +120,7 @@ const taskByID = (req, res, next, id) => {
   Task.findById(id)
     .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
     .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
-    .populate({ path: 'owner', select: 'username picture' })
+    .populate({ path: 'user', select: 'username picture' })
     .exec()
     .then((task) => {
       if (!task) {

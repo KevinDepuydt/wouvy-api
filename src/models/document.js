@@ -25,6 +25,11 @@ const getPlatformFromFile = (file) => {
  * Document Schema
  */
 const DocSchema = new Schema({
+  workflow: {
+    type: Schema.ObjectId,
+    ref: 'Workflow',
+    required: 'Workflow is missing',
+  },
   user: {
     type: Schema.ObjectId,
     ref: 'User',

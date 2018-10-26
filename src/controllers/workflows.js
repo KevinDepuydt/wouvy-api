@@ -32,9 +32,9 @@ const tasksLabels = [
  */
 const create = (req, res) => {
   const user = req.user;
-  const generalThread = new Thread({ name: 'Général', owner: user, isDefault: true });
+  const generalThread = new Thread({ name: 'Général', user: user, isDefault: true });
   const workflow = new Workflow({
-    owner: user,
+    user: user,
     threads: [generalThread],
     tasksLabels,
     ...req.body,
@@ -49,7 +49,7 @@ const create = (req, res) => {
       generalThread.save();
       member.save();
       saved
-        .populate({ path: 'owner', select: 'email' })
+        .populate({ path: 'user', select: 'email' })
         .populate('members')
         .populate({ path: 'members.user', select: 'email' }, (err, populated) => {
           console.log('Just created wf', populated);
@@ -106,9 +106,9 @@ const list = (req, res) => {
   Member.find({ user }, '_id')
     .then((members) => {
       const membersIds = members.map(m => m._id);
-      Workflow.find({ $or: [{ owner: req.user }, { members: { $in: membersIds } }] }, '-password -threads -polls -tasks -documents')
+      Workflow.find({ $or: [{ user: req.user }, { members: { $in: membersIds } }] }, '-password -threads -polls -tasks -documents')
         .sort('-created')
-        .deepPopulate('owner members.user')
+        .deepPopulate('user members.user')
         .exec()
         .then(workflows => res.jsonp(workflows.map(w => prepareWorkflow(w, req.user))))
         .catch(err => res.status(500).send(errorHandler(err)));
@@ -122,7 +122,7 @@ const list = (req, res) => {
 const search = (req, res) => {
   Workflow.find({ $text: { $search: req.query.terms } }, '-password')
     .sort('-created')
-    .deepPopulate('owner members.user')
+    .deepPopulate('user members.user')
     .exec()
     .then(workflows => res.jsonp(workflows))
     .catch(err => res.status(500).send(errorHandler(err)));
@@ -159,7 +159,7 @@ const leave = (req, res) => {
   const user = req.user;
   const workflow = req.workflow;
 
-  if (workflow.owner._id.toString() === user._id.toString()) {
+  if (workflow.user._id.toString() === user._id.toString()) {
     res.status(400).send({ message: 'Vous ne pouvez pas quitter un workflow dont vous êtes propriétaire' });
   }
 
@@ -307,7 +307,7 @@ const workflowByID = (req, res, next, id) => {
 
   Workflow
     .findById(id)
-    .deepPopulate('owner threads threads.users threads.owner threads.messages threads.messages.user tasks tasks.owner tasks.members tasks.members.user tasks.subTasks.members tasks.subTasks.members.user members members.user documents documents.user polls polls.user polls.choices')
+    .deepPopulate('user threads threads.users threads.user threads.messages threads.messages.user tasks tasks.user tasks.members tasks.members.user tasks.subTasks.members tasks.subTasks.members.user members members.user documents documents.user polls polls.user polls.choices')
     .exec()
     .then((workflow) => {
       if (!workflow) {
