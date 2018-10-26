@@ -36,7 +36,7 @@ const create = (req, res) => {
           console.log('Error adding members to workflow', err);
         });
       // add members to defaults threads
-      Thread.findAndModify(
+      Thread.findOneAndUpdate(
         { workflow: workflow._id, isDefault: true },
         { $push: { users: { $each: ids } } },
       ).then((updated) => {
