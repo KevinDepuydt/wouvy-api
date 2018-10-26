@@ -12,7 +12,7 @@ const create = (req, res) => {
   const workflow = req.workflow;
   const user = req.user;
   const io = req.io;
-  const task = new Task({ user: user, ...req.body });
+  const task = new Task({  workflow, user, ...req.body });
 
   task.save()
     .then((saved) => {
@@ -102,7 +102,7 @@ const remove = (req, res) => {
  * List of Task
  */
 const list = (req, res) => {
-  Task.find().sort('-created').exec()
+  Task.find({ workflow: req.workflow._id }).sort('-created').exec()
     .then(tasks => res.jsonp(tasks))
     .catch(err => res.status(500).send({ message: err }));
 };

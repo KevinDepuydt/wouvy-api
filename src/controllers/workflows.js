@@ -32,27 +32,24 @@ const tasksLabels = [
  */
 const create = (req, res) => {
   const user = req.user;
-  const generalThread = new Thread({ name: 'Général', user: user, isDefault: true });
+  const thread = new Thread({ name: 'Général', user, isDefault: true });
   const workflow = new Workflow({
-    user: user,
-    threads: [generalThread],
+    user,
     tasksLabels,
     ...req.body,
   });
 
   // add creator to workflow members admin
-  const member = new Member({ user, workflowId: workflow._id, role: 'admin' });
+  const member = new Member({ user, workflow, role: 'admin' });
   workflow.members.push(member);
-
   workflow.save()
     .then((saved) => {
-      generalThread.save();
       member.save();
+      thread.save();
       saved
         .populate({ path: 'user', select: 'email' })
         .populate('members')
         .populate({ path: 'members.user', select: 'email' }, (err, populated) => {
-          console.log('Just created wf', populated);
           res.jsonp(prepareWorkflow(populated, req.user));
         });
     })
@@ -106,7 +103,7 @@ const list = (req, res) => {
   Member.find({ user }, '_id')
     .then((members) => {
       const membersIds = members.map(m => m._id);
-      Workflow.find({ $or: [{ user: req.user }, { members: { $in: membersIds } }] }, '-password -threads -polls -tasks -documents')
+      Workflow.find({ $or: [{ user: req.user }, { members: { $in: membersIds } }] }, '-password')
         .sort('-created')
         .deepPopulate('user members.user')
         .exec()
@@ -134,7 +131,7 @@ const authenticate = (req, res) => {
 
   if (workflow.authenticate(req.body.password)) {
     // add member
-    const member = new Member({ user, workflowId: workflow._id });
+    const member = new Member({ user, workflow: workflow._id });
     member.save()
       .then(() => {
         // add saved member to the workflow
@@ -163,7 +160,7 @@ const leave = (req, res) => {
     res.status(400).send({ message: 'Vous ne pouvez pas quitter un workflow dont vous êtes propriétaire' });
   }
 
-  Member.findOne({ user: user._id, workflowId: workflow._id })
+  Member.findOne({ user: user._id, workflow: workflow._id })
     .then((member) => {
       if (!member) {
         res.status(404).send({ message: "Ce membre n'existe pas" });
@@ -265,7 +262,7 @@ const subscribe = (req, res) => {
           return res.status(200).send({ success: false, message: "Le token d'accès n'est pas valide" });
         }
         // pull token and add new member from user
-        const member = new Member({ user, workflowId: workflow._id });
+        const member = new Member({ user, workflow });
         member.save()
           .then((saved) => {
             workflow.accessTokens.pull(token);
@@ -307,7 +304,7 @@ const workflowByID = (req, res, next, id) => {
 
   Workflow
     .findById(id)
-    .deepPopulate('user threads threads.users threads.user threads.messages threads.messages.user tasks tasks.user tasks.members tasks.members.user tasks.subTasks.members tasks.subTasks.members.user members members.user documents documents.user polls polls.user polls.choices')
+    .deepPopulate('user members members.user')
     .exec()
     .then((workflow) => {
       if (!workflow) {

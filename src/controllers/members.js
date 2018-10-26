@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import isMongoId from 'validator/lib/isMongoId';
 import Member from '../models/member';
+import Thread from '../models/thread';
+import Workflow from '../models/workflow';
 import { prepareWorkflow } from '../helpers/workflows';
 import { prepareMember } from '../helpers/members';
 import { errorHandler } from '../helpers/error-messages';
@@ -13,7 +15,7 @@ const create = (req, res) => {
 
   if (req.body.users) { // many members
     const membersPromises = req.body.users.map(user => new Promise((resolve) => {
-      const member = new Member({ user, workflowId: workflow._id });
+      const member = new Member({ user, workflow });
       member.save()
         .then((saved) => {
           saved.populate({ path: 'user', select: '-password -resetToken' }, (err, populated) => {
@@ -24,45 +26,51 @@ const create = (req, res) => {
     }));
     Promise.all(membersPromises).then((results) => {
       const errors = results.filter(r => r.success === false).map(r => r.error);
-      const newMembers = results.filter(r => r.success === true).map(r => r.member);
-      const ids = newMembers.map(m => m.user._id);
+      const members = results.filter(r => r.success === true).map(r => r.member);
+      const ids = members.map(m => m.user._id);
       // add members to workflow
-      workflow.members = workflow.members.concat(newMembers);
-      // add members to isDefault threads
-      workflow.threads.forEach((t) => {
-        if (t.isDefault) {
-          t.users = [...t.users, ...ids];
-          t.save();
-        }
+      Workflow.findByIdAndUpdate(workflow._id, { $push: { members: { $each: members } } })
+        .then((updated) => {
+          console.log('Updated workflow after new members push', updated);
+        }).catch((err) => {
+          console.log('Error adding members to workflow', err);
+        });
+      // add members to defaults threads
+      Thread.findAndModify(
+        { workflow: workflow._id, isDefault: true },
+        { $push: { users: { $each: ids } } },
+      ).then((updated) => {
+        console.log('Updated thread after new users push', updated);
+      }).catch((err) => {
+        console.log('Error adding users to default thread', err);
       });
-      workflow.save()
-        .then((savedWorkflow) => {
-          res.jsonp({ workflow: prepareWorkflow(savedWorkflow, req.user), errors });
-        })
-        .catch(err => res.status(500).send({ message: err }));
+      // Finally return new members + errors
+      res.jsonp({ members, errors });
     });
   } else { // one member
     const member = new Member({ user: req.body.user, workflowId: workflow._id });
     member.save()
       .then((saved) => {
         saved.populate({ path: 'user', select: '-password -resetToken' }, (err, populated) => {
-          // add members to workflow
-          workflow.members.push(populated);
-          // add members to isDefault threads
-          workflow.threads.forEach((t) => {
-            if (t.isDefault) {
-              t.users.push(saved.user._id);
-              t.save();
-            }
-          });
-          workflow.save()
-            .then((savedWorkflow) => {
-              res.jsonp({
-                workflow: prepareWorkflow(savedWorkflow, req.user),
-                errors: [],
-              });
+          // add member to workflow
+          Workflow.findByIdAndUpdate(workflow._id, { $push: { members: member } })
+            .then((updated) => {
+              console.log('Updated workflow after new members push', updated);
             })
-            .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
+            .catch((errWf) => {
+              console.log('Error adding members to workflow', errWf);
+            });
+          // add member to defaults threads
+          Thread.findAndModify(
+            { workflow: workflow._id, isDefault: true },
+            { $push: { users: populated.user._id } },
+          ).then((updated) => {
+            console.log('Updated thread after new users push', updated);
+          }).catch((errThread) => {
+            console.log('Error adding users to default thread', errThread);
+          });
+          // Finally return new member + error
+          res.jsonp({ member, errors: [] });
         });
       })
       .catch(err => res.status(500).send({ message: err }));
@@ -112,9 +120,7 @@ const remove = (req, res) => {
  * List of Member
  */
 const list = (req, res) => {
-  const workflow = req.workflow;
-
-  Member.find({ workflow: workflow._id })
+  Member.find({ workflow: req.workflow._id })
     .populate('user', 'email lastname firstname username picture')
     .sort('-created')
     .exec()

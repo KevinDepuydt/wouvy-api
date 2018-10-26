@@ -11,7 +11,7 @@ import { errorHandler } from '../helpers/error-messages';
 const create = (req, res) => {
   const workflow = req.workflow;
   const user = req.user;
-  const thread = new Thread({ user: user, ...req.body });
+  const thread = new Thread({ workflow, user, ...req.body });
 
   thread.save()
     .then((saved) => {
@@ -82,7 +82,7 @@ const list = (req, res) => {
   // @TODO add where user id = req.user.id in find
   // @TODO remove isDefault from query criteria
   Thread
-    .find({ isDefault: true })
+    .find({ workflow: req.workflow._id, isDefault: true })
     .deepPopulate('user users messages messages.user')
     .sort('-created')
     .exec()

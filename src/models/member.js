@@ -31,7 +31,7 @@ const MemberSchema = new Schema({
   },
 });
 
-MemberSchema.index({ user: 1, workflowId: 1 }, { unique: true });
+MemberSchema.index({ user: 1, workflow: 1 }, { unique: true });
 
 /**
  * Unique plugin

@@ -7,7 +7,8 @@ import Comment from '../models/comment';
  * Create a NewsFeedItem
  */
 const create = (req, res) => {
-  const item = new NewsFeedItem(req.body);
+  const workflow = req.workflow;
+  const item = new NewsFeedItem({ workflow, ...req.body });
 
   item.save()
     .then(saved => res.jsonp(saved))
@@ -75,8 +76,7 @@ const remove = (req, res) => {
  * List of NewsFeedItem
  */
 const list = (req, res) => {
-  const workflow = req.workflow;
-  NewsFeedItem.find({ workflow })
+  NewsFeedItem.find({ workflow: req.workflow._id })
     .sort('-created')
     .deepPopulate('user comments comments.user data.task data.task.user data.post data.post.user data.document data.poll data.poll.user')
     .exec()

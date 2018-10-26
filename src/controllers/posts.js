@@ -10,7 +10,7 @@ const create = (req, res) => {
   const user = req.user;
   const workflow = req.workflow;
   const io = req.io;
-  const post = new Post(Object.assign(req.body, { user }));
+  const post = new Post({ workflow, user, ...req.body });
 
   post.save()
     .then((saved) => {
@@ -66,7 +66,7 @@ const remove = (req, res) => {
  * List of Posts
  */
 const list = (req, res) => {
-  Post.find().sort('-created').exec()
+  Post.find({ workflow: req.workflow._id }).sort('-created').exec()
     .then(posts => res.jsonp(posts))
     .catch(err => res.status(500).send({ message: err }));
 };

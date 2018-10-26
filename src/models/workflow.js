@@ -38,26 +38,6 @@ const WorkflowSchema = new Schema({
     ref: 'Member',
     default: [],
   }],
-  threads: [{
-    type: Schema.ObjectId,
-    ref: 'Thread',
-    default: [],
-  }],
-  tasks: [{
-    type: Schema.ObjectId,
-    ref: 'Task',
-    default: [],
-  }],
-  documents: [{
-    type: Schema.ObjectId,
-    ref: 'Document',
-    default: [],
-  }],
-  polls: [{
-    type: Schema.ObjectId,
-    ref: 'Poll',
-    default: [],
-  }],
   tags: [TagSchema],
   tasksLabels: [TagSchema],
   accessTokens: [{
@@ -97,35 +77,6 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
     'members.user': {
       select: 'email username lastname firstname picture',
     },
-    'threads.user': {
-      select: 'email username lastname firstname picture',
-    },
-    'threads.user': {
-      select: 'email username lastname firstname picture',
-    },
-    tasks: {
-      options: {
-        sort: { created: -1 },
-      },
-    },
-    'tasks.user': {
-      select: 'email username lastname firstname picture',
-    },
-    'tasks.users': {
-      select: 'email username lastname firstname picture',
-    },
-    'tasks.members.user': {
-      select: 'email username lastname firstname picture',
-    },
-    'tasks.subTasks.members.user': {
-      select: 'email username lastname firstname picture',
-    },
-    'documents.user': {
-      select: 'email username lastname firstname picture',
-    },
-    'polls.user': {
-      select: 'email username lastname firstname picture',
-    },
   },
 });
 
@@ -147,10 +98,6 @@ WorkflowSchema.pre('save', function preSave(next) {
  */
 WorkflowSchema.post('remove', function postRemove() {
   this.members.forEach(m => m.remove());
-  this.threads.forEach(t => t.remove());
-  this.tasks.forEach(t => t.remove());
-  this.documents.forEach(d => d.remove());
-  this.polls.forEach(p => p.remove());
 });
 
 /**
