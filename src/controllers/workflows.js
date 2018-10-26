@@ -32,7 +32,6 @@ const tasksLabels = [
  */
 const create = (req, res) => {
   const user = req.user;
-  const thread = new Thread({ name: 'Général', user, isDefault: true });
   const workflow = new Workflow({
     user,
     tasksLabels,
@@ -44,8 +43,12 @@ const create = (req, res) => {
   workflow.members.push(member);
   workflow.save()
     .then((saved) => {
+      // Save member
       member.save();
+      // Create default thread
+      const thread = new Thread({ workflow, user, name: 'Général', isDefault: true });
       thread.save();
+      // Then save workflow
       saved
         .populate({ path: 'user', select: 'email' })
         .populate('members')
