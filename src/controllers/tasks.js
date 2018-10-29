@@ -2,7 +2,6 @@ import isMongoId from 'validator/lib/isMongoId';
 import _ from 'lodash';
 import Task from '../models/task';
 import NewsFeedItem from '../models/news-feed-item';
-import { prepareWorkflow } from '../helpers/workflows';
 import { errorHandler } from '../helpers/error-messages';
 
 /**
@@ -20,9 +19,9 @@ const create = (req, res) => {
         .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
         .populate({ path: 'user', select: 'username picture' }, (err, populated) => {
           res.jsonp(populated);
-          io.to(`w/${workflow._id}/tasks`).emit('task-created', populated);
           // Post the task
           if (!populated.private) {
+            io.to(`w/${workflow._id}/tasks`).emit('task-created', populated);
             const item = new NewsFeedItem({ user, workflow, type: 'task', data: { task: populated } });
             item.save().then(() => {
               io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-created', item);
@@ -60,7 +59,9 @@ const update = (req, res) => {
         .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
         .populate({ path: 'user', select: 'username picture' }, (err, populated) => {
           res.jsonp(populated);
-          io.to(`w/${workflow._id}/tasks`).emit('task-updated', populated);
+          if (!populated.private) {
+            io.to(`w/${workflow._id}/tasks`).emit('task-updated', populated);
+          }
         });
     })
     .catch(err => res.status(500).send(errorHandler(err)));
@@ -77,13 +78,16 @@ const remove = (req, res) => {
   task.remove()
     .then((removedTask) => {
       res.jsonp(removedTask);
-      io.to(`w/${workflow._id}/tasks`).emit('task-deleted', removedTask);
-      io.to(`w/${workflow._id}/tasks/${removedTask._id}`).emit('task-item-deleted', removedTask);
-      NewsFeedItem.findOneAndRemove({ 'data.task': removedTask._id })
-        .then((removedItem) => {
-          io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-deleted', removedItem);
-        })
-        .catch(err => res.status(500).send({ message: err }));
+      if (!removedTask.private) {
+        io.to(`w/${workflow._id}/tasks`).emit('task-deleted', removedTask);
+        io.to(`w/${workflow._id}/tasks/${removedTask._id}`).emit('task-item-deleted', removedTask);
+        NewsFeedItem.findOneAndRemove({ 'data.task': removedTask._id })
+          .then((removedItem) => {
+            console.log('Remove item associated to task');
+            io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-deleted', removedItem);
+          })
+          .catch(err => res.status(500).send({ message: err }));
+      }
     })
     .catch(err => res.status(500).send({ message: err }));
 };
@@ -92,9 +96,27 @@ const remove = (req, res) => {
  * List of Task
  */
 const list = (req, res) => {
-  Task.find({ workflow: req.workflow._id }).sort('-created').exec()
-    .then(tasks => res.jsonp(tasks))
-    .catch(err => res.status(500).send({ message: err }));
+  if (req.query.private && req.query.private === 'true' && req.user) {
+    console.log('GET Private tasks');
+    Task.find({ workflow: req.workflow._id, user: req.user._id, private: true })
+      .sort('-created')
+      .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+      .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+      .populate({ path: 'user', select: 'username picture' })
+      .exec()
+      .then(tasks => res.jsonp(tasks))
+      .catch(err => res.status(500).send({ message: err }));
+  } else {
+    console.log('GET General tasks');
+    Task.find({ workflow: req.workflow._id })
+      .sort('-created')
+      .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+      .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+      .populate({ path: 'user', select: 'username picture' })
+      .exec()
+      .then(tasks => res.jsonp(tasks))
+      .catch(err => res.status(500).send({ message: err }));
+  }
 };
 
 /**
