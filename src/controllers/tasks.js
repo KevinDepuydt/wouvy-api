@@ -108,7 +108,7 @@ const list = (req, res) => {
       .catch(err => res.status(500).send({ message: err }));
   } else {
     console.log('GET General tasks');
-    Task.find({ workflow: req.workflow._id })
+    Task.find({ workflow: req.workflow._id, private: false })
       .sort('-created')
       .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
       .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
