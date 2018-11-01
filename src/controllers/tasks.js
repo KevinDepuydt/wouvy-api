@@ -61,6 +61,8 @@ const update = (req, res) => {
           res.jsonp(populated);
           if (!populated.private) {
             io.to(`w/${workflow._id}/tasks`).emit('task-updated', populated);
+          } else {
+            io.to(`w/${workflow._id}/notes/${req.user._id}`).emit('task-updated', populated);
           }
         });
     })
