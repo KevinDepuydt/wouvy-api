@@ -122,7 +122,7 @@ const addMessage = (req, res) => {
       saved.populate({ path: 'user', select: '-password -resetToken' }, (err, populated) => {
         res.jsonp(populated);
         io.to(`thread/${thread._id}`).emit('thread-message', populated);
-        io.to(`w/${req.workflow._id}`).emit('thread-message', populated);
+        io.to(`w/${req.workflow._id}`).emit('unread-message-check');
       });
     })
     .catch(errMessage => res.status(500).send({ message: errMessage }));
