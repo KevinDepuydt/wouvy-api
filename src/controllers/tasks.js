@@ -53,18 +53,21 @@ const update = (req, res) => {
   task = _.extend(task, req.body);
 
   task.save()
-    .then((saved) => {
-      saved
+    .then(() => {
+      Task.findById(task._id)
         .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
         .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
-        .populate({ path: 'user', select: 'username picture' }, (err, populated) => {
-          res.jsonp(populated);
-          if (!populated.private) {
-            io.to(`w/${workflow._id}/tasks`).emit('task-updated', populated);
+        .populate({ path: 'user', select: 'username picture' })
+        .exec()
+        .then((taskFound) => {
+          res.jsonp(taskFound);
+          if (!taskFound.private) {
+            io.to(`w/${workflow._id}/tasks`).emit('task-updated', taskFound);
           } else {
-            io.to(`w/${workflow._id}/notes/${req.user._id}`).emit('task-updated', populated);
+            io.to(`w/${workflow._id}/notes/${req.user._id}`).emit('task-updated', taskFound);
           }
-        });
+        })
+        .catch(err => res.status(500).send(errorHandler(err)));
     })
     .catch(err => res.status(500).send(errorHandler(err)));
 };
