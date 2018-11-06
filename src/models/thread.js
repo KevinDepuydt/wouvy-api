@@ -51,10 +51,10 @@ ThreadSchema.plugin(deepPopulatePlugin, {
       select: 'email',
     },
     users: {
-      select: 'firstname lastname username',
+      select: 'firstname lastname username email',
     },
     'messages.user': {
-      select: 'firstname lastname username picture',
+      select: 'firstname lastname username picture email',
     },
   },
 });
