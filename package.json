@@ -25,7 +25,7 @@
   "dependencies": {
     "auth0-api-jwt-rsa-validation": "0.0.1",
     "axios": "^0.16.2",
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^3.0.2",
     "body-parser": "^1.17.2",
     "canvas": "^1.6.8",
     "chalk": "^2.1.0",
