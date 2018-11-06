@@ -113,12 +113,26 @@ const list = (req, res) => {
       .catch(err => res.status(500).send({ message: err }));
   } else {
     console.log('GET General tasks');
-    Task.find({ workflow: req.workflow._id, private: false })
+    const criteria = { workflow: req.workflow._id, private: false };
+    if (req.query.select && ['done', 'not_done'].indexOf(req.query.select) !== -1) {
+      if (req.query.select === 'done') {
+        criteria.done = true;
+      } else if (req.query.select === 'not_done') {
+        criteria.done = false;
+      }
+    }
+    if (req.query.member && isMongoId(req.query.member)) {
+      criteria.$or = [
+        { members: { $in: [req.query.member] } },
+        { 'subTasks.members': { $in: [req.query.member] } },
+      ];
+    }
+    console.log('List task criteria', criteria);
+    Task.find(criteria)
       .sort('-created')
       .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
       .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
       .populate({ path: 'user', select: 'username picture' })
-      .exec()
       .then(tasks => res.jsonp(tasks))
       .catch(err => res.status(500).send({ message: err }));
   }
