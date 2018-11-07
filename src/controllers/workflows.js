@@ -21,11 +21,13 @@ smtpTransport.use('compile', hbs({
   extName: '.handlebars',
 }));
 
+/**
 const tasksLabels = [
   { name: 'mémo', color: '#73df89' },
   { name: 'à faire', color: '#a8a3ed' },
   { name: 'urgent', color: '#ffd91b' },
 ];
+ */
 
 /**
  * Create a Workflow
@@ -34,7 +36,6 @@ const create = (req, res) => {
   const user = req.user;
   const workflow = new Workflow({
     user,
-    tasksLabels,
     ...req.body,
   });
 
@@ -106,9 +107,9 @@ const list = (req, res) => {
   Member.find({ user }, '_id')
     .then((members) => {
       const membersIds = members.map(m => m._id);
-      Workflow.find({ $or: [{ user: req.user }, { members: { $in: membersIds } }] }, '-password')
+      Workflow.find({ $or: [{ user: req.user }, { members: { $in: membersIds } }] }, 'name user members created')
         .sort('-created')
-        .deepPopulate('user members.user')
+        .deepPopulate('user')
         .exec()
         .then(workflows => res.jsonp(workflows.map(w => prepareWorkflow(w, req.user))))
         .catch(err => res.status(500).send(errorHandler(err)));
