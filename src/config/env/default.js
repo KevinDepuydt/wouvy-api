@@ -25,7 +25,20 @@ const defaultEnv = {
   },
   jwtSecret: '@JwtSecretKey',
   jwtExpiresIn: '48h',
-  memberRoles: ['membre', 'moderateur', 'admin'],
+  userRoles: {
+    member: {
+      level: 0,
+      label: 'Membre',
+    },
+    moderator: {
+      level: 1,
+      label: 'moderateur',
+    },
+    admin: {
+      level: 2,
+      label: 'admin',
+    },
+  },
   rights: {
     NONE: {
       level: 0,

@@ -1,6 +1,5 @@
 import authenticationRoutes from './authentication';
 import documentsRoutes from './documents';
-import membersRoutes from './members';
 import rightsRoutes from './rights';
 import tasksRoutes from './tasks';
 import threadsRoutes from './threads';
@@ -17,7 +16,6 @@ import pollsRoutes from './polls';
 const routes = [
   authenticationRoutes,
   documentsRoutes,
-  membersRoutes,
   rightsRoutes,
   tasksRoutes,
   threadsRoutes,

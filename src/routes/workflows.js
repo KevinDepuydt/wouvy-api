@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as workflow from '../controllers/workflows';
+import * as workflowUsers from '../controllers/workflow-users';
 
 const workflowsRoutes = Router();
 
@@ -28,10 +29,21 @@ workflowsRoutes.route('/workflows/:workflowId/leave')
 workflowsRoutes.route('/workflows/:workflowId/invitation')
   .post(workflow.invitation);
 
-// Workflow
-
 workflowsRoutes.route('/workflow-subscribe')
   .get(workflow.subscribe);
+
+// Workflow users
+workflowsRoutes.route('/workflows/:workflowId/users')
+  .get(workflowUsers.listUsers)
+  .post(workflowUsers.addUser);
+
+workflowsRoutes.route('/workflows/:workflowId/users/:userId')
+  .get(workflowUsers.readUser)
+  .put(workflowUsers.updateUser)
+  .delete(workflowUsers.removeUser);
+
+workflowsRoutes.route('/workflows/:workflowId/users/:userId/roles')
+  .put(workflowUsers.updateUserRole);
 
 // Finish by binding the Workflow middleware
 workflowsRoutes.param('workflowId', workflow.workflowByID);

@@ -21,9 +21,9 @@ const MemberSchema = new Schema({
     required: true,
   },
   role: {
-    type: String,
-    enum: env.memberRoles,
-    default: env.memberRoles[0],
+    type: Object,
+    enum: Object.keys(env.userRoles).map(role => env.userRoles[role]),
+    default: env.userRoles.member,
   },
   created: {
     type: Date,

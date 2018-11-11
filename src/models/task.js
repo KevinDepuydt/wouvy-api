@@ -36,18 +36,18 @@ const TaskSchema = new Schema({
     type: Number,
     default: 0,
   },
-  members: [{
+  users: [{
     type: Schema.ObjectId,
-    ref: 'Member',
+    ref: 'User',
   }],
   subTasks: [{
     title: {
       type: String,
       required: 'La sous-tâche est vide',
     },
-    members: [{
+    users: [{
       type: Schema.ObjectId,
-      ref: 'Member',
+      ref: 'User',
     }],
     done: {
       type: Boolean,

@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import deepPopulate from 'mongoose-deep-populate';
 import bcrypt from 'bcrypt';
 import uniqueValidator from 'mongoose-unique-validator';
+import env from '../config/env';
 import TagSchema from './tag';
 
 const Schema = mongoose.Schema;
@@ -15,15 +16,6 @@ const WorkflowSchema = new Schema({
     type: Schema.ObjectId,
     ref: 'User',
   },
-  /*
-  slug: {
-    type: String,
-    default: '',
-    dropDups: true,
-    unique: 'Un workflow avec cette url personnalisé existe déjà',
-    trim: true,
-  },
-  */
   name: {
     type: String,
     required: 'Veuillez saisir un nom pour votre workflow.',
@@ -33,10 +25,22 @@ const WorkflowSchema = new Schema({
     type: String,
     default: '',
   },
-  members: [{
+  users: [{
     type: Schema.ObjectId,
-    ref: 'Member',
+    ref: 'User',
     default: [],
+  }],
+  roles: [{
+    user: {
+      type: Schema.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    role: {
+      type: Object,
+      enum: Object.keys(env.userRoles).map(role => env.userRoles[role]),
+      default: env.userRoles.member,
+    },
   }],
   starred: [{
     type: Schema.ObjectId,
@@ -78,8 +82,11 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
     user: {
       select: 'email',
     },
-    'members.user': {
+    users: {
       select: 'email username lastname firstname picture',
+    },
+    'roles.user': {
+      select: '_id',
     },
   },
 });
@@ -95,13 +102,6 @@ WorkflowSchema.pre('save', function preSave(next) {
   }
 
   next();
-});
-
-/**
- * Hook a post remove method
- */
-WorkflowSchema.post('remove', function postRemove() {
-  this.members.forEach(m => m.remove());
 });
 
 /**

@@ -1,16 +1,15 @@
 import _ from 'lodash';
 import isMongoId from 'validator/lib/isMongoId';
-import Member from '../models/member';
-import Thread from '../models/thread';
+import env from '../config/env';
 import Workflow from '../models/workflow';
+import Thread from '../models/thread';
 import { prepareWorkflow } from '../helpers/workflows';
 import { prepareMember } from '../helpers/members';
-import env from '../config/env';
 
 /**
- * Create a Member
+ * Create a Workflow
  */
-const create = (req, res) => {
+const addUser = (req, res) => {
   const workflow = req.workflow;
 
   if (req.body.users) { // many members
@@ -64,29 +63,28 @@ const create = (req, res) => {
 };
 
 /**
- * Show the current Member
+ * Show the current Workflow
  */
-const read = (req, res) => {
+const readUser = (req, res) => {
   const workflow = req.workflow;
-  console.log('READ member', workflow.users, req.params, workflow.users.find(user => user._id.toString() === req.params.userId.toString()));
   const member = workflow.users.find(user => user._id.toString() === req.params.userId.toString());
   if (!member) {
     return res.status(404).send('Member not found');
   }
-  res.jsonp(prepareMember(member));
+  return res.jsonp(prepareMember(member));
 };
 
 /**
- * Update a Member
+ * Update a Workflow
  */
-const update = (req, res) => {
+const updateUser = (req, res) => {
   return res.status(404).send('Member not found');
 };
 
 /**
- * Remove an Member
+ * Remove a Workflow
  */
-const remove = (req, res) => {
+const removeUser = (req, res) => {
   const userId = req.params.userId;
   const workflow = req.workflow;
 
@@ -100,11 +98,35 @@ const remove = (req, res) => {
 };
 
 /**
- * List of Member
+ * List of Workflows
  */
-const list = (req, res) => {
+const listUsers = (req, res) => {
   const workflow = req.workflow;
   res.jsonp(workflow.users);
 };
 
-export { create, read, update, remove, list };
+const updateUserRole = (req, res) => {
+  const wf = req.workflow;
+  const idx = wf.roles.findIndex(r => r.user._id.toString() === req.params.userId.toString());
+  let role = { user: req.params.userId, role: env.userRoles.member };
+  if (idx !== -1) {
+    wf.roles[idx].role = req.body;
+    role = wf.roles[idx];
+  } else {
+    // set default role if any
+    wf.roles.push(role);
+  }
+
+  wf.save()
+    .then(() => res.jsonp(role.role))
+    .catch(err => res.status(500).send({ message: err }));
+};
+
+export {
+  addUser,
+  readUser,
+  updateUser,
+  removeUser,
+  listUsers,
+  updateUserRole,
+};

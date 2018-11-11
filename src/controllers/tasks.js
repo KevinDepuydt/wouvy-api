@@ -16,7 +16,7 @@ const create = (req, res) => {
   task.save()
     .then((saved) => {
       saved
-        .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+        .populate({ path: 'users', select: 'email firstname lastname username picture' })
         .populate({ path: 'user', select: 'username picture' }, (err, populated) => {
           res.jsonp(populated);
           // Post the task
@@ -55,8 +55,8 @@ const update = (req, res) => {
   task.save()
     .then(() => {
       Task.findById(task._id)
-        .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
-        .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+        .populate({ path: 'users', select: 'email firstname lastname username picture' })
+        .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture' })
         .populate({ path: 'user', select: 'username picture' })
         .exec()
         .then((taskFound) => {
@@ -105,8 +105,8 @@ const list = (req, res) => {
     console.log('GET Private tasks');
     Task.find({ workflow: req.workflow._id, user: req.user._id, private: true })
       .sort('-created')
-      .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
-      .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+      .populate({ path: 'users', select: 'email firstname lastname username picture' })
+      .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture' })
       .populate({ path: 'user', select: 'username picture' })
       .exec()
       .then(tasks => res.jsonp(tasks))
@@ -121,17 +121,17 @@ const list = (req, res) => {
         criteria.done = false;
       }
     }
-    if (req.query.member && isMongoId(req.query.member)) {
+    if (req.query.user && isMongoId(req.query.user)) {
       criteria.$or = [
-        { members: { $in: [req.query.member] } },
-        { 'subTasks.members': { $in: [req.query.member] } },
+        { users: { $in: [req.query.user] } },
+        { 'subTasks.users': { $in: [req.query.user] } },
       ];
     }
     console.log('List task criteria', criteria);
     Task.find(criteria)
       .sort('-created')
-      .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
-      .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+      .populate({ path: 'users', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+      .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture' })
       .populate({ path: 'user', select: 'username picture' })
       .then(tasks => res.jsonp(tasks))
       .catch(err => res.status(500).send({ message: err }));
@@ -149,8 +149,8 @@ const taskByID = (req, res, next, id) => {
   }
 
   Task.findById(id)
-    .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
-    .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+    .populate({ path: 'users', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+    .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture' })
     .populate({ path: 'user', select: 'username picture' })
     .exec()
     .then((task) => {
