@@ -1,6 +1,4 @@
 import _ from 'lodash';
-import isMongoId from 'validator/lib/isMongoId';
-import Member from '../models/member';
 import Thread from '../models/thread';
 import Workflow from '../models/workflow';
 import { prepareWorkflow } from '../helpers/workflows';

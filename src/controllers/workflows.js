@@ -50,6 +50,7 @@ const create = (req, res) => {
       // Then save workflow
       saved
         .populate({ path: 'user', select: 'email' })
+        .populate({ path: 'roles.user', select: '_id' })
         .populate({ path: 'users', select: 'email' }, (err, populated) => {
           res.jsonp(prepareWorkflow(populated, req.user));
         });
@@ -128,14 +129,19 @@ const authenticate = (req, res) => {
     // add member
     // add saved member to the workflow
     workflow.users.push(user);
-    workflow.roles.push({ user, role: env.userRoles.member });
+    workflow.roles.push({ user: user._id, role: env.userRoles.member });
     workflow.save()
-      .then((savedWorkflow) => {
-        // return saved workflow
-        res.jsonp({
-          message: `Tu es maintenant membre du workflow ${savedWorkflow.name}`,
-          workflow: prepareWorkflow(savedWorkflow, req.user),
-        });
+      .then((saved) => {
+        saved
+          .populate({ path: 'user', select: 'email' })
+          .populate({ path: 'roles.user', select: '_id' })
+          .populate({ path: 'users', select: 'email' }, (err, populated) => {
+            // return saved workflow
+            res.jsonp({
+              message: `Tu es maintenant membre du workflow ${populated.name}`,
+              workflow: prepareWorkflow(populated, req.user),
+            });
+          });
       })
       .catch(err => res.status(500).send(errorHandler(err)));
   } else {
