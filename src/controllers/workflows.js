@@ -308,6 +308,7 @@ const workflowByID = (req, res, next, id) => {
 
   Workflow
     .findById(id)
+    .select('-password -accessTokens')
     .deepPopulate('user members members.user')
     .exec()
     .then((workflow) => {
