@@ -38,6 +38,11 @@ const WorkflowSchema = new Schema({
     ref: 'Member',
     default: [],
   }],
+  starred: [{
+    type: Schema.ObjectId,
+    ref: 'User',
+    default: [],
+  }],
   tags: [TagSchema],
   accessTokens: [{
     type: String,

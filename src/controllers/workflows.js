@@ -107,7 +107,7 @@ const list = (req, res) => {
   Member.find({ user }, '_id')
     .then((members) => {
       const membersIds = members.map(m => m._id);
-      Workflow.find({ $or: [{ user: req.user }, { members: { $in: membersIds } }] }, 'name user members created')
+      Workflow.find({ $or: [{ user: req.user }, { members: { $in: membersIds } }] }, 'name user members created starred')
         .sort('-created')
         .deepPopulate('user')
         .exec()
