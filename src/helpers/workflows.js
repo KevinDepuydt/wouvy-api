@@ -8,7 +8,7 @@ export const prepareWorkflow = (workflow, user) => {
 
   // custom data that isn't persisted to mongodb
   if (user && wf.user) {
-    wf.isOwner = wf.user._id === user._id;
+    wf.isOwner = wf.user._id.toString() === user._id.toString();
   }
 
   // prepare user role

@@ -42,6 +42,64 @@ const WorkflowSchema = new Schema({
       default: env.userRoles.member,
     },
   }],
+  rights: {
+    tasks: {
+      add: {
+        type: Number,
+        default: env.userRoles.member.level,
+      },
+      edit: {
+        type: Number,
+        default: env.userRoles.member.level,
+      },
+      remove: {
+        type: Number,
+        default: env.userRoles.moderator.level,
+      },
+    },
+    documents: {
+      add: {
+        type: Number,
+        default: env.userRoles.member.level,
+      },
+      edit: {
+        type: Number,
+        default: env.userRoles.member.level,
+      },
+      remove: {
+        type: Number,
+        default: env.userRoles.moderator.level,
+      },
+    },
+    polls: {
+      add: {
+        type: Number,
+        default: env.userRoles.member.level,
+      },
+      edit: {
+        type: Number,
+        default: env.userRoles.member.level,
+      },
+      remove: {
+        type: Number,
+        default: env.userRoles.moderator.level,
+      },
+    },
+    members: {
+      add: {
+        type: Number,
+        default: env.userRoles.moderator.level,
+      },
+      edit: {
+        type: Number,
+        default: env.userRoles.admin.level,
+      },
+      remove: {
+        type: Number,
+        default: env.userRoles.admin.level,
+      },
+    },
+  },
   starred: [{
     type: Schema.ObjectId,
     ref: 'User',
