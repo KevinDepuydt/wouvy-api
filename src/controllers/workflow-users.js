@@ -1,9 +1,7 @@
 import _ from 'lodash';
-import isMongoId from 'validator/lib/isMongoId';
 import env from '../config/env';
 import Workflow from '../models/workflow';
 import Thread from '../models/thread';
-import { prepareWorkflow } from '../helpers/workflows';
 import { prepareMember } from '../helpers/members';
 
 /**
@@ -12,18 +10,18 @@ import { prepareMember } from '../helpers/members';
 const addUser = (req, res) => {
   const workflow = req.workflow;
 
+  console.log('Users to add', req.body);
+
   if (req.body.users) { // many members
     // add members to workflow
     const roles = req.body.users.map(user => ({ user, role: env.userRoles.member }));
-    Workflow.findByIdAndUpdate(
-      workflow._id,
-      {
-        $push: {
-          users: { $each: req.body.users },
-          roles: { $each: roles },
-        },
+    console.log('ROLES', roles);
+    Workflow.findOneAndUpdate({ _id: workflow._id }, {
+      $push: {
+        users: { $each: req.body.users },
+        roles: { $each: roles },
       },
-    ).then((updated) => {
+    }).then((updated) => {
       console.log('Updated workflow after new members push', updated);
     }).catch((err) => {
       console.log('Error adding members to workflow', err);
@@ -41,7 +39,7 @@ const addUser = (req, res) => {
     res.jsonp({ users: req.body.users });
   } else { // one member
     // add member to workflow
-    Workflow.findByIdAndUpdate(workflow._id, { $push: { users: req.body.user } })
+    Workflow.findOneAndUpdate({ _id: workflow._id }, { $push: { users: req.body.user } })
       .then((updated) => {
         console.log('Updated workflow after new members push', updated);
       })
@@ -85,15 +83,17 @@ const updateUser = (req, res) => {
  * Remove a Workflow
  */
 const removeUser = (req, res) => {
-  const userId = req.params.userId;
+  const userId = req.params.userId.toString();
   const workflow = req.workflow;
 
   // remove member from workflow
-  workflow.users = _.filter(workflow.users, user => user._id.toString() !== userId);
-  workflow.roles = _.filter(workflow.roles, role => role.user === userId);
+  workflow.users = _.filter(workflow.users, user => user._id.toString() !== userId.toString());
+  workflow.roles = _.filter(workflow.roles, role => role.user._id.toString() !== userId.toString());
+
+  console.log('Workflow users', workflow.users.map(u => u._id), userId);
 
   workflow.save()
-    .then(saved => res.jsonp(prepareWorkflow(saved, req.user)))
+    .then(() => res.jsonp(req.user))
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -108,14 +108,18 @@ const listUsers = (req, res) => {
 const updateUserRole = (req, res) => {
   const wf = req.workflow;
   const idx = wf.roles.findIndex(r => r.user._id.toString() === req.params.userId.toString());
-  let role = { user: req.params.userId, role: env.userRoles.member };
+  const role = {
+    user: req.params.userId,
+    role: env.userRoles[req.body.level ? req.body.level : 0],
+  };
   if (idx !== -1) {
-    wf.roles[idx].role = req.body;
-    role = wf.roles[idx];
+    wf.roles[idx] = role;
   } else {
     // set default role if any
     wf.roles.push(role);
   }
+
+  console.log('New role', role, req.body);
 
   wf.save()
     .then(() => res.jsonp(role.role))

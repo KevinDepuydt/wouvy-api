@@ -28,13 +28,25 @@ const defaultEnv = {
   userRoles: {
     member: {
       level: 0,
-      label: 'Membre',
+      label: 'membre',
     },
     moderator: {
       level: 1,
       label: 'moderateur',
     },
     admin: {
+      level: 2,
+      label: 'admin',
+    },
+    0: {
+      level: 0,
+      label: 'membre',
+    },
+    1: {
+      level: 1,
+      label: 'moderateur',
+    },
+    2: {
       level: 2,
       label: 'admin',
     },

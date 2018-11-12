@@ -12,7 +12,7 @@ const searchUsers = (req, res) => {
   // build list of users that are already part of workflow
   const notInIds = [workflow.user._id].concat(workflow.users.map(user => user._id));
 
-  User.find({ $text: { $search: query }, _id: { $nin: notInIds } }, 'email picture')
+  User.find({ $text: { $search: query }, _id: { $nin: notInIds } }, 'email picture firstname lastname username')
     .then(users => res.jsonp(users))
     .catch(err => res.status(500).send(errorHandler(err)));
 };
@@ -28,7 +28,7 @@ const searchUserByEmail = (req, res) => {
   // build list of users that are already part of workflow
   const notInIds = [workflow.user._id].concat(workflow.users.map(user => user._id));
 
-  User.findOne({ email, _id: { $nin: notInIds } }, 'email picture')
+  User.findOne({ email, _id: { $nin: notInIds } }, 'email picture firstname lastname username')
     .then(user => res.jsonp(user))
     .catch(err => res.status(500).send(errorHandler(err)));
 };

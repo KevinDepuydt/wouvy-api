@@ -12,8 +12,10 @@ export const prepareWorkflow = (workflow, user) => {
   }
 
   // prepare user role
-  const role = wf.roles.find(wfRole => wfRole.user._id.toString() === user._id.toString());
+  const role = wf.roles.find(r => r.user._id.toString() === user._id.toString());
   wf.userRole = role ? role.role : env.userRoles.member;
+
+  console.log('prepareWorkflow: role', role);
 
   return wf;
 };
