@@ -88,7 +88,6 @@ const remove = (req, res) => {
         io.to(`w/${workflow._id}/tasks/${removedTask._id}`).emit('task-item-deleted', removedTask);
         NewsFeedItem.findOneAndRemove({ 'data.task': removedTask._id })
           .then((removedItem) => {
-            console.log('Remove item associated to task');
             io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-deleted', removedItem);
           })
           .catch(err => res.status(500).send({ message: err }));
@@ -102,7 +101,6 @@ const remove = (req, res) => {
  */
 const list = (req, res) => {
   if (req.query.private && req.query.private === 'true' && req.user) {
-    console.log('GET Private tasks');
     Task.find({ workflow: req.workflow._id, user: req.user._id, private: true })
       .sort('-created')
       .populate({ path: 'users', select: 'email firstname lastname username picture' })
@@ -112,7 +110,6 @@ const list = (req, res) => {
       .then(tasks => res.jsonp(tasks))
       .catch(err => res.status(500).send({ message: err }));
   } else {
-    console.log('GET General tasks');
     const criteria = { workflow: req.workflow._id, private: false };
     if (req.query.select && ['done', 'not_done'].indexOf(req.query.select) !== -1) {
       if (req.query.select === 'done') {
@@ -127,7 +124,6 @@ const list = (req, res) => {
         { 'subTasks.users': { $in: [req.query.user] } },
       ];
     }
-    console.log('List task criteria', criteria);
     Task.find(criteria)
       .sort('-created')
       .populate({ path: 'users', populate: { path: 'user', select: 'email firstname lastname username picture' } })

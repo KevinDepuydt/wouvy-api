@@ -10,7 +10,8 @@
     "build": "yarn run clean && mkdir -p dist && ./node_modules/.bin/babel src -s -D -d dist",
     "eslint": "eslint src",
     "test": "NODE_ENV=test mocha --timeout 10000 --compilers js:babel-core/register test/api.test.js",
-    "postinstall": "yarn run -s build"
+    "postinstall": "yarn run -s build",
+    "fixtures:load": "babel-node fixtures/load.js"
   },
   "keywords": [
     "Wouvy",
@@ -56,6 +57,8 @@
     "validator": "^9.4.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.1.6",
+    "@babel/node": "^7.0.0",
     "babel-cli": "^6.24.1",
     "babel-eslint": "^7.2.3",
     "babel-jest": "^20.0.3",
