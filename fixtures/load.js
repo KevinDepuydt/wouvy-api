@@ -12,6 +12,7 @@ const NB_WORKFLOW = 10;
 const NB_TASKS = 50;
 const NB_POLLS = 50;
 const NB_DOCS = 50;
+const NB_MEMBERS = 10;
 
 connect(() => {
   console.log('DB Connected');
@@ -67,6 +68,20 @@ connect(() => {
                 .catch(error => console.log(`Workflow ${i} Document ${l} failed to save news feed item`, error));
             })
             .catch(error => console.log(`Workflow ${i} Poll ${l} failed to save`, error));
+        }
+
+        // Members
+        for (let m = 1; m <= NB_MEMBERS; m += 1) {
+          const member = new User({ email: `wf-${i}-member-${m}@mail.com`, firstname: `[WF${i}] Jean ${m}`, lastname: 'Fixtures', password: 'password' });
+          const role = { user: member, role: { level: 0, label: 'member' } };
+          member.save()
+            .then(() => {
+              console.log(`Workflow ${i} User ${m} saved`);
+              workflow.users.push(member);
+              workflow.roles.push(role);
+              workflow.save().then(() => console.log(`User ${m} and Role added to workflow ${i}`));
+            })
+            .catch(error => console.log(`Workflow ${i} User ${m} failed to save`, error));
         }
       });
     }

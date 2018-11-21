@@ -76,7 +76,12 @@ const remove = (req, res) => {
  * List of NewsFeedItem
  */
 const list = (req, res) => {
+  const skip = parseInt(req.query.skip, 10) || 0;
+  const limit = parseInt(req.query.limit, 10) || 0;
+
   NewsFeedItem.find({ workflow: req.workflow._id })
+    .limit(limit)
+    .skip(skip)
     .sort('-created')
     .deepPopulate('user comments comments.user data.task data.task.user data.post data.post.user data.document data.poll data.poll.user')
     .exec()
