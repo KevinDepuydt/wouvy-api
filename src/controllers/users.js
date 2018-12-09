@@ -39,7 +39,11 @@ const update = (req, res) => {
       // delete user password for security
       savedUser.password = undefined;
       // create a token to authenticate user api call
-      const token = jwt.sign(savedUser, env.jwtSecret, { expiresIn: env.jwtExpiresIn });
+      const token = jwt.sign(
+        Object.assign({}, savedUser),
+        env.jwtSecret,
+        { expiresIn: env.jwtExpiresIn },
+      );
       // returned updated token
       res.json({ message: 'Votre profil à été mis à jour !', token });
     })
@@ -64,7 +68,11 @@ const updateCredentials = (req, res) => {
           // delete user password for security
           savedUser.password = undefined;
           // create a token to authenticate user api call
-          const token = jwt.sign(savedUser, env.jwtSecret, { expiresIn: env.jwtExpiresIn });
+          const token = jwt.sign(
+            Object.assign({}, savedUser),
+            env.jwtSecret,
+            { expiresIn: env.jwtExpiresIn },
+          );
           // returned updated token
           res.json({ message: 'Vos identifiants ont été mis à jour.', token });
         })
@@ -105,7 +113,11 @@ const validate = (req, res) => {
   } else {
     User.findById(user._id).then((found) => {
       found.password = undefined;
-      const token = jwt.sign(found, env.jwtSecret, { expiresIn: env.jwtExpiresIn });
+      const token = jwt.sign(
+        Object.assign({}, found),
+        env.jwtSecret,
+        { expiresIn: env.jwtExpiresIn },
+      );
       res.jsonp({ token });
     }).catch(err => res.status(400).send({ message: errorHandler(err) }));
   }
