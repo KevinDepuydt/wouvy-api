@@ -115,7 +115,7 @@ const socialAuthCallback = strategy => (req, res, next) => {
     // delete user password for security
     user.password = undefined;
     // create a token to authenticate user api call
-    const token = jwt.sign(user, env.jwtSecret, { expiresIn: env.jwtExpiresIn });
+    const token = jwt.sign(Object.assign({}, user), env.jwtSecret, { expiresIn: env.jwtExpiresIn });
     // redirect to application with token a query parameters
     return res.redirect(`${env.appUrl}/oauth?token=${token}`);
   })(req, res, next);
