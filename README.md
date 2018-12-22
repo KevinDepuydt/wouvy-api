@@ -2,7 +2,7 @@
 # wouvy-api
 
 Wouvy API
-
+‡
 ## Pre-requisite
 
 For node-canvas you need to install some extra libraries on the server machine.
@@ -13,27 +13,27 @@ See [this link](https://github.com/Automattic/node-canvas#installation) to insta
 
 ### Start in production
 ```
-yarn start
+npm start
 ```
 
 ### Start in development
 ```
-yarn run dev
+npm run dev
 ```
 
 ### Build
 transpile ES6 code to JS code
 ```
-yarn run build
+npm run build
 ```
 
 ### Clean
 Clean dist directory that contain transpilled code
 ```
-yarn run clean
+npm run clean
 ```
 
 ### Test
 ```
-yarn test
+npm test
 ```

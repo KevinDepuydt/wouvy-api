@@ -18,12 +18,13 @@ const CommentSchema = new Schema({
   likes: [{
     type: Schema.ObjectId,
     ref: 'User',
-    default: [],
   }],
   created: {
     type: Date,
     default: Date.now,
   },
+}, {
+  usePushEach: true,
 });
 
 export default mongoose.model('Comment', CommentSchema);

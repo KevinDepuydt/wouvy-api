@@ -2,8 +2,6 @@ import _ from 'lodash';
 import isMongoId from 'validator/lib/isMongoId';
 import Document from '../models/document';
 import NewsFeedItem from '../models/news-feed-item';
-import { prepareWorkflow } from '../helpers/workflows';
-import { errorHandler } from '../helpers/error-messages';
 
 /**
  * Create a Document
@@ -12,23 +10,15 @@ const create = (req, res) => {
   const workflow = req.workflow;
   const io = req.io;
   const user = req.user;
-  const doc = new Document(Object.assign(req.body, { user }));
+  const doc = new Document({ workflow, user, ...req.body });
 
   doc.save()
     .then((saved) => {
       saved.populate({ path: 'user', select: 'email firstname lastname email' }, (err, populated) => {
-        workflow.documents.push(populated);
-        workflow.save()
-          .then((savedWorkflow) => {
-            res.jsonp({
-              workflow: prepareWorkflow(savedWorkflow, user),
-              document: populated,
-            });
-            io.to(`w/${workflow._id}/documents`).emit('document-created', populated);
-          })
-          .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
+        res.jsonp(populated);
+        io.to(`w/${workflow._id}/documents`).emit('document-created', populated);
         // NewsFeedItem of the task
-        const item = new NewsFeedItem({ user, workflow: workflow._id, type: 'document', data: { document: populated } });
+        const item = new NewsFeedItem({ user, workflow, type: 'document', data: { document: populated } });
         item.save().then(() => {
           io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-created', item);
         });
@@ -79,8 +69,6 @@ const remove = (req, res) => {
     .then((removedDoc) => {
       res.jsonp(removedDoc);
       io.to(`w/${workflow._id}/documents`).emit('document-deleted', removedDoc);
-      workflow.documents.splice(workflow.documents.findIndex(p => p._id === removedDoc._id), 1);
-      workflow.save();
       NewsFeedItem.findOneAndRemove({ 'data.document': removedDoc._id })
         .then((removedItem) => {
           io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-deleted', removedItem);
@@ -94,7 +82,11 @@ const remove = (req, res) => {
  * List of Documents
  */
 const list = (req, res) => {
-  Document.find().sort('-created').exec()
+  Document
+    .find({ workflow: req.workflow._id })
+    .populate({ path: 'user', select: 'email firstname lastname email' })
+    .sort('-created')
+    .exec()
     .then(documents => res.jsonp(documents))
     .catch(err => res.status(500).send({ message: err }));
 };

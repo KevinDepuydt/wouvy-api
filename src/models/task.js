@@ -1,16 +1,18 @@
 import mongoose from 'mongoose';
-// import env from '../config/env';
 import TagSchema from './tag';
 
 const Schema = mongoose.Schema;
-
-// const validateTaskStatus = status => env.taskStatus.findIndex(s => s === status) !== -1;
 
 /**
  * Task Schema
  */
 const TaskSchema = new Schema({
-  owner: {
+  workflow: {
+    type: Schema.ObjectId,
+    ref: 'Workflow',
+    required: 'Workflow is missing',
+  },
+  user: {
     type: Schema.ObjectId,
     ref: 'User',
   },
@@ -34,18 +36,18 @@ const TaskSchema = new Schema({
     type: Number,
     default: 0,
   },
-  members: [{
+  users: [{
     type: Schema.ObjectId,
-    ref: 'Member',
+    ref: 'User',
   }],
   subTasks: [{
     title: {
       type: String,
       required: 'La sous-tâche est vide',
     },
-    members: [{
+    users: [{
       type: Schema.ObjectId,
-      ref: 'Member',
+      ref: 'User',
     }],
     done: {
       type: Boolean,

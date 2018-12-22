@@ -21,38 +21,37 @@ smtpTransport.use('compile', hbs({
   extName: '.handlebars',
 }));
 
+/**
 const tasksLabels = [
   { name: 'mémo', color: '#73df89' },
   { name: 'à faire', color: '#a8a3ed' },
   { name: 'urgent', color: '#ffd91b' },
 ];
+ */
 
 /**
  * Create a Workflow
  */
 const create = (req, res) => {
   const user = req.user;
-  const generalThread = new Thread({ name: 'Général', owner: user, isDefault: true });
   const workflow = new Workflow({
-    owner: user,
-    threads: [generalThread],
-    tasksLabels,
+    user,
     ...req.body,
   });
 
   // add creator to workflow members admin
-  const member = new Member({ user, workflowId: workflow._id, role: 'admin' });
-  workflow.members.push(member);
-
+  workflow.users.push(user);
+  workflow.roles.push({ user, role: env.userRoles.admin });
   workflow.save()
     .then((saved) => {
-      generalThread.save();
-      member.save();
+      // Create default thread
+      const thread = new Thread({ workflow, user, name: 'Général', isDefault: true });
+      thread.save();
+      // Then save workflow
       saved
-        .populate({ path: 'owner', select: 'email' })
-        .populate('members')
-        .populate({ path: 'members.user', select: 'email' }, (err, populated) => {
-          console.log('Just created wf', populated);
+        .populate({ path: 'user', select: 'email' })
+        .populate({ path: 'roles.user', select: '_id' })
+        .populate({ path: 'users', select: 'email' }, (err, populated) => {
           res.jsonp(prepareWorkflow(populated, req.user));
         });
     })
@@ -102,17 +101,11 @@ const remove = (req, res) => {
  */
 const list = (req, res) => {
   const user = req.user;
-
-  Member.find({ user }, '_id')
-    .then((members) => {
-      const membersIds = members.map(m => m._id);
-      Workflow.find({ $or: [{ owner: req.user }, { members: { $in: membersIds } }] }, '-password -threads -polls -tasks -documents')
-        .sort('-created')
-        .deepPopulate('owner members.user')
-        .exec()
-        .then(workflows => res.jsonp(workflows.map(w => prepareWorkflow(w, req.user))))
-        .catch(err => res.status(500).send(errorHandler(err)));
-    })
+  Workflow.find({ $or: [{ user }, { users: user }] }, 'name user users roles created starred')
+    .sort('-created')
+    .deepPopulate('user users roles.user')
+    .exec()
+    .then(workflows => res.jsonp(workflows.map(w => prepareWorkflow(w, req.user))))
     .catch(err => res.status(500).send(errorHandler(err)));
 };
 
@@ -122,7 +115,7 @@ const list = (req, res) => {
 const search = (req, res) => {
   Workflow.find({ $text: { $search: req.query.terms } }, '-password')
     .sort('-created')
-    .deepPopulate('owner members.user')
+    .deepPopulate('user users roles.user')
     .exec()
     .then(workflows => res.jsonp(workflows))
     .catch(err => res.status(500).send(errorHandler(err)));
@@ -134,20 +127,21 @@ const authenticate = (req, res) => {
 
   if (workflow.authenticate(req.body.password)) {
     // add member
-    const member = new Member({ user, workflowId: workflow._id });
-    member.save()
-      .then(() => {
-        // add saved member to the workflow
-        workflow.members.push(member);
-        workflow.save()
-          .then((savedWorkflow) => {
+    // add saved member to the workflow
+    workflow.users.push(user);
+    workflow.roles.push({ user: user._id, role: env.userRoles.member });
+    workflow.save()
+      .then((saved) => {
+        saved
+          .populate({ path: 'user', select: 'email' })
+          .populate({ path: 'roles.user', select: '_id' })
+          .populate({ path: 'users', select: 'email' }, (err, populated) => {
             // return saved workflow
             res.jsonp({
-              message: `Tu es maintenant membre du workflow ${savedWorkflow.name}`,
-              workflow: prepareWorkflow(savedWorkflow, req.user),
+              message: `Tu es maintenant membre du workflow ${populated.name}`,
+              workflow: prepareWorkflow(populated, req.user),
             });
-          })
-          .catch(err => res.status(500).send(errorHandler(err)));
+          });
       })
       .catch(err => res.status(500).send(errorHandler(err)));
   } else {
@@ -159,25 +153,19 @@ const leave = (req, res) => {
   const user = req.user;
   const workflow = req.workflow;
 
-  if (workflow.owner._id.toString() === user._id.toString()) {
+  if (workflow.user._id.toString() === user._id.toString()) {
     res.status(400).send({ message: 'Vous ne pouvez pas quitter un workflow dont vous êtes propriétaire' });
   }
 
-  Member.findOne({ user: user._id, workflowId: workflow._id })
-    .then((member) => {
-      if (!member) {
-        res.status(404).send({ message: "Ce membre n'existe pas" });
-      }
-      workflow.members.remove({ _id: member._id });
-      member.remove()
-        .then(() => {
-          workflow.save()
-            .then((savedWorkflow) => {
-              res.jsonp(prepareWorkflow(savedWorkflow, req.user));
-            })
-            .catch(err => res.status(500).send(errorHandler(err)));
-        })
-        .catch(err => res.status(500).send(errorHandler(err)));
+  workflow.users.remove({ _id: user._id });
+  const roleIndex = workflow.roles.indexOf(role => role.user === user._id);
+  if (roleIndex !== -1) {
+    workflow.roles.splice(roleIndex, 1);
+  }
+  // Remove from each groups
+  workflow.save()
+    .then((savedWorkflow) => {
+      res.jsonp(prepareWorkflow(savedWorkflow, req.user));
     })
     .catch(err => res.status(500).send(errorHandler(err)));
 };
@@ -265,27 +253,20 @@ const subscribe = (req, res) => {
           return res.status(200).send({ success: false, message: "Le token d'accès n'est pas valide" });
         }
         // pull token and add new member from user
-        const member = new Member({ user, workflowId: workflow._id });
-        member.save()
-          .then((saved) => {
-            workflow.accessTokens.pull(token);
-            workflow.members.push(saved);
-            workflow.save()
-              .then((savedWf) => {
-                res.jsonp({
-                  success: true,
-                  workflow: savedWf,
-                  message: 'Vous avez été ajouté au workflow!',
-                });
-              })
-              .catch(errWf => res.status(200).send({
-                success: false,
-                message: errorHandler(errWf),
-              }));
+        workflow.accessTokens.pull(token);
+        workflow.users.push(user);
+        workflow.roles.push({ user, role: env.userRoles.member });
+        workflow.save()
+          .then((savedWf) => {
+            res.jsonp({
+              success: true,
+              workflow: savedWf,
+              message: 'Vous avez été ajouté au workflow!',
+            });
           })
-          .catch(errMember => res.status(200).send({
+          .catch(errWf => res.status(200).send({
             success: false,
-            message: errorHandler(errMember),
+            message: errorHandler(errWf),
           }));
       });
     })
@@ -307,7 +288,7 @@ const workflowByID = (req, res, next, id) => {
 
   Workflow
     .findById(id)
-    .deepPopulate('owner threads threads.users threads.owner threads.messages threads.messages.user tasks tasks.owner tasks.members tasks.members.user tasks.subTasks.members tasks.subTasks.members.user members members.user documents documents.user polls polls.user polls.choices')
+    .deepPopulate('user users roles.user')
     .exec()
     .then((workflow) => {
       if (!workflow) {

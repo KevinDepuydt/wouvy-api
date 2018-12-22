@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import deepPopulate from 'mongoose-deep-populate';
-import Message from './message';
 
 const Schema = mongoose.Schema;
 const deepPopulatePlugin = deepPopulate(mongoose);
@@ -9,11 +8,12 @@ const deepPopulatePlugin = deepPopulate(mongoose);
  * Document Schema
  */
 const ThreadSchema = new Schema({
-  name: {
-    type: String,
-    default: '',
+  workflow: {
+    type: Schema.ObjectId,
+    ref: 'Workflow',
+    required: 'Workflow is missing',
   },
-  owner: {
+  user: {
     type: Schema.ObjectId,
     ref: 'User',
     required: 'Une conversation doit avoir un propriétaire',
@@ -22,6 +22,10 @@ const ThreadSchema = new Schema({
     type: Schema.ObjectId,
     ref: 'User',
   }],
+  name: {
+    type: String,
+    default: '',
+  },
   messages: [{
     type: Schema.ObjectId,
     ref: 'Message',
@@ -34,6 +38,8 @@ const ThreadSchema = new Schema({
     type: Boolean,
     default: false,
   },
+}, {
+  usePushEach: true,
 });
 
 /**
@@ -41,14 +47,14 @@ const ThreadSchema = new Schema({
  */
 ThreadSchema.plugin(deepPopulatePlugin, {
   populate: {
-    owner: {
+    user: {
       select: 'email',
     },
     users: {
-      select: 'firstname lastname username',
+      select: 'firstname lastname username email',
     },
     'messages.user': {
-      select: 'firstname lastname username picture',
+      select: 'firstname lastname username picture email',
     },
   },
 });

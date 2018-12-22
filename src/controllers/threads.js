@@ -11,12 +11,12 @@ import { errorHandler } from '../helpers/error-messages';
 const create = (req, res) => {
   const workflow = req.workflow;
   const user = req.user;
-  const thread = new Thread({ owner: user, ...req.body });
+  const thread = new Thread({ workflow, user, ...req.body });
 
   thread.save()
     .then((saved) => {
       saved
-        .populate({ path: 'owner', select: '-password -resetToken' })
+        .populate({ path: 'user', select: '-password -resetToken' })
         .populate({ path: 'users', select: '-password -resetToken' }, (err, populated) => {
           workflow.threads.push(populated);
           workflow.save()
@@ -80,7 +80,12 @@ const remove = (req, res) => {
  */
 const list = (req, res) => {
   // @TODO add where user id = req.user.id in find
-  Thread.find().sort('-created').exec()
+  // @TODO remove isDefault from query criteria
+  Thread
+    .find({ workflow: req.workflow._id, isDefault: true })
+    .deepPopulate('user users messages messages.user')
+    .sort('-created')
+    .exec()
     .then(documents => res.jsonp(documents))
     .catch(err => res.status(500).send({ message: err }));
 };
@@ -117,6 +122,7 @@ const addMessage = (req, res) => {
       saved.populate({ path: 'user', select: '-password -resetToken' }, (err, populated) => {
         res.jsonp(populated);
         io.to(`thread/${thread._id}`).emit('thread-message', populated);
+        io.to(`w/${req.workflow._id}`).emit('unread-message-check');
       });
     })
     .catch(errMessage => res.status(500).send({ message: errMessage }));
@@ -134,7 +140,7 @@ const threadByID = (req, res, next, id) => {
 
   Thread
     .findById(id)
-    .deepPopulate('owner users messages messages.user')
+    .deepPopulate('user users messages messages.user')
     .exec()
     .then((thread) => {
       if (!thread) {

@@ -2,7 +2,6 @@ import isMongoId from 'validator/lib/isMongoId';
 import _ from 'lodash';
 import Task from '../models/task';
 import NewsFeedItem from '../models/news-feed-item';
-import { prepareWorkflow } from '../helpers/workflows';
 import { errorHandler } from '../helpers/error-messages';
 
 /**
@@ -12,26 +11,18 @@ const create = (req, res) => {
   const workflow = req.workflow;
   const user = req.user;
   const io = req.io;
-  const task = new Task({ owner: user, ...req.body });
+  const task = new Task({ workflow, user, ...req.body });
 
   task.save()
     .then((saved) => {
       saved
-        .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
-        .populate({ path: 'owner', select: 'username picture' }, (err, populated) => {
-          workflow.tasks.push(populated);
-          workflow.save()
-            .then((savedWorkflow) => {
-              res.jsonp({
-                workflow: prepareWorkflow(savedWorkflow, req.user),
-                task: populated,
-              });
-              io.to(`w/${workflow._id}/tasks`).emit('task-created', populated);
-            })
-            .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
+        .populate({ path: 'users', select: 'email firstname lastname username picture' })
+        .populate({ path: 'user', select: 'username picture' }, (err, populated) => {
+          res.jsonp(populated);
           // Post the task
           if (!populated.private) {
-            const item = new NewsFeedItem({ user, workflow: workflow._id, type: 'task', data: { task: populated } });
+            io.to(`w/${workflow._id}/tasks`).emit('task-created', populated);
+            const item = new NewsFeedItem({ user, workflow, type: 'task', data: { task: populated } });
             item.save().then(() => {
               io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-created', item);
             });
@@ -62,14 +53,21 @@ const update = (req, res) => {
   task = _.extend(task, req.body);
 
   task.save()
-    .then((saved) => {
-      saved
-        .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
-        .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
-        .populate({ path: 'owner', select: 'username picture' }, (err, populated) => {
-          res.jsonp(populated);
-          io.to(`w/${workflow._id}/tasks`).emit('task-updated', populated);
-        });
+    .then(() => {
+      Task.findById(task._id)
+        .populate({ path: 'users', select: 'email firstname lastname username picture' })
+        .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture' })
+        .populate({ path: 'user', select: 'username picture' })
+        .exec()
+        .then((taskFound) => {
+          res.jsonp(taskFound);
+          if (!taskFound.private) {
+            io.to(`w/${workflow._id}/tasks`).emit('task-updated', taskFound);
+          } else {
+            io.to(`w/${workflow._id}/notes/${req.user._id}`).emit('task-updated', taskFound);
+          }
+        })
+        .catch(err => res.status(500).send(errorHandler(err)));
     })
     .catch(err => res.status(500).send(errorHandler(err)));
 };
@@ -85,15 +83,15 @@ const remove = (req, res) => {
   task.remove()
     .then((removedTask) => {
       res.jsonp(removedTask);
-      io.to(`w/${workflow._id}/tasks`).emit('task-deleted', removedTask);
-      io.to(`w/${workflow._id}/tasks/${removedTask._id}`).emit('task-item-deleted', removedTask);
-      workflow.tasks.splice(workflow.tasks.findIndex(p => p._id === removedTask._id), 1);
-      workflow.save();
-      NewsFeedItem.findOneAndRemove({ 'data.task': removedTask._id })
-        .then((removedItem) => {
-          io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-deleted', removedItem);
-        })
-        .catch(err => res.status(500).send({ message: err }));
+      if (!removedTask.private) {
+        io.to(`w/${workflow._id}/tasks`).emit('task-deleted', removedTask);
+        io.to(`w/${workflow._id}/tasks/${removedTask._id}`).emit('task-item-deleted', removedTask);
+        NewsFeedItem.findOneAndRemove({ 'data.task': removedTask._id })
+          .then((removedItem) => {
+            io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-deleted', removedItem);
+          })
+          .catch(err => res.status(500).send({ message: err }));
+      }
     })
     .catch(err => res.status(500).send({ message: err }));
 };
@@ -102,9 +100,38 @@ const remove = (req, res) => {
  * List of Task
  */
 const list = (req, res) => {
-  Task.find().sort('-created').exec()
-    .then(tasks => res.jsonp(tasks))
-    .catch(err => res.status(500).send({ message: err }));
+  if (req.query.private && req.query.private === 'true' && req.user) {
+    Task.find({ workflow: req.workflow._id, user: req.user._id, private: true })
+      .sort('-created')
+      .populate({ path: 'users', select: 'email firstname lastname username picture' })
+      .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture' })
+      .populate({ path: 'user', select: 'username picture' })
+      .exec()
+      .then(tasks => res.jsonp(tasks))
+      .catch(err => res.status(500).send({ message: err }));
+  } else {
+    const criteria = { workflow: req.workflow._id, private: false };
+    if (req.query.select && ['done', 'not_done'].indexOf(req.query.select) !== -1) {
+      if (req.query.select === 'done') {
+        criteria.done = true;
+      } else if (req.query.select === 'not_done') {
+        criteria.done = false;
+      }
+    }
+    if (req.query.user && isMongoId(req.query.user)) {
+      criteria.$or = [
+        { users: { $in: [req.query.user] } },
+        { 'subTasks.users': { $in: [req.query.user] } },
+      ];
+    }
+    Task.find(criteria)
+      .sort('-created')
+      .populate({ path: 'users', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+      .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture' })
+      .populate({ path: 'user', select: 'username picture' })
+      .then(tasks => res.jsonp(tasks))
+      .catch(err => res.status(500).send({ message: err }));
+  }
 };
 
 /**
@@ -118,9 +145,9 @@ const taskByID = (req, res, next, id) => {
   }
 
   Task.findById(id)
-    .populate({ path: 'members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
-    .populate({ path: 'subTasks.members', populate: { path: 'user', select: 'email firstname lastname username picture' } })
-    .populate({ path: 'owner', select: 'username picture' })
+    .populate({ path: 'users', populate: { path: 'user', select: 'email firstname lastname username picture' } })
+    .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture' })
+    .populate({ path: 'user', select: 'username picture' })
     .exec()
     .then((task) => {
       if (!task) {

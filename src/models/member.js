@@ -10,20 +10,20 @@ const deepPopulatePlugin = deepPopulate(mongoose);
  * Member Schema
  */
 const MemberSchema = new Schema({
+  workflow: {
+    type: Schema.ObjectId,
+    ref: 'Workflow',
+    required: 'Workflow is missing',
+  },
   user: {
     type: Schema.ObjectId,
     ref: 'User',
     required: true,
   },
-  workflowId: {
-    type: Schema.ObjectId,
-    ref: 'Workflow',
-    required: true,
-  },
   role: {
-    type: String,
-    enum: env.memberRoles,
-    default: env.memberRoles[0],
+    type: Object,
+    enum: Object.keys(env.userRoles).map(role => env.userRoles[role]),
+    default: env.userRoles.member,
   },
   created: {
     type: Date,
@@ -31,7 +31,7 @@ const MemberSchema = new Schema({
   },
 });
 
-MemberSchema.index({ user: 1, workflowId: 1 }, { unique: true });
+MemberSchema.index({ user: 1, workflow: 1 }, { unique: true });
 
 /**
  * Unique plugin

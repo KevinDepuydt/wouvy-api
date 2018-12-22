@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import deepPopulate from 'mongoose-deep-populate';
 import bcrypt from 'bcrypt';
 import uniqueValidator from 'mongoose-unique-validator';
+import env from '../config/env';
 import TagSchema from './tag';
 
 const Schema = mongoose.Schema;
@@ -11,19 +12,10 @@ const deepPopulatePlugin = deepPopulate(mongoose);
  * Workflow Schema
  */
 const WorkflowSchema = new Schema({
-  owner: {
+  user: {
     type: Schema.ObjectId,
     ref: 'User',
   },
-  /*
-  slug: {
-    type: String,
-    default: '',
-    dropDups: true,
-    unique: 'Un workflow avec cette url personnalisé existe déjà',
-    trim: true,
-  },
-  */
   name: {
     type: String,
     required: 'Veuillez saisir un nom pour votre workflow.',
@@ -33,33 +25,87 @@ const WorkflowSchema = new Schema({
     type: String,
     default: '',
   },
-  members: [{
+  users: [{
     type: Schema.ObjectId,
-    ref: 'Member',
+    ref: 'User',
     default: [],
   }],
-  threads: [{
-    type: Schema.ObjectId,
-    ref: 'Thread',
-    default: [],
+  roles: [{
+    user: {
+      type: Schema.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    role: {
+      type: Object,
+      enum: Object.keys(env.userRoles).map(role => env.userRoles[role]),
+      default: env.userRoles.member,
+    },
   }],
-  tasks: [{
+  rights: {
+    tasks: {
+      add: {
+        type: Number,
+        default: env.userRoles.member.level,
+      },
+      edit: {
+        type: Number,
+        default: env.userRoles.member.level,
+      },
+      remove: {
+        type: Number,
+        default: env.userRoles.moderator.level,
+      },
+    },
+    documents: {
+      add: {
+        type: Number,
+        default: env.userRoles.member.level,
+      },
+      edit: {
+        type: Number,
+        default: env.userRoles.member.level,
+      },
+      remove: {
+        type: Number,
+        default: env.userRoles.moderator.level,
+      },
+    },
+    polls: {
+      add: {
+        type: Number,
+        default: env.userRoles.member.level,
+      },
+      edit: {
+        type: Number,
+        default: env.userRoles.member.level,
+      },
+      remove: {
+        type: Number,
+        default: env.userRoles.moderator.level,
+      },
+    },
+    members: {
+      add: {
+        type: Number,
+        default: env.userRoles.moderator.level,
+      },
+      edit: {
+        type: Number,
+        default: env.userRoles.admin.level,
+      },
+      remove: {
+        type: Number,
+        default: env.userRoles.admin.level,
+      },
+    },
+  },
+  starred: [{
     type: Schema.ObjectId,
-    ref: 'Task',
-    default: [],
-  }],
-  documents: [{
-    type: Schema.ObjectId,
-    ref: 'Document',
-    default: [],
-  }],
-  polls: [{
-    type: Schema.ObjectId,
-    ref: 'Poll',
+    ref: 'User',
     default: [],
   }],
   tags: [TagSchema],
-  tasksLabels: [TagSchema],
   accessTokens: [{
     type: String,
     default: [],
@@ -91,40 +137,14 @@ WorkflowSchema.plugin(uniqueValidator);
  */
 WorkflowSchema.plugin(deepPopulatePlugin, {
   populate: {
-    owner: {
+    user: {
       select: 'email',
     },
-    'members.user': {
+    users: {
       select: 'email username lastname firstname picture',
     },
-    'threads.user': {
-      select: 'email username lastname firstname picture',
-    },
-    'threads.owner': {
-      select: 'email username lastname firstname picture',
-    },
-    tasks: {
-      options: {
-        sort: { created: -1 },
-      },
-    },
-    'tasks.owner': {
-      select: 'email username lastname firstname picture',
-    },
-    'tasks.users': {
-      select: 'email username lastname firstname picture',
-    },
-    'tasks.members.user': {
-      select: 'email username lastname firstname picture',
-    },
-    'tasks.subTasks.members.user': {
-      select: 'email username lastname firstname picture',
-    },
-    'documents.user': {
-      select: 'email username lastname firstname picture',
-    },
-    'polls.user': {
-      select: 'email username lastname firstname picture',
+    'roles.user': {
+      select: '_id',
     },
   },
 });
@@ -140,17 +160,6 @@ WorkflowSchema.pre('save', function preSave(next) {
   }
 
   next();
-});
-
-/**
- * Hook a post remove method
- */
-WorkflowSchema.post('remove', function postRemove() {
-  this.members.forEach(m => m.remove());
-  this.threads.forEach(t => t.remove());
-  this.tasks.forEach(t => t.remove());
-  this.documents.forEach(d => d.remove());
-  this.polls.forEach(p => p.remove());
 });
 
 /**

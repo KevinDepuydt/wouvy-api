@@ -6,6 +6,11 @@ const Schema = mongoose.Schema;
  * Post Schema
  */
 const PostSchema = new Schema({
+  workflow: {
+    type: Schema.ObjectId,
+    ref: 'Workflow',
+    required: 'Workflow is missing',
+  },
   user: {
     type: Schema.ObjectId,
     ref: 'User',

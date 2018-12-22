@@ -49,17 +49,17 @@ const NewsFeedItemSchema = new Schema({
   likes: [{
     type: Schema.ObjectId,
     ref: 'User',
-    default: [],
   }],
   comments: [{
     type: Schema.ObjectId,
     ref: 'Comment',
-    default: [],
   }],
   created: {
     type: Date,
     default: Date.now,
   },
+}, {
+  usePushEach: true,
 });
 
 /**
@@ -76,7 +76,7 @@ NewsFeedItemSchema.plugin(deepPopulatePlugin, {
     'data.task': {
       select: '-private',
     },
-    'data.task.owner': {
+    'data.task.user': {
       select: 'email username lastname firstname picture',
     },
     'data.post.user': {

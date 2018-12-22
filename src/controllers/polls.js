@@ -2,8 +2,6 @@ import _ from 'lodash';
 import isMongoId from 'validator/lib/isMongoId';
 import Poll from '../models/poll';
 import NewsFeedItem from '../models/news-feed-item';
-import { prepareWorkflow } from '../helpers/workflows';
-import { errorHandler } from '../helpers/error-messages';
 
 /**
  * Create a Poll
@@ -12,27 +10,15 @@ const create = (req, res) => {
   const user = req.user;
   const workflow = req.workflow;
   const io = req.io;
-  const poll = new Poll({
-    user,
-    topic: req.body.topic,
-    choices: req.body.choices, // .map(c => new PollChoice(c)),
-  });
+  const poll = new Poll({ workflow, user, ...req.body });
 
   poll.save()
     .then((saved) => {
       saved.populate({ path: 'user', select: 'email firstname lastname email' }, (err, populated) => {
-        workflow.polls.push(populated);
-        workflow.save()
-          .then((savedWorkflow) => {
-            res.jsonp({
-              workflow: prepareWorkflow(savedWorkflow, user),
-              poll: populated,
-            });
-            io.to(`w/${workflow._id}/polls`).emit('poll-created', populated);
-          })
-          .catch(errWorkflow => res.status(500).send(errorHandler(errWorkflow)));
+        res.jsonp(populated);
+        io.to(`w/${workflow._id}/polls`).emit('poll-created', populated);
         // NewsFeedItem of the task
-        const item = new NewsFeedItem({ user, workflow: workflow._id, type: 'poll', data: { poll } });
+        const item = new NewsFeedItem({ user, workflow, type: 'poll', data: { poll } });
         item.save().then((savedItem) => {
           savedItem.populate({ path: 'user', select: 'email firstname lastname email username' }, (errItem, populatedItem) => {
             if (!errItem) {
@@ -97,8 +83,6 @@ const remove = (req, res) => {
     .then((removed) => {
       res.jsonp(removed);
       io.to(`w/${workflow._id}/polls`).emit('poll-deleted', removed);
-      workflow.polls.splice(workflow.polls.findIndex(p => p._id === poll._id), 1);
-      workflow.save();
       NewsFeedItem.findOneAndRemove({ 'data.poll': removed._id })
         .then((removedItem) => {
           console.log('Associated item', removedItem);
@@ -113,7 +97,7 @@ const remove = (req, res) => {
  * List of Polls
  */
 const list = (req, res) => {
-  Poll.find()
+  Poll.find({ workflow: req.workflow._id })
     .sort('-created')
     .exec()
     .then(polls => res.jsonp(polls))

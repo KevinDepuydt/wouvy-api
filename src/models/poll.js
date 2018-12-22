@@ -6,6 +6,11 @@ const Schema = mongoose.Schema;
  * Poll Schema
  */
 const PollSchema = new Schema({
+  workflow: {
+    type: Schema.ObjectId,
+    ref: 'Workflow',
+    required: 'Workflow is missing',
+  },
   user: {
     type: Schema.ObjectId,
     ref: 'User',

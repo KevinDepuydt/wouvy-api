@@ -7,7 +7,8 @@ import Comment from '../models/comment';
  * Create a NewsFeedItem
  */
 const create = (req, res) => {
-  const item = new NewsFeedItem(req.body);
+  const workflow = req.workflow;
+  const item = new NewsFeedItem({ workflow, ...req.body });
 
   item.save()
     .then(saved => res.jsonp(saved))
@@ -35,15 +36,21 @@ const update = (req, res) => {
   // delete data
   delete req.body.data;
   delete req.body.user;
+  delete req.body.comments;
 
   item = _.extend(item, req.body);
+
+  console.log('item', item.comments);
 
   item.save()
     .then((saved) => {
       res.jsonp(saved);
       io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-updated', item);
     })
-    .catch(err => res.status(500).send({ message: err }));
+    .catch((err) => {
+      console.log('ERR', err);
+      return res.status(500).send({ message: err });
+    });
 };
 
 /**
@@ -58,38 +65,6 @@ const remove = (req, res) => {
     .then((removed) => {
       res.jsonp(removed);
       io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-deleted', removed);
-      console.log('news feed item removed', removed);
-      if (removed.data.task) {
-        console.log('Remove task', removed.data.task);
-        removed.data.task.remove()
-          .then((removedTask) => {
-            io.to(`w/${workflow._id}/tasks`).emit('task-deleted', removedTask);
-            workflow.tasks.splice(workflow.tasks.findIndex(p => p._id === removedTask._id), 1);
-            workflow.save();
-          })
-          .catch(err => res.status(500).send({ message: err }));
-      }
-      if (removed.data.document) {
-        removed.data.document.remove()
-          .then((removedDocument) => {
-            io.to(`w/${workflow._id}/documents`).emit('document-deleted', removedDocument);
-            workflow.documents.splice(
-              workflow.documents.findIndex(p => p._id === removedDocument._id),
-              1,
-            );
-            workflow.save();
-          })
-          .catch(err => res.status(500).send({ message: err }));
-      }
-      if (removed.data.poll) {
-        removed.data.poll.remove()
-          .then((removedPoll) => {
-            io.to(`w/${workflow._id}/polls`).emit('poll-deleted', removedPoll);
-            workflow.polls.splice(workflow.polls.findIndex(p => p._id === removedPoll._id), 1);
-            workflow.save();
-          })
-          .catch(err => res.status(500).send({ message: err }));
-      }
       if (removed.data.post) {
         removed.data.post.remove();
       }
@@ -101,10 +76,14 @@ const remove = (req, res) => {
  * List of NewsFeedItem
  */
 const list = (req, res) => {
-  const workflow = req.workflow;
-  NewsFeedItem.find({ workflow })
+  const skip = parseInt(req.query.skip, 10) || 0;
+  const limit = parseInt(req.query.limit, 10) || 0;
+
+  NewsFeedItem.find({ workflow: req.workflow._id })
+    .limit(limit)
+    .skip(skip)
     .sort('-created')
-    .deepPopulate('user comments comments.user data.task data.task.owner data.post data.post.user data.document data.poll data.poll.user')
+    .deepPopulate('user comments comments.user data.task data.task.user data.post data.post.user data.document data.poll data.poll.user')
     .exec()
     .then(items => res.jsonp(items))
     .catch(err => res.status(500).send({ message: err }));
@@ -122,16 +101,17 @@ const addComment = (req, res) => {
 
   comment.save()
     .then((savedComment) => {
-      savedComment.populate({ path: 'user', select: '' }, (err, populated) => {
+      savedComment.populate({ path: 'user', select: 'email username lastname firstname picture' }, (err, populated) => {
         item.comments.push(populated);
         item.save()
           .then(() => {
             res.jsonp(populated);
             io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-updated', item);
-          });
+          })
+          .catch(errBis => res.status(500).send({ message: errBis, step: 1 }));
       });
     })
-    .catch(err => res.status(500).send({ message: err }));
+    .catch(errCommentSave => res.status(500).send({ message: errCommentSave, step: 3 }));
 };
 
 /**
@@ -150,7 +130,7 @@ const updateComment = (req, res) => {
 
   comment.save()
     .then((savedComment) => {
-      savedComment.populate({ path: 'user', select: '' }, (err, populated) => {
+      savedComment.populate({ path: 'user', select: 'email username lastname firstname picture' }, (err, populated) => {
         res.jsonp(populated);
         io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-comment-updated', { item: { _id: item._id }, comment: populated });
       });
@@ -193,7 +173,7 @@ const newsFeedItemByID = (req, res, next, id) => {
 
   NewsFeedItem
     .findById(id)
-    .deepPopulate('user comments comments.user data.task data.task.owner data.post data.post.user data.document data.poll data.poll.user')
+    .deepPopulate('user comments comments.user data.task data.task.user data.post data.post.user data.document data.poll data.poll.user')
     .exec()
     .then((item) => {
       if (!item) {

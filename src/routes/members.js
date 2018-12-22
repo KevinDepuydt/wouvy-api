@@ -8,15 +8,14 @@ membersRoutes.route('/workflows/:workflowId/members')
   .get(member.list)
   .post(member.create);
 
-membersRoutes.route('/workflows/:workflowId/members/:memberId')
+membersRoutes.route('/workflows/:workflowId/members/:userId')
   .get(member.read)
   .put(member.update);
 
 // Workflow remove member
-membersRoutes.route('/workflows/:workflowId/members/:memberId')
+membersRoutes.route('/workflows/:workflowId/members/:userId')
   .delete(member.remove);
 
 membersRoutes.param('workflowId', workflowByID);
-membersRoutes.param('memberId', member.memberByID);
 
 export default membersRoutes;
