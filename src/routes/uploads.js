@@ -3,8 +3,8 @@ import * as upload from '../controllers/uploads';
 
 const uploadsRoutes = Router();
 
-uploadsRoutes.route('/upload').post(upload.uploadFile);
-
-uploadsRoutes.route('/upload/:filename').delete(upload.deleteFile);
+uploadsRoutes.route('/upload')
+  .post(upload.upload.single('file'), upload.awsUploadFile)
+  .delete(upload.awsDeleteObject);
 
 export default uploadsRoutes;

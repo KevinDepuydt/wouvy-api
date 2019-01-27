@@ -23,6 +23,12 @@ const defaultEnv = {
       },
     },
   },
+  aws: {
+    accessKey: 'AKIAJTH2RLX42DZTGELA',
+    secretAccessKey: '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',
+    region: 'eu-west-1',
+    bucket: 'wouvy-uploads',
+  },
   jwtSecret: '@JwtSecretKey',
   jwtExpiresIn: '48h',
   userRoles: {
