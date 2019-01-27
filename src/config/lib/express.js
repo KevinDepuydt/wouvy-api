@@ -11,7 +11,6 @@ import morgan from 'morgan';
 import routes from '../../routes';
 import passportStrategies from '../../strategies';
 import env from '../env';
-import { getUpload } from '../../controllers/uploads';
 
 /**
  * Initialize application middleware
@@ -75,8 +74,6 @@ const initPassportStrategies = () => {
  * @param app
  */
 const initApiRoutes = (app) => {
-  // download uploaded files
-  app.use('/upload/:filename', getUpload);
   // api routes
   routes.forEach(route => app.use('/api', route));
 };
