@@ -1,18 +1,7 @@
-import fs from 'fs';
-import path from 'path';
-import multer from 'multer';
 import _ from 'lodash';
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '..', '..', 'public', 'uploads'));
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    // ensure uniqueness of filename
-    cb(null, `${path.basename(_.snakeCase(file.originalname), ext)}-${Date.now()}${ext}`);
-  },
-});
+import multer from 'multer';
+import { S3 } from 'aws-sdk';
+import env from '../config/env';
 
 const allowedTypes = [
   'application/pdf',
@@ -41,43 +30,53 @@ const allowedFilesFilter = (req, file, cb) => {
   cb(null, true);
 };
 
+// Multer upload configured as middleware
+const storage = multer.memoryStorage();
 const upload = multer({ storage, fileFilter: allowedFilesFilter });
 
+// AWS S3 client
+const s3Client = new S3({
+  accessKeyId: env.aws.accessKey,
+  secretAccessKey: env.aws.secretAccessKey,
+  region: env.aws.region,
+});
+
 /**
- * Upload a file
+ * AWS S3 Upload file
  */
-const uploadFile = (req, res) => {
-  const uploader = upload.single('file');
-  uploader(req, res, (err) => {
+const awsUploadFile = (req, res) => {
+  const path = _.reduce(req.query, (acc, val, key) => `${acc.length > 0 ? `${acc}/` : ''}${key}${val ? `/${val}` : ''}`, '');
+  const params = {
+    Bucket: env.aws.bucket,
+    Key: `${path}/${encodeURI(req.file.originalname)}`,
+    Body: req.file.buffer,
+  };
+  s3Client.upload(params, (err, data) => {
     if (err) {
-      return res.status(400).send(err);
+      return res.status(500).send(err);
     }
-    res.status(200).send(req.file.filename);
+    return res.status(200).send(data.Location);
   });
 };
 
 /**
- * Delete a file
+ * AWS S3 Delete object
  */
-const deleteFile = (req, res) => {
-  const filepath = `./public/uploads/${req.params.filename}`;
-  if (fs.existsSync(filepath)) {
-    fs.unlink(filepath, (err) => {
-      if (err) {
-        return res.status(400).send({ message: `Unable to delete ${req.params.filename}`, err });
-      }
-      res.status(200).send({ message: `File ${req.params.filename} has been deleted` });
-    });
-  } else {
-    res.status(404).send({ message: `File ${req.params.filename} not found` });
+const awsDeleteObject = (req, res) => {
+  if (!req.query.path) {
+    return res.status(500).send({ message: 'missing path parameter' });
   }
+
+  const params = {
+    Bucket: env.aws.bucket,
+    Key: req.query.path.toString().replace('https://wouvy-uploads.s3.eu-west-1.amazonaws.com/', ''),
+  };
+  s3Client.deleteObject(params, (err, data) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    return res.status(200).send(data);
+  });
 };
 
-/**
- * Download file
- */
-const getUpload = (req, res) => {
-  res.download(`./public/uploads/${req.params.filename}`);
-};
-
-export { uploadFile, deleteFile, getUpload };
+export { upload, awsUploadFile, awsDeleteObject };
