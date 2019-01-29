@@ -141,7 +141,7 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
       select: 'email',
     },
     users: {
-      select: 'email username lastname firstname picture',
+      select: 'email username lastname firstname picture avatar',
     },
     'roles.user': {
       select: '_id',

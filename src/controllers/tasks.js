@@ -16,8 +16,8 @@ const create = (req, res) => {
   task.save()
     .then((saved) => {
       saved
-        .populate({ path: 'users', select: 'email firstname lastname username picture' })
-        .populate({ path: 'user', select: 'username picture' }, (err, populated) => {
+        .populate({ path: 'users', select: 'email firstname lastname username picture avatar' })
+        .populate({ path: 'user', select: 'username picture avatar' }, (err, populated) => {
           res.jsonp(populated);
           // Post the task
           if (!populated.private) {
@@ -55,9 +55,9 @@ const update = (req, res) => {
   task.save()
     .then(() => {
       Task.findById(task._id)
-        .populate({ path: 'users', select: 'email firstname lastname username picture' })
-        .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture' })
-        .populate({ path: 'user', select: 'username picture' })
+        .populate({ path: 'users', select: 'email firstname lastname username picture avatar' })
+        .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture avatar' })
+        .populate({ path: 'user', select: 'username picture avatar' })
         .exec()
         .then((taskFound) => {
           res.jsonp(taskFound);
@@ -103,9 +103,9 @@ const list = (req, res) => {
   if (req.query.private && req.query.private === 'true' && req.user) {
     Task.find({ workflow: req.workflow._id, user: req.user._id, private: true })
       .sort('-created')
-      .populate({ path: 'users', select: 'email firstname lastname username picture' })
-      .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture' })
-      .populate({ path: 'user', select: 'username picture' })
+      .populate({ path: 'users', select: 'email firstname lastname username picture avatar' })
+      .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture avatar' })
+      .populate({ path: 'user', select: 'username picture avatar' })
       .exec()
       .then(tasks => res.jsonp(tasks))
       .catch(err => res.status(500).send({ message: err }));
@@ -126,9 +126,9 @@ const list = (req, res) => {
     }
     Task.find(criteria)
       .sort('-created')
-      .populate({ path: 'users', populate: { path: 'user', select: 'email firstname lastname username picture' } })
-      .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture' })
-      .populate({ path: 'user', select: 'username picture' })
+      .populate({ path: 'users', populate: { path: 'user', select: 'email firstname lastname username picture avatar' } })
+      .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture avatar' })
+      .populate({ path: 'user', select: 'username picture avatar' })
       .then(tasks => res.jsonp(tasks))
       .catch(err => res.status(500).send({ message: err }));
   }
@@ -145,9 +145,9 @@ const taskByID = (req, res, next, id) => {
   }
 
   Task.findById(id)
-    .populate({ path: 'users', populate: { path: 'user', select: 'email firstname lastname username picture' } })
-    .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture' })
-    .populate({ path: 'user', select: 'username picture' })
+    .populate({ path: 'users', populate: { path: 'user', select: 'email firstname lastname username picture avatar' } })
+    .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture avatar' })
+    .populate({ path: 'user', select: 'username picture avatar' })
     .exec()
     .then((task) => {
       if (!task) {

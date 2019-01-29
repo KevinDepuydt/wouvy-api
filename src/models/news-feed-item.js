@@ -68,22 +68,22 @@ const NewsFeedItemSchema = new Schema({
 NewsFeedItemSchema.plugin(deepPopulatePlugin, {
   populate: {
     user: {
-      select: 'email username lastname firstname picture',
+      select: 'email username lastname firstname picture avatar',
     },
     'comments.user': {
-      select: 'email username lastname firstname picture',
+      select: 'email username lastname firstname picture avatar',
     },
     'data.task': {
       select: '-private',
     },
     'data.task.user': {
-      select: 'email username lastname firstname picture',
+      select: 'email username lastname firstname picture avatar',
     },
     'data.post.user': {
-      select: 'email username lastname firstname picture',
+      select: 'email username lastname firstname picture avatar',
     },
     'data.poll.user': {
-      select: 'email username lastname firstname picture',
+      select: 'email username lastname firstname picture avatar',
     },
   },
 });

@@ -43,7 +43,7 @@ const TaskSchema = new Schema({
   subTasks: [{
     title: {
       type: String,
-      required: 'La sous-tâche est vide',
+      default: '',
     },
     users: [{
       type: Schema.ObjectId,

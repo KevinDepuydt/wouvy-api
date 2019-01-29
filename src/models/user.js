@@ -30,6 +30,10 @@ const UserSchema = new Schema({
     type: String,
     default: '',
   },
+  avatar: {
+    type: String,
+    default: '',
+  },
   password: {
     type: String,
     required: 'Veuillez renseigner un mot de passe',
@@ -65,9 +69,9 @@ UserSchema.plugin(uniqueValidator);
  * Hook a pre save method to hash the password
  */
 UserSchema.pre('save', function hash(next) {
-  if (!this.picture) {
+  if (!this.avatar) {
     const text = this.lastname && this.firstname ? `${this.lastname[0]}${this.firstname[0]}` : this.email;
-    this.picture = getAvatarFromText(text);
+    this.avatar = getAvatarFromText(text);
   }
 
   if (this.password && this.isModified('password')) {
