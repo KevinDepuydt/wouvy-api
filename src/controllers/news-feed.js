@@ -101,7 +101,7 @@ const addComment = (req, res) => {
 
   comment.save()
     .then((savedComment) => {
-      savedComment.populate({ path: 'user', select: 'email username lastname firstname picture' }, (err, populated) => {
+      savedComment.populate({ path: 'user', select: 'email username lastname firstname picture avatar' }, (err, populated) => {
         item.comments.push(populated);
         item.save()
           .then(() => {
@@ -130,7 +130,7 @@ const updateComment = (req, res) => {
 
   comment.save()
     .then((savedComment) => {
-      savedComment.populate({ path: 'user', select: 'email username lastname firstname picture' }, (err, populated) => {
+      savedComment.populate({ path: 'user', select: 'email username lastname firstname picture avatar' }, (err, populated) => {
         res.jsonp(populated);
         io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-comment-updated', { item: { _id: item._id }, comment: populated });
       });
