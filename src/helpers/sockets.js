@@ -18,7 +18,7 @@ export const broadcastWorkflowOnlineUsers = (io, room) => {
  */
 export const handleUserDisconnection = (socket, io, room) => {
   const id = socket.handshake.query.user;
-  User.findByIdAndUpdate(id, { $set: { lastConnection: Date.now() } }, { new: true })
+  User.findByIdAndUpdate(id, { $set: { lastActivity: Date.now() } }, { new: true })
     .then((updatedUser) => {
       if (room !== null) {
         io.to(`${room}/members`).emit('member-updated', updatedUser);

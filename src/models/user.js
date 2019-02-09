@@ -53,7 +53,7 @@ const UserSchema = new Schema({
     type: String,
     default: null,
   },
-  lastConnection: {
+  lastActivity: {
     type: Date,
     default: null,
   },
