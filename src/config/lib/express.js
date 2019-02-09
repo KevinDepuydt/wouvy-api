@@ -11,6 +11,7 @@ import morgan from 'morgan';
 import routes from '../../routes';
 import passportStrategies from '../../strategies';
 import env from '../env';
+import { broadcastWorkflowOnlineUsers, handleUserDisconnection } from '../../helpers/sockets';
 
 /**
  * Initialize application middleware
@@ -90,28 +91,49 @@ const initErrorHandler = (app) => {
   });
 };
 
+const WF_ROOM_REGEX = new RegExp('^w/([a-f\\d]{24})$');
+
 /**
  * Initialize socket io default events
  */
 const initSocketIO = (io, app) => {
   // socket connect
   io.on('connect', (socket) => {
-    console.log(`new socket ${socket.id} connected`);
+    let wfRoom = null;
+    console.log(`new socket ${socket.id} connected`, socket.handshake.query.user);
     // socket join à room
     socket.on('join-room', (room) => {
       socket.join(room);
       console.log(`${socket.id} join room ${room}`);
       socket.emit('message', `room ${room} joined`);
+      if (WF_ROOM_REGEX.test(room)) {
+        // set wfRoom to current workflow room
+        wfRoom = room;
+        // broadcast online users to users in workflow
+        broadcastWorkflowOnlineUsers(io, room);
+      }
     });
     // socket leave a room
     socket.on('leave-room', (room) => {
       socket.leave(room);
       console.log(`${socket.id} leave room ${room}`);
       socket.emit('message', `room ${room} leaved`);
+      // handle when user leave workflow room
+      if (wfRoom === room) {
+        wfRoom = null;
+        broadcastWorkflowOnlineUsers(io, room);
+      }
     });
     // socket disconnect
     socket.on('disconnect', () => {
       console.log(`socket ${socket.id} disconnected`);
+      handleUserDisconnection(socket, io, wfRoom);
+      // @TODO: broadcast to workflow room if in one wf room (needs to access socket rooms)
+      // If socket was in workflow room then broadcast online users updates
+      if (wfRoom !== null) {
+        // broadcast online users to users in workflow
+        broadcastWorkflowOnlineUsers(io, wfRoom);
+      }
     });
   });
 

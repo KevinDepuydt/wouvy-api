@@ -8,7 +8,6 @@ import isMongoId from 'validator/lib/isMongoId';
 import env from '../config/env';
 import Workflow from '../models/workflow';
 import Thread from '../models/thread';
-import Member from '../models/member';
 import { errorHandler } from '../helpers/error-messages';
 import { prepareWorkflow } from '../helpers/workflows';
 import { getImagePath } from '../helpers/templates';
