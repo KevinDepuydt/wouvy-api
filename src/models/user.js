@@ -53,6 +53,10 @@ const UserSchema = new Schema({
     type: String,
     default: null,
   },
+  lastConnection: {
+    type: Date,
+    default: null,
+  },
 });
 
 /**
