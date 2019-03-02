@@ -73,6 +73,19 @@ const update = (req, res) => {
 };
 
 /**
+ * Update many tasks
+ */
+const updateMany = async (req, res) => {
+  const reorderedTasks = req.body.tasks.map((t, i) => ({ ...t, order: i + 1 }));
+
+  for (const task of reorderedTasks) {
+    await Task.findOneAndUpdate({ _id: task._id }, task);
+  }
+
+  res.jsonp(reorderedTasks);
+};
+
+/**
  * Remove a Task
  */
 const remove = (req, res) => {
@@ -100,38 +113,22 @@ const remove = (req, res) => {
  * List of Task
  */
 const list = (req, res) => {
-  if (req.query.private && req.query.private === 'true' && req.user) {
-    Task.find({ workflow: req.workflow._id, user: req.user._id, private: true })
-      .sort('-created')
-      .populate({ path: 'users', select: 'email firstname lastname username picture avatar' })
-      .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture avatar' })
-      .populate({ path: 'user', select: 'username picture avatar' })
-      .exec()
-      .then(tasks => res.jsonp(tasks))
-      .catch(err => res.status(500).send({ message: err }));
-  } else {
-    const criteria = { workflow: req.workflow._id, private: false };
-    if (req.query.select && ['done', 'not_done'].indexOf(req.query.select) !== -1) {
-      if (req.query.select === 'done') {
-        criteria.done = true;
-      } else if (req.query.select === 'not_done') {
-        criteria.done = false;
-      }
-    }
-    if (req.query.user && isMongoId(req.query.user)) {
-      criteria.$or = [
-        { users: { $in: [req.query.user] } },
-        { 'subTasks.users': { $in: [req.query.user] } },
-      ];
-    }
-    Task.find(criteria)
-      .sort('-created')
-      .populate({ path: 'users', populate: { path: 'user', select: 'email firstname lastname username picture avatar' } })
-      .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture avatar' })
-      .populate({ path: 'user', select: 'username picture avatar' })
-      .then(tasks => res.jsonp(tasks))
-      .catch(err => res.status(500).send({ message: err }));
+  // default criteria for general tasks
+  const criteria = { workflow: req.workflow._id, private: false };
+
+  // handle private tasks
+  if (req.query.private && req.query.private === 'true') {
+    criteria.user = req.user._id;
+    criteria.private = true;
   }
+
+  Task.find(criteria)
+    .sort('order -created')
+    .populate({ path: 'users', populate: { path: 'user', select: 'email firstname lastname username picture avatar' } })
+    .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture avatar' })
+    .populate({ path: 'user', select: 'username picture avatar' })
+    .then(tasks => res.jsonp(tasks))
+    .catch(err => res.status(500).send({ message: err }));
 };
 
 /**
@@ -161,4 +158,4 @@ const taskByID = (req, res, next, id) => {
     .catch(err => next(err));
 };
 
-export { create, read, update, remove, list, taskByID };
+export { create, read, update, updateMany, remove, list, taskByID };
