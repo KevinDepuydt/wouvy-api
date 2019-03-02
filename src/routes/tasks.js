@@ -6,7 +6,8 @@ const tasksRoutes = Router();
 
 tasksRoutes.route('/workflows/:workflowId/tasks')
   .get(task.list)
-  .post(task.create);
+  .post(task.create)
+  .put(task.updateMany);
 
 tasksRoutes.route('/workflows/:workflowId/tasks/:taskId')
   .get(task.read)

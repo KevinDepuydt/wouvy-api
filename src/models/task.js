@@ -59,6 +59,10 @@ const TaskSchema = new Schema({
     type: Date,
     default: null,
   },
+  order: {
+    type: Number,
+    default: null,
+  },
   created: {
     type: Date,
     default: Date.now,
