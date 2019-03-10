@@ -153,8 +153,6 @@ WorkflowSchema.plugin(deepPopulatePlugin, {
  * Hook a pre save method to validate slug and has the password
  */
 WorkflowSchema.pre('save', function preSave(next) {
-  // this.slug = this.slug.toLowerCase();
-
   if (this.password && this.isModified('password')) {
     this.password = this.hashPassword(this.password);
   }
@@ -173,7 +171,7 @@ WorkflowSchema.methods.hashPassword = function hashPassword(password) {
  * Create instance method for authenticating user
  */
 WorkflowSchema.methods.authenticate = function authenticate(password) {
-  return bcrypt.compareSync(password, this.password);
+  return this.password !== null && bcrypt.compareSync(password, this.password);
 };
 
 export default mongoose.model('Workflow', WorkflowSchema);

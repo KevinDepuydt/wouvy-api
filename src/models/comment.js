@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 /**
- * Post Schema
+ * Comment Schema
  */
 const CommentSchema = new Schema({
   user: {

@@ -1,4 +1,3 @@
-import fs from 'fs';
 import _ from 'lodash';
 import mongoose from 'mongoose';
 
@@ -51,10 +50,6 @@ const DocSchema = new Schema({
     type: String,
     default: '',
   },
-  published: {
-    type: Boolean,
-    default: false,
-  },
   created: {
     type: Date,
     default: Date.now,
@@ -74,7 +69,8 @@ DocSchema.pre('save', function preSave(next) {
  * Remove document file
  */
 DocSchema.pre('remove', function preRemove(next) {
-  fs.unlink(`./public/uploads/${this.file}`, () => next());
+  // @TODO: handle file deletion on AWS
+  next();
 });
 
 export default mongoose.model('Document', DocSchema);

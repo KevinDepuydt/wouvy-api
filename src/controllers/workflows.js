@@ -1,4 +1,5 @@
 import path from 'path';
+import crypto from 'crypto';
 import _ from 'lodash';
 import nodemailer from 'nodemailer';
 import hbs from 'nodemailer-express-handlebars';
@@ -8,6 +9,7 @@ import isMongoId from 'validator/lib/isMongoId';
 import env from '../config/env';
 import Workflow from '../models/workflow';
 import Thread from '../models/thread';
+import Folder from '../models/folder';
 import { errorHandler } from '../helpers/error-messages';
 import { prepareWorkflow } from '../helpers/workflows';
 import { getImagePath } from '../helpers/templates';
@@ -21,48 +23,41 @@ smtpTransport.use('compile', hbs({
 }));
 
 /**
-const tasksLabels = [
-  { name: 'mémo', color: '#73df89' },
-  { name: 'à faire', color: '#a8a3ed' },
-  { name: 'urgent', color: '#ffd91b' },
-];
- */
-
-/**
  * Create a Workflow
  */
-const create = (req, res) => {
+const create = async (req, res) => {
   const user = req.user;
-  const workflow = new Workflow({
-    user,
-    ...req.body,
-  });
 
-  // add creator to workflow members admin
-  workflow.users.push(user);
-  workflow.roles.push({ user, role: env.userRoles.admin });
-  workflow.save()
-    .then((saved) => {
-      // Create default thread
-      const thread = new Thread({ workflow, user, name: 'Général', isDefault: true });
-      thread.save();
-      // Then save workflow
-      saved
-        .populate({ path: 'user', select: 'email' })
-        .populate({ path: 'roles.user', select: '_id' })
-        .populate({ path: 'users', select: 'email' }, (err, populated) => {
-          res.jsonp(prepareWorkflow(populated, req.user));
-        });
-    })
-    .catch(err => res.status(500).send(errorHandler(err)));
+  try {
+    // create new workflow
+    const workflow = await Workflow.create({
+      user,
+      users: [user],
+      roles: [{ user, role: env.userRoles.admin }],
+      ...req.body,
+    });
+    console.log('created workflow', workflow);
+    // create default thread
+    await Thread.create({ workflow, user, name: 'Général', isDefault: true });
+    // create default folder
+    await Folder.create({ workflow, user, name: `wf-${workflow._id}-library`, isRoot: true });
+    // populate workflow's fields
+    const populated = await Workflow.populate(workflow, [
+      { path: 'user', select: 'email' },
+      { path: 'roles.user', select: '_id' },
+      { path: 'users', select: 'email' },
+    ]);
+    // prepare and return created workflow
+    return res.jsonp(prepareWorkflow(populated, req.user));
+  } catch (err) {
+    return res.status(500).send(errorHandler(err));
+  }
 };
 
 /**
  * Show the current Workflow
  */
-const read = (req, res) => {
-  res.jsonp(prepareWorkflow(req.workflow, req.user));
-};
+const read = (req, res) => res.jsonp(prepareWorkflow(req.workflow, req.user));
 
 /**
  * Update a Workflow

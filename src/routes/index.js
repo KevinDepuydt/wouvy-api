@@ -1,5 +1,4 @@
 import authenticationRoutes from './authentication';
-import documentsRoutes from './documents';
 import rightsRoutes from './rights';
 import tasksRoutes from './tasks';
 import threadsRoutes from './threads';
@@ -10,12 +9,12 @@ import uploadsRoutes from './uploads';
 import newsFeedRoutes from './news-feed';
 import postsRoutes from './posts';
 import pollsRoutes from './polls';
+import libraryRoutes from './library';
 
 // server set routes in order of routes array
 // authentication have to stay in first position to secure other routes
 const routes = [
   authenticationRoutes,
-  documentsRoutes,
   rightsRoutes,
   tasksRoutes,
   threadsRoutes,
@@ -26,6 +25,7 @@ const routes = [
   newsFeedRoutes,
   postsRoutes,
   pollsRoutes,
+  libraryRoutes,
 ];
 
 export default routes;
