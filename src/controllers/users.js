@@ -53,33 +53,28 @@ const update = (req, res) => {
 /**
  * Update an User password
  */
-const updateCredentials = (req, res) => {
+const updatePassword = (req, res) => {
   const user = req.user;
-  const { email, password, newPassword, isNew } = req.body;
+  const { password, confirmation } = req.body;
 
-  if (user && (user.authenticate(password) || isNew)) {
-    if (password === newPassword && !isNew) {
-      res.status(401).send({ message: 'Le nouveau mot de passe est identique à l\'ancien.' });
-    } else {
-      user.email = email;
-      user.password = newPassword;
-      user.save()
-        .then((savedUser) => {
-          // delete user password for security
-          savedUser.password = undefined;
-          // create a token to authenticate user api call
-          const token = jwt.sign(
-            Object.assign({}, savedUser),
-            env.jwtSecret,
-            { expiresIn: env.jwtExpiresIn },
-          );
-          // returned updated token
-          res.json({ message: 'Vos identifiants ont été mis à jour.', token });
-        })
-        .catch(err => res.status(500).send({ message: err }));
-    }
+  if (password === confirmation) {
+    user.password = password;
+    user.save()
+      .then((savedUser) => {
+        // delete user password for security
+        savedUser.password = undefined;
+        // create a token to authenticate user api call
+        const token = jwt.sign(
+          Object.assign({}, savedUser),
+          env.jwtSecret,
+          { expiresIn: env.jwtExpiresIn },
+        );
+        // returned updated token
+        res.json({ message: 'Vos identifiants ont été mis à jour.', token });
+      })
+      .catch(err => res.status(500).send({ message: err }));
   } else {
-    res.status(401).send({ message: 'Mot de passe incorrect.' });
+    res.status(401).send({ message: 'Les mots de passe ne correspondent pas.' });
   }
 };
 
@@ -146,4 +141,4 @@ const userByID = (req, res, next, id) => {
     .catch(err => next(err));
 };
 
-export { create, read, update, updateCredentials, remove, list, validate, userByID };
+export { create, read, update, updatePassword, remove, list, validate, userByID };

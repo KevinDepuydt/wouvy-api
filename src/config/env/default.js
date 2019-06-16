@@ -8,10 +8,10 @@ const defaultEnv = {
     debug: process.env.MONGODB_DEBUG || false,
     promise: Promise,
   },
-  port: process.env.PORT || 3000,
+  port: process.env.PORT || 3001,
   host: process.env.HOST || '127.0.0.1',
   nodeEnv: process.env.NODE_ENV,
-  appUrl: 'http://localhost:4200',
+  appUrl: 'http://localhost:3000',
   mailer: {
     from: 'Wouvy <tech@wouvy.fr>',
     options: {

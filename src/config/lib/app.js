@@ -24,6 +24,7 @@ export const start = (cb) => {
       console.log(chalk.green(`Environment: ${env.nodeEnv}`));
       console.log(chalk.green(`Server: ${server}`));
       console.log(chalk.green(`Database: ${env.db.uri}`));
+      console.log(chalk.green(`App: ${env.appUrl}`));
       console.log('--');
 
       // callback then ... call back

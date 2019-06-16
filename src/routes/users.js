@@ -14,7 +14,7 @@ usersRoutes.route('/users/:userId')
 
 usersRoutes.route('/users/:userId/validate').get(user.validate);
 
-usersRoutes.route('/users/:userId/credentials').put(user.updateCredentials);
+usersRoutes.route('/users/:userId/password').put(user.updatePassword);
 
 usersRoutes.param('userId', user.userByID);
 
