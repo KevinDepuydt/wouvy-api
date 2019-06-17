@@ -5,13 +5,13 @@ import passport from 'passport';
 import session from 'express-session';
 import bodyParser from 'body-parser';
 import methodOverride from 'method-override';
-import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cors from 'cors';
 import routes from '../../routes';
 import passportStrategies from '../../strategies';
-import env from '../env';
 import { broadcastWorkflowOnlineUsers, handleUserDisconnection } from '../../helpers/sockets';
+// import env from '../env';
 
 /**
  * Initialize application middleware
@@ -22,8 +22,6 @@ const initMiddlewares = (app) => {
   app.use(bodyParser.json());
   // override client method when doesn't exists
   app.use(methodOverride());
-  // Add the cookie parser middleware
-  app.use(cookieParser());
   // Logger dev
   app.use(morgan('dev'));
   // passport settings
@@ -35,13 +33,7 @@ const initMiddlewares = (app) => {
   app.use(passport.initialize());
   app.use(passport.session());
   // ALLOW CORS
-  app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', env.appUrl);
-    res.header('Access-Control-Allow-Credentials', true);
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, x-api-token');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    next();
-  });
+  app.use(cors());
 };
 
 /**
