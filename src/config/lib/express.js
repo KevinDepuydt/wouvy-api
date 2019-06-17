@@ -11,7 +11,7 @@ import cors from 'cors';
 import routes from '../../routes';
 import passportStrategies from '../../strategies';
 import { broadcastWorkflowOnlineUsers, handleUserDisconnection } from '../../helpers/sockets';
-// import env from '../env';
+import env from '../env';
 
 /**
  * Initialize application middleware
@@ -22,9 +22,9 @@ const initMiddlewares = (app) => {
   app.use(bodyParser.json());
   // override client method when doesn't exists
   app.use(methodOverride());
-  // Logger dev
+  // logger dev
   app.use(morgan('dev'));
-  // passport settings
+  // passport.js settings
   app.use(session({
     secret: 'MyAPISecretKeyToChange',
     resave: false,
@@ -32,8 +32,8 @@ const initMiddlewares = (app) => {
   }));
   app.use(passport.initialize());
   app.use(passport.session());
-  // ALLOW CORS
-  app.use(cors());
+  // cors
+  app.use(cors({ origin: env.appUrl }));
 };
 
 /**
@@ -41,7 +41,7 @@ const initMiddlewares = (app) => {
  * @param app
  */
 const initHelmetHeaders = (app) => {
-  // Use helmet to secure Express headers
+  // use helmet to secure Express headers
   const SIX_MONTHS = 15778476000;
   app.use(helmet.frameguard());
   app.use(helmet.xssFilter());
