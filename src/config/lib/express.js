@@ -20,8 +20,11 @@ const initMiddlewares = (app) => {
   // cors
   app.use(cors({
     origin: env.appUrl,
-    exposedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'x-api-token'],
+    methods: 'GET, POST, PUT, DELETE, OPTIONS',
+    allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+    exposedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
     credentials: true,
+    preflightContinue: true,
   }));
   // request body parsing middleware, should be above methodOverride
   app.use(bodyParser.urlencoded({ extended: true }));

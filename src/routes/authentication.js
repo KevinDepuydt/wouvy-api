@@ -46,25 +46,31 @@ authenticationRoutes.route('/auth/github/callback').get(authentication.socialAut
 
 // authentication middleware
 authenticationRoutes.use((req, res, next) => {
+  // disable for tests and options
+  if (env.nodeEnv === 'test' || req.method === 'OPTIONS') {
+    return next();
+  }
+
+  if (!req.headers.authorization || req.headers.authorization.indexOf('Bearer ') === -1) {
+    return res.status(401).json({ message: 'authentication missing' });
+  }
+
   // check header or url parameters or post parameters for token
-  const token = req.headers['x-api-token'];
+  const token = req.headers.authorization.split(' ')[1];
 
   // decode token
-  // disable for tests
-  if (env.nodeEnv === 'test' || req.method === 'OPTIONS') {
-    next();
-  } else if (token) {
+  if (token) {
     // verifies secret and checks exp
     jwt.verify(token, env.jwtSecret, (err, decoded) => {
       if (err) {
-        return res.status(403).send({ success: false, message: "Echec de l'authentification." });
+        return res.status(403).send({ success: false, message: 'authentication failed' });
       }
       req.user = decoded._doc;
       next();
     });
   } else {
     // if there is no token return an 403 error
-    return res.status(403).send({ message: "Vous n'êtes pas autorisé à accéder à cette ressource" });
+    return res.status(403).send({ message: 'not allowed' });
   }
 });
 
