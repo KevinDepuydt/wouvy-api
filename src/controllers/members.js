@@ -37,7 +37,7 @@ const create = (req, res) => {
       console.log('Error adding users to default thread', err);
     });
     // Finally return new members + errors
-    res.jsonp({ users: req.body.users });
+    res.json({ users: req.body.users });
   } else { // one member
     // add member to workflow
     Workflow.findByIdAndUpdate(workflow._id, { $push: { users: req.body.user } })
@@ -57,7 +57,7 @@ const create = (req, res) => {
       console.log('Error adding users to default thread', errThread);
     });
     // Finally return new member + error
-    res.jsonp({ user: req.body.user });
+    res.json({ user: req.body.user });
   }
 };
 
@@ -71,7 +71,7 @@ const read = (req, res) => {
   if (!member) {
     return res.status(404).send('Member not found');
   }
-  res.jsonp(prepareMember(member));
+  res.json(prepareMember(member));
 };
 
 /**
@@ -93,7 +93,7 @@ const remove = (req, res) => {
   workflow.roles = _.filter(workflow.roles, role => role.user === userId);
 
   workflow.save()
-    .then(saved => res.jsonp(prepareWorkflow(saved, req.user)))
+    .then(saved => res.json(prepareWorkflow(saved, req.user)))
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -102,7 +102,7 @@ const remove = (req, res) => {
  */
 const list = (req, res) => {
   const workflow = req.workflow;
-  res.jsonp(workflow.users);
+  res.json(workflow.users);
 };
 
 export { create, read, update, remove, list };

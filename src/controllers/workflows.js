@@ -51,7 +51,7 @@ const create = (req, res) => {
         .populate({ path: 'user', select: 'email' })
         .populate({ path: 'roles.user', select: '_id' })
         .populate({ path: 'users', select: 'email' }, (err, populated) => {
-          res.jsonp(prepareWorkflow(populated, req.user));
+          res.json(prepareWorkflow(populated, req.user));
         });
     })
     .catch(err => res.status(500).send(errorHandler(err)));
@@ -61,7 +61,7 @@ const create = (req, res) => {
  * Show the current Workflow
  */
 const read = (req, res) => {
-  res.jsonp(prepareWorkflow(req.workflow, req.user));
+  res.json(prepareWorkflow(req.workflow, req.user));
 };
 
 /**
@@ -79,7 +79,7 @@ const update = (req, res) => {
 
   workflow.save()
     .then((savedWorkflow) => {
-      res.jsonp(prepareWorkflow(savedWorkflow, req.user));
+      res.json(prepareWorkflow(savedWorkflow, req.user));
     })
     .catch(err => res.status(500).send(errorHandler(err)));
 };
@@ -91,7 +91,7 @@ const remove = (req, res) => {
   const workflow = req.workflow;
 
   workflow.remove()
-    .then(removedWorkflow => res.jsonp(prepareWorkflow(removedWorkflow, req.user)))
+    .then(removedWorkflow => res.json(prepareWorkflow(removedWorkflow, req.user)))
     .catch(err => res.status(500).send(errorHandler(err)));
 };
 
@@ -104,7 +104,7 @@ const list = (req, res) => {
     .sort('-created')
     .deepPopulate('user users roles.user')
     .exec()
-    .then(workflows => res.jsonp(workflows.map(w => prepareWorkflow(w, req.user))))
+    .then(workflows => res.json(workflows.map(w => prepareWorkflow(w, req.user))))
     .catch(err => res.status(500).send(errorHandler(err)));
 };
 
@@ -116,7 +116,7 @@ const search = (req, res) => {
     .sort('-created')
     .deepPopulate('user users roles.user')
     .exec()
-    .then(workflows => res.jsonp(workflows))
+    .then(workflows => res.json(workflows))
     .catch(err => res.status(500).send(errorHandler(err)));
 };
 
@@ -136,7 +136,7 @@ const authenticate = (req, res) => {
           .populate({ path: 'roles.user', select: '_id' })
           .populate({ path: 'users', select: 'email' }, (err, populated) => {
             // return saved workflow
-            res.jsonp({
+            res.json({
               message: `Tu es maintenant membre du workflow ${populated.name}`,
               workflow: prepareWorkflow(populated, req.user),
             });
@@ -144,7 +144,7 @@ const authenticate = (req, res) => {
       })
       .catch(err => res.status(500).send(errorHandler(err)));
   } else {
-    res.status(403).jsonp({ message: 'Le mot de passe est incorrect' });
+    res.status(403).json({ message: 'Le mot de passe est incorrect' });
   }
 };
 
@@ -164,7 +164,7 @@ const leave = (req, res) => {
   // Remove from each groups
   workflow.save()
     .then((savedWorkflow) => {
-      res.jsonp(prepareWorkflow(savedWorkflow, req.user));
+      res.json(prepareWorkflow(savedWorkflow, req.user));
     })
     .catch(err => res.status(500).send(errorHandler(err)));
 };
@@ -215,7 +215,7 @@ const invitation = (req, res) => {
   Promise.all(emails).then((results) => {
     const success = results.filter(r => r.success === true).map(r => r.email);
     const errors = results.filter(r => r.success === false).map(r => r.email);
-    res.jsonp({
+    res.json({
       total: results.length,
       isSuccess: success.length === results.length,
       success: {
@@ -257,7 +257,7 @@ const subscribe = (req, res) => {
         workflow.roles.push({ user, role: env.userRoles.member });
         workflow.save()
           .then((savedWf) => {
-            res.jsonp({
+            res.json({
               success: true,
               workflow: savedWf,
               message: 'Vous avez été ajouté au workflow!',

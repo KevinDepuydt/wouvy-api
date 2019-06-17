@@ -12,7 +12,7 @@ const create = (req, res) => {
   const user = new User(req.body);
 
   user.save()
-    .then(savedUser => res.jsonp(savedUser))
+    .then(savedUser => res.json(savedUser))
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -23,7 +23,7 @@ const read = (req, res) => {
   const user = req.user ? req.user.toJSON() : {};
 
   // extra field can be added here
-  res.jsonp(user);
+  res.json(user);
 };
 
 /**
@@ -85,7 +85,7 @@ const remove = (req, res) => {
   const user = req.user;
 
   user.remove()
-    .then(removedUser => res.jsonp(removedUser))
+    .then(removedUser => res.json(removedUser))
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -94,7 +94,7 @@ const remove = (req, res) => {
  */
 const list = (req, res) => {
   User.find().sort('-created').exec()
-    .then(users => res.jsonp(users))
+    .then(users => res.json(users))
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -113,7 +113,7 @@ const validate = (req, res) => {
         env.jwtSecret,
         { expiresIn: env.jwtExpiresIn },
       );
-      res.jsonp({ token });
+      res.json({ token });
     }).catch(err => res.status(400).send({ message: errorHandler(err) }));
   }
 };

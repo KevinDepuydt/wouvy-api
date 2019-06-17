@@ -15,7 +15,7 @@ const create = (req, res) => {
   post.save()
     .then((saved) => {
       // NewsFeedItem of the task
-      res.jsonp(saved);
+      res.json(saved);
       const item = new NewsFeedItem({ user, workflow: workflow._id, type: 'post', data: { post } });
       item.save().then((savedItem) => {
         savedItem.populate({ path: 'user', select: 'email firstname lastname email username' }, (err, populated) => {
@@ -35,7 +35,7 @@ const read = (req, res) => {
   const post = req.wfPost ? req.wfPost.toJSON() : {};
 
   // extra field can be added here
-  res.jsonp(post);
+  res.json(post);
 };
 
 /**
@@ -47,7 +47,7 @@ const update = (req, res) => {
   post = _.extend(post, req.body);
 
   post.save()
-    .then(saved => res.jsonp(saved))
+    .then(saved => res.json(saved))
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -58,7 +58,7 @@ const remove = (req, res) => {
   const post = req.wfPost;
 
   post.remove()
-    .then(removed => res.jsonp(removed))
+    .then(removed => res.json(removed))
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -67,7 +67,7 @@ const remove = (req, res) => {
  */
 const list = (req, res) => {
   Post.find({ workflow: req.workflow._id }).sort('-created').exec()
-    .then(posts => res.jsonp(posts))
+    .then(posts => res.json(posts))
     .catch(err => res.status(500).send({ message: err }));
 };
 

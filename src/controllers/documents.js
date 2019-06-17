@@ -15,7 +15,7 @@ const create = (req, res) => {
   doc.save()
     .then((saved) => {
       saved.populate({ path: 'user', select: 'email firstname lastname email' }, (err, populated) => {
-        res.jsonp(populated);
+        res.json(populated);
         io.to(`w/${workflow._id}/documents`).emit('document-created', populated);
         // NewsFeedItem of the task
         const item = new NewsFeedItem({ user, workflow, type: 'document', data: { document: populated } });
@@ -34,7 +34,7 @@ const read = (req, res) => {
   const doc = req.doc ? req.doc.toJSON() : {};
 
   // extra field can be added here
-  res.jsonp(doc);
+  res.json(doc);
 };
 
 /**
@@ -50,7 +50,7 @@ const update = (req, res) => {
   doc.save()
     .then((saved) => {
       saved.populate({ path: 'user', select: 'email firstname lastname email' }, (err, populated) => {
-        res.jsonp(populated);
+        res.json(populated);
         io.to(`w/${workflow._id}/documents`).emit('document-updated', populated);
       });
     })
@@ -67,7 +67,7 @@ const remove = (req, res) => {
 
   doc.remove()
     .then((removedDoc) => {
-      res.jsonp(removedDoc);
+      res.json(removedDoc);
       io.to(`w/${workflow._id}/documents`).emit('document-deleted', removedDoc);
       NewsFeedItem.findOneAndRemove({ 'data.document': removedDoc._id })
         .then((removedItem) => {
@@ -87,7 +87,7 @@ const list = (req, res) => {
     .populate({ path: 'user', select: 'email firstname lastname email' })
     .sort('-created')
     .exec()
-    .then(documents => res.jsonp(documents))
+    .then(documents => res.json(documents))
     .catch(err => res.status(500).send({ message: err }));
 };
 

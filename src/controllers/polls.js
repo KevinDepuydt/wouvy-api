@@ -15,7 +15,7 @@ const create = (req, res) => {
   poll.save()
     .then((saved) => {
       saved.populate({ path: 'user', select: 'email firstname lastname email' }, (err, populated) => {
-        res.jsonp(populated);
+        res.json(populated);
         io.to(`w/${workflow._id}/polls`).emit('poll-created', populated);
         // NewsFeedItem of the task
         const item = new NewsFeedItem({ user, workflow, type: 'poll', data: { poll } });
@@ -38,7 +38,7 @@ const read = (req, res) => {
   const poll = req.poll ? req.poll.toJSON() : {};
 
   // extra field can be added here
-  res.jsonp(poll);
+  res.json(poll);
 };
 
 /**
@@ -54,7 +54,7 @@ const update = (req, res) => {
   poll.save()
     .then((saved) => {
       saved.populate({ path: 'user', select: 'email firstname lastname email' }, (err, populated) => {
-        res.jsonp(populated);
+        res.json(populated);
         io.to(`w/${workflow._id}/polls`).emit('poll-updated', populated);
         NewsFeedItem
           .findOne({ 'data.poll': populated })
@@ -81,7 +81,7 @@ const remove = (req, res) => {
 
   poll.remove()
     .then((removed) => {
-      res.jsonp(removed);
+      res.json(removed);
       io.to(`w/${workflow._id}/polls`).emit('poll-deleted', removed);
       NewsFeedItem.findOneAndRemove({ 'data.poll': removed._id })
         .then((removedItem) => {
@@ -100,7 +100,7 @@ const list = (req, res) => {
   Poll.find({ workflow: req.workflow._id })
     .sort('-created')
     .exec()
-    .then(polls => res.jsonp(polls))
+    .then(polls => res.json(polls))
     .catch(err => res.status(500).send({ message: err }));
 };
 

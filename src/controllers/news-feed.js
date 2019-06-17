@@ -11,7 +11,7 @@ const create = (req, res) => {
   const item = new NewsFeedItem({ workflow, ...req.body });
 
   item.save()
-    .then(saved => res.jsonp(saved))
+    .then(saved => res.json(saved))
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -22,7 +22,7 @@ const read = (req, res) => {
   const item = req.newsFeedItem ? req.newsFeedItem.toJSON() : {};
 
   // extra field can be added here
-  res.jsonp(item);
+  res.json(item);
 };
 
 /**
@@ -44,7 +44,7 @@ const update = (req, res) => {
 
   item.save()
     .then((saved) => {
-      res.jsonp(saved);
+      res.json(saved);
       io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-updated', item);
     })
     .catch((err) => {
@@ -63,7 +63,7 @@ const remove = (req, res) => {
 
   item.remove()
     .then((removed) => {
-      res.jsonp(removed);
+      res.json(removed);
       io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-deleted', removed);
       if (removed.data.post) {
         removed.data.post.remove();
@@ -85,7 +85,7 @@ const list = (req, res) => {
     .sort('-created')
     .deepPopulate('user comments comments.user data.task data.task.user data.post data.post.user data.document data.poll data.poll.user')
     .exec()
-    .then(items => res.jsonp(items))
+    .then(items => res.json(items))
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -105,7 +105,7 @@ const addComment = (req, res) => {
         item.comments.push(populated);
         item.save()
           .then(() => {
-            res.jsonp(populated);
+            res.json(populated);
             io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-updated', item);
           })
           .catch(errBis => res.status(500).send({ message: errBis, step: 1 }));
@@ -131,7 +131,7 @@ const updateComment = (req, res) => {
   comment.save()
     .then((savedComment) => {
       savedComment.populate({ path: 'user', select: 'email username lastname firstname picture avatar' }, (err, populated) => {
-        res.jsonp(populated);
+        res.json(populated);
         io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-comment-updated', { item: { _id: item._id }, comment: populated });
       });
     })
@@ -153,7 +153,7 @@ const removeComment = (req, res) => {
       item.comments.splice(commentIdx, 1);
       item.save()
         .then(() => {
-          res.jsonp(removed);
+          res.json(removed);
           io.to(`w/${workflow._id}/dashboard`).emit('news-feed-item-comment-deleted', { item: { _id: item._id }, comment });
         })
         .catch(err => res.status(500).send({ message: err }));

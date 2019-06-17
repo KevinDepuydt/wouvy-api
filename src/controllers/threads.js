@@ -21,7 +21,7 @@ const create = (req, res) => {
           workflow.threads.push(populated);
           workflow.save()
             .then((savedWorkflow) => {
-              res.jsonp({
+              res.json({
                 workflow: prepareWorkflow(savedWorkflow, req.user),
                 thread: populated,
               });
@@ -39,7 +39,7 @@ const read = (req, res) => {
   const thread = req.thread ? req.thread.toJSON() : {};
 
   // extra field can be added here
-  res.jsonp(thread);
+  res.json(thread);
 };
 
 /**
@@ -56,7 +56,7 @@ const update = (req, res) => {
   }
 
   thread.save()
-    .then(savedThread => res.jsonp(savedThread))
+    .then(savedThread => res.json(savedThread))
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -71,7 +71,7 @@ const remove = (req, res) => {
   }
 
   thread.remove()
-    .then(removedThread => res.jsonp(removedThread))
+    .then(removedThread => res.json(removedThread))
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -86,7 +86,7 @@ const list = (req, res) => {
     .deepPopulate('user users messages messages.user')
     .sort('-created')
     .exec()
-    .then(documents => res.jsonp(documents))
+    .then(documents => res.json(documents))
     .catch(err => res.status(500).send({ message: err }));
 };
 
@@ -102,7 +102,7 @@ const getMessages = (req, res) => {
   Message.find({ _id: { $in: ids } })
     .populate({ path: 'user', select: '-password -resetToken' })
     .exec()
-    .then(messages => res.jsonp(messages))
+    .then(messages => res.json(messages))
     .catch(errMessage => res.status(500).send({ message: errMessage }));
 };
 
@@ -120,7 +120,7 @@ const addMessage = (req, res) => {
       thread.messages.push(message);
       thread.save();
       saved.populate({ path: 'user', select: '-password -resetToken' }, (err, populated) => {
-        res.jsonp(populated);
+        res.json(populated);
         io.to(`thread/${thread._id}`).emit('thread-message', populated);
         io.to(`w/${req.workflow._id}`).emit('unread-message-check');
       });

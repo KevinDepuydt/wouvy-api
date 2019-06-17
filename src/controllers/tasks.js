@@ -18,7 +18,7 @@ const create = (req, res) => {
       saved
         .populate({ path: 'users', select: 'email firstname lastname username picture avatar' })
         .populate({ path: 'user', select: 'username picture avatar' }, (err, populated) => {
-          res.jsonp(populated);
+          res.json(populated);
           // Post the task
           if (!populated.private) {
             io.to(`w/${workflow._id}/tasks`).emit('task-created', populated);
@@ -39,7 +39,7 @@ const read = (req, res) => {
   const task = req.task ? req.task.toJSON() : {};
 
   // extra field can be added here
-  res.jsonp(task);
+  res.json(task);
 };
 
 /**
@@ -60,7 +60,7 @@ const update = (req, res) => {
         .populate({ path: 'user', select: 'username picture avatar' })
         .exec()
         .then((taskFound) => {
-          res.jsonp(taskFound);
+          res.json(taskFound);
           if (!taskFound.private) {
             io.to(`w/${workflow._id}/tasks`).emit('task-updated', taskFound);
           } else {
@@ -82,7 +82,7 @@ const updateMany = async (req, res) => {
     await Task.findOneAndUpdate({ _id: task._id }, task);
   }
 
-  res.jsonp(reorderedTasks);
+  res.json(reorderedTasks);
 };
 
 /**
@@ -95,7 +95,7 @@ const remove = (req, res) => {
 
   task.remove()
     .then((removedTask) => {
-      res.jsonp(removedTask);
+      res.json(removedTask);
       if (!removedTask.private) {
         io.to(`w/${workflow._id}/tasks`).emit('task-deleted', removedTask);
         io.to(`w/${workflow._id}/tasks/${removedTask._id}`).emit('task-item-deleted', removedTask);
@@ -127,7 +127,7 @@ const list = (req, res) => {
     .populate({ path: 'users', populate: { path: 'user', select: 'email firstname lastname username picture avatar' } })
     .populate({ path: 'subTasks.users', select: 'email firstname lastname username picture avatar' })
     .populate({ path: 'user', select: 'username picture avatar' })
-    .then(tasks => res.jsonp(tasks))
+    .then(tasks => res.json(tasks))
     .catch(err => res.status(500).send({ message: err }));
 };
 
