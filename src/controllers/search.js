@@ -6,7 +6,7 @@ import { errorHandler } from '../helpers/error-messages';
  * Create a Document
  */
 const searchUsers = (req, res) => {
-  const workflow = req.workflow;
+  const { workflow } = req;
   const query = req.body.query || '';
 
   // build list of users that are already part of workflow
@@ -18,8 +18,8 @@ const searchUsers = (req, res) => {
 };
 
 const searchUserByEmail = (req, res) => {
-  const workflow = req.workflow;
-  const email = req.body.email;
+  const { workflow, body } = req;
+  const { email } = body;
 
   if (!isEmail(email)) {
     return res.json([]);

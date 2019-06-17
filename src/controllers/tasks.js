@@ -8,9 +8,7 @@ import { errorHandler } from '../helpers/error-messages';
  * Create a Task
  */
 const create = (req, res) => {
-  const workflow = req.workflow;
-  const user = req.user;
-  const io = req.io;
+  const { user, workflow, io } = req;
   const task = new Task({ workflow, user, ...req.body });
 
   task.save()
@@ -46,9 +44,8 @@ const read = (req, res) => {
  * Update a Task
  */
 const update = (req, res) => {
-  const workflow = req.workflow;
-  const io = req.io;
-  let task = req.task;
+  const { workflow, io } = req;
+  let { task } = req;
 
   task = _.extend(task, req.body);
 
@@ -78,9 +75,13 @@ const update = (req, res) => {
 const updateMany = async (req, res) => {
   const reorderedTasks = req.body.tasks.map((t, i) => ({ ...t, order: i + 1 }));
 
+  const updates = [];
+
   for (const task of reorderedTasks) {
-    await Task.findOneAndUpdate({ _id: task._id }, task);
+    updates.push(Task.findOneAndUpdate({ _id: task._id }, task));
   }
+
+  await Promise.all(updates);
 
   res.json(reorderedTasks);
 };
@@ -89,9 +90,7 @@ const updateMany = async (req, res) => {
  * Remove a Task
  */
 const remove = (req, res) => {
-  const workflow = req.workflow;
-  const io = req.io;
-  const task = req.task;
+  const { io, workflow, task } = req;
 
   task.remove()
     .then((removedTask) => {

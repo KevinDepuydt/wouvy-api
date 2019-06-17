@@ -32,10 +32,10 @@ const tasksLabels = [
  * Create a Workflow
  */
 const create = (req, res) => {
-  const user = req.user;
+  const { user, body } = req;
   const workflow = new Workflow({
     user,
-    ...req.body,
+    ...body,
   });
 
   // add creator to workflow members admin
@@ -68,7 +68,7 @@ const read = (req, res) => {
  * Update a Workflow
  */
 const update = (req, res) => {
-  let workflow = req.workflow;
+  let { workflow } = req;
 
   // prevent empty password
   if (req.body.password && !req.body.password.length) {
@@ -88,7 +88,7 @@ const update = (req, res) => {
  * Remove a Workflow
  */
 const remove = (req, res) => {
-  const workflow = req.workflow;
+  const { workflow } = req;
 
   workflow.remove()
     .then(removedWorkflow => res.json(prepareWorkflow(removedWorkflow, req.user)))
@@ -99,7 +99,7 @@ const remove = (req, res) => {
  * List of Workflows
  */
 const list = (req, res) => {
-  const user = req.user;
+  const { user } = req;
   Workflow.find({ $or: [{ user }, { users: user }] }, 'name user users roles created starred')
     .sort('-created')
     .deepPopulate('user users roles.user')
@@ -121,8 +121,7 @@ const search = (req, res) => {
 };
 
 const authenticate = (req, res) => {
-  const user = req.user;
-  const workflow = req.workflow;
+  const { user, workflow } = req;
 
   if (workflow.authenticate(req.body.password)) {
     // add member
@@ -149,8 +148,7 @@ const authenticate = (req, res) => {
 };
 
 const leave = (req, res) => {
-  const user = req.user;
-  const workflow = req.workflow;
+  const { user, workflow } = req;
 
   if (workflow.user._id.toString() === user._id.toString()) {
     res.status(400).send({ message: 'Vous ne pouvez pas quitter un workflow dont vous êtes propriétaire' });
@@ -173,9 +171,8 @@ const leave = (req, res) => {
  * Workflow invitation
  */
 const invitation = (req, res) => {
-  const user = req.user;
-  const workflow = req.workflow;
-  let emails = req.body.emails.filter(e => isEmail(e));
+  const { user, workflow, body } = req;
+  let emails = body.emails.filter(e => isEmail(e));
 
   emails = emails.map(e => new Promise((resolve) => {
     const token = jwt.sign({ email: e, workflowId: workflow._id }, env.jwtSecret, { expiresIn: '1h' });
@@ -231,8 +228,8 @@ const invitation = (req, res) => {
 };
 
 const subscribe = (req, res) => {
-  const user = req.user;
-  const token = req.query.token;
+  const { user, query } = req;
+  const { token } = query;
 
   if (!user) {
     return res.status(403).send({ message: 'User not logged' });

@@ -7,9 +7,7 @@ import NewsFeedItem from '../models/news-feed-item';
  * Create a Poll
  */
 const create = (req, res) => {
-  const user = req.user;
-  const workflow = req.workflow;
-  const io = req.io;
+  const { io, user, workflow } = req;
   const poll = new Poll({ workflow, user, ...req.body });
 
   poll.save()
@@ -45,9 +43,8 @@ const read = (req, res) => {
  * Update a Poll
  */
 const update = (req, res) => {
-  const workflow = req.workflow;
-  const io = req.io;
-  let poll = req.poll;
+  const { io, workflow } = req;
+  let { poll } = req;
 
   poll = _.extend(poll, req.body);
 
@@ -75,9 +72,7 @@ const update = (req, res) => {
  * Remove a Poll
  */
 const remove = (req, res) => {
-  const workflow = req.workflow;
-  const io = req.io;
-  const poll = req.poll;
+  const { io, workflow, poll } = req;
 
   poll.remove()
     .then((removed) => {

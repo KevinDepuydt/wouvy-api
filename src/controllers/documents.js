@@ -7,10 +7,8 @@ import NewsFeedItem from '../models/news-feed-item';
  * Create a Document
  */
 const create = (req, res) => {
-  const workflow = req.workflow;
-  const io = req.io;
-  const user = req.user;
-  const doc = new Document({ workflow, user, ...req.body });
+  const { workflow, io, user, body } = req;
+  const doc = new Document({ workflow, user, ...body });
 
   doc.save()
     .then((saved) => {
@@ -41,9 +39,8 @@ const read = (req, res) => {
  * Update a Document
  */
 const update = (req, res) => {
-  const workflow = req.workflow;
-  const io = req.io;
-  let doc = req.doc;
+  const { workflow, io } = req;
+  let { doc } = req;
 
   doc = _.extend(doc, req.body);
 
@@ -61,9 +58,7 @@ const update = (req, res) => {
  * Remove a Document
  */
 const remove = (req, res) => {
-  const workflow = req.workflow;
-  const io = req.io;
-  const doc = req.doc;
+  const { workflow, io, doc } = req;
 
   doc.remove()
     .then((removedDoc) => {

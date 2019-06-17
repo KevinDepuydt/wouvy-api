@@ -9,7 +9,7 @@ import env from '../config/env';
  * Create a Member
  */
 const create = (req, res) => {
-  const workflow = req.workflow;
+  const { workflow } = req;
 
   if (req.body.users) { // many members
     // add members to workflow
@@ -65,9 +65,8 @@ const create = (req, res) => {
  * Show the current Member
  */
 const read = (req, res) => {
-  const workflow = req.workflow;
-  console.log('READ member', workflow.users, req.params, workflow.users.find(user => user._id.toString() === req.params.userId.toString()));
-  const member = workflow.users.find(user => user._id.toString() === req.params.userId.toString());
+  const { workflow, params } = req;
+  const member = workflow.users.find(user => user._id.toString() === params.userId.toString());
   if (!member) {
     return res.status(404).send('Member not found');
   }
@@ -77,16 +76,14 @@ const read = (req, res) => {
 /**
  * Update a Member
  */
-const update = (req, res) => {
-  return res.status(404).send('Member not found');
-};
+const update = (req, res) => res.status(404).send('Member not found');
 
 /**
  * Remove an Member
  */
 const remove = (req, res) => {
-  const userId = req.params.userId;
-  const workflow = req.workflow;
+  const { workflow, params } = req;
+  const { userId } = params;
 
   // remove member from workflow
   workflow.users = _.filter(workflow.users, user => user._id.toString() !== userId);
@@ -101,7 +98,7 @@ const remove = (req, res) => {
  * List of Member
  */
 const list = (req, res) => {
-  const workflow = req.workflow;
+  const { workflow } = req;
   res.json(workflow.users);
 };
 

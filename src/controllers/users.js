@@ -30,7 +30,7 @@ const read = (req, res) => {
  * Update an User
  */
 const update = (req, res) => {
-  let user = req.user;
+  let { user } = req;
 
   user = _.extend(user, req.body);
 
@@ -54,7 +54,7 @@ const update = (req, res) => {
  * Update an User password
  */
 const updatePassword = (req, res) => {
-  const user = req.user;
+  const { user } = req;
   const { password, confirmation } = req.body;
 
   if (password === confirmation) {
@@ -82,7 +82,7 @@ const updatePassword = (req, res) => {
  * Remove an User
  */
 const remove = (req, res) => {
-  const user = req.user;
+  const { user } = req;
 
   user.remove()
     .then(removedUser => res.json(removedUser))
@@ -102,7 +102,7 @@ const list = (req, res) => {
  * Validate user
  */
 const validate = (req, res) => {
-  const user = req.user;
+  const { user } = req;
   if (!req.user || !req.user._id) {
     res.status(400).send({ message: 'User not valid' });
   } else {

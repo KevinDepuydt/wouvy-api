@@ -1,9 +1,7 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
 import uniqueValidator from 'mongoose-unique-validator';
 import { getAvatarFromText } from '../helpers/letters-avatar';
-
-const Schema = mongoose.Schema;
 
 /**
  * Document Schema

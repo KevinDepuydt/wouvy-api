@@ -8,7 +8,7 @@ import { prepareMember } from '../helpers/members';
  * Create a Workflow
  */
 const addUser = (req, res) => {
-  const workflow = req.workflow;
+  const { workflow } = req;
 
   console.log('Users to add', req.body);
 
@@ -64,8 +64,9 @@ const addUser = (req, res) => {
  * Show the current Workflow
  */
 const readUser = (req, res) => {
-  const workflow = req.workflow;
-  const member = workflow.users.find(user => user._id.toString() === req.params.userId.toString());
+  const { workflow } = req;
+  const { userId } = req.params;
+  const member = workflow.users.find(user => user._id.toString() === userId.toString());
   if (!member) {
     return res.status(404).send('Member not found');
   }
@@ -75,16 +76,14 @@ const readUser = (req, res) => {
 /**
  * Update a Workflow
  */
-const updateUser = (req, res) => {
-  return res.status(404).send('Member not found');
-};
+const updateUser = (req, res) => res.status(404).send('Member not found');
 
 /**
  * Remove a Workflow
  */
 const removeUser = (req, res) => {
-  const userId = req.params.userId.toString();
-  const workflow = req.workflow;
+  const { params, workflow } = req;
+  const userId = params.userId.toString();
 
   // remove member from workflow
   workflow.users = _.filter(workflow.users, user => user._id.toString() !== userId.toString());
@@ -101,27 +100,27 @@ const removeUser = (req, res) => {
  * List of Workflows
  */
 const listUsers = (req, res) => {
-  const workflow = req.workflow;
+  const { workflow } = req;
   res.json(workflow.users);
 };
 
 const updateUserRole = (req, res) => {
-  const wf = req.workflow;
-  const idx = wf.roles.findIndex(r => r.user._id.toString() === req.params.userId.toString());
+  const { workflow, params } = req;
+  const idx = workflow.roles.findIndex(r => r.user._id.toString() === params.userId.toString());
   const role = {
     user: req.params.userId,
     role: env.userRoles[req.body.level ? req.body.level : 0],
   };
   if (idx !== -1) {
-    wf.roles[idx] = role;
+    workflow.roles[idx] = role;
   } else {
     // set default role if any
-    wf.roles.push(role);
+    workflow.roles.push(role);
   }
 
   console.log('New role', role, req.body);
 
-  wf.save()
+  workflow.save()
     .then(() => res.json(role.role))
     .catch(err => res.status(500).send({ message: err }));
 };

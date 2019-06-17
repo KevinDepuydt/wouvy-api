@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import mongoose from 'mongoose';
-
-const Schema = mongoose.Schema;
+import mongoose, { Schema } from 'mongoose';
 
 /**
  * Message Schema

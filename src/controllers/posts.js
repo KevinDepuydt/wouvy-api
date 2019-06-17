@@ -7,9 +7,7 @@ import NewsFeedItem from '../models/news-feed-item';
  * Create a Post
  */
 const create = (req, res) => {
-  const user = req.user;
-  const workflow = req.workflow;
-  const io = req.io;
+  const { io, user, workflow } = req;
   const post = new Post({ workflow, user, ...req.body });
 
   post.save()

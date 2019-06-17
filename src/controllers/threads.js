@@ -9,8 +9,7 @@ import { errorHandler } from '../helpers/error-messages';
  * Create a Thread
  */
 const create = (req, res) => {
-  const workflow = req.workflow;
-  const user = req.user;
+  const { user, workflow } = req;
   const thread = new Thread({ workflow, user, ...req.body });
 
   thread.save()
@@ -46,7 +45,7 @@ const read = (req, res) => {
  * Update a Thread
  */
 const update = (req, res) => {
-  let thread = req.thread;
+  let { thread } = req;
 
   thread = _.extend(thread, req.body);
 
@@ -64,7 +63,7 @@ const update = (req, res) => {
  * Remove a Thread
  */
 const remove = (req, res) => {
-  const thread = req.thread;
+  const { thread } = req;
 
   if (thread.isDefault) {
     return res.status(400).send({ message: 'Vous ne pouvez pas supprimer le thread général d\'un workflow' });
@@ -94,7 +93,7 @@ const list = (req, res) => {
  * Get messages
  */
 const getMessages = (req, res) => {
-  const thread = req.thread;
+  const { thread } = req;
   const { start = 0, limit = 20 } = req.body.query;
   console.log(`start from index ${start}, message limit ${limit}`);
   // @TODO TO TEST
@@ -110,9 +109,7 @@ const getMessages = (req, res) => {
  * Add message to thread
  */
 const addMessage = (req, res) => {
-  const user = req.user;
-  const thread = req.thread;
-  const io = req.io;
+  const { user, thread, io } = req;
   const message = new Message({ user, ...req.body });
 
   message.save()

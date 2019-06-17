@@ -19,6 +19,7 @@
     "import/no-mutable-exports": "off",
     "no-param-reassign": "off",
     "no-underscore-dangle": "off",
-    "no-nested-ternary": "off"
+    "no-nested-ternary": "off",
+    "object-curly-newline": "off"
   }
 }

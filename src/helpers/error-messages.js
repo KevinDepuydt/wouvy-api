@@ -4,7 +4,7 @@ export const getErrorMessage = (error) => {
   if (error.errors) {
     const keys = Object.keys(error.errors);
     for (const key of keys) {
-      const message = error.errors[key].message;
+      const { message } = error.errors[key];
       if (message.length <= 200) {
         errorMessages.push(error.errors[key].message);
       }

@@ -12,7 +12,7 @@ const smtpTransport = nodemailer.createTransport(env.mailer.options);
 smtpTransport.use('compile', hbs({
   viewEngine: 'handlebars',
   viewPath: path.resolve(path.join(__dirname, '..', 'templates')),
-  extName: '.html',
+  extName: '.handlebars',
 }));
 
 /**

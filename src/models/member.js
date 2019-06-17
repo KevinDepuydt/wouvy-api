@@ -1,9 +1,8 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import deepPopulate from 'mongoose-deep-populate';
 import uniqueValidator from 'mongoose-unique-validator';
 import env from '../config/env';
 
-const Schema = mongoose.Schema;
 const deepPopulatePlugin = deepPopulate(mongoose);
 
 /**

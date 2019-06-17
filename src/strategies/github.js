@@ -21,10 +21,10 @@ const getUserEmail = (accessToken, githubData) => (
         // resolve email
         if (emails.length > 0) {
           githubData.email = emails[0].email;
-          resolve(githubData);
-        } else {
-          reject('No email found');
+          return resolve(githubData);
         }
+
+        reject(new Error('No email found'));
       }).catch(reject);
     }
   })

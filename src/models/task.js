@@ -1,7 +1,5 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import TagSchema from './tag';
-
-const Schema = mongoose.Schema;
 
 /**
  * Task Schema

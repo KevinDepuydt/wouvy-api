@@ -7,8 +7,8 @@ import Comment from '../models/comment';
  * Create a NewsFeedItem
  */
 const create = (req, res) => {
-  const workflow = req.workflow;
-  const item = new NewsFeedItem({ workflow, ...req.body });
+  const { workflow, body } = req;
+  const item = new NewsFeedItem({ workflow, ...body });
 
   item.save()
     .then(saved => res.json(saved))
@@ -29,8 +29,7 @@ const read = (req, res) => {
  * Update a NewsFeedItem
  */
 const update = (req, res) => {
-  const workflow = req.workflow;
-  const io = req.io;
+  const { io, workflow } = req;
   let item = req.newsFeedItem;
 
   // delete data
@@ -57,8 +56,7 @@ const update = (req, res) => {
  * Remove an NewsFeedItem
  */
 const remove = (req, res) => {
-  const workflow = req.workflow;
-  const io = req.io;
+  const { io, workflow } = req;
   const item = req.newsFeedItem;
 
   item.remove()
@@ -93,9 +91,7 @@ const list = (req, res) => {
  * Add comment to news feed item
  */
 const addComment = (req, res) => {
-  const user = req.user;
-  const workflow = req.workflow;
-  const io = req.io;
+  const { io, user, workflow } = req;
   const item = req.newsFeedItem;
   const comment = new Comment(Object.assign(req.body, { user }));
 
@@ -118,10 +114,9 @@ const addComment = (req, res) => {
  * Update comment of news feed item
  */
 const updateComment = (req, res) => {
-  const workflow = req.workflow;
-  const io = req.io;
+  const { io, workflow } = req;
   const item = req.newsFeedItem;
-  let comment = req.comment;
+  let { comment } = req;
 
   // delete data
   delete req.body.user;
@@ -142,10 +137,8 @@ const updateComment = (req, res) => {
  * Delete comment from news feed item
  */
 const removeComment = (req, res) => {
-  const workflow = req.workflow;
-  const io = req.io;
+  const { io, workflow, comment } = req;
   const item = req.newsFeedItem;
-  const comment = req.comment;
 
   comment.remove()
     .then((removed) => {
