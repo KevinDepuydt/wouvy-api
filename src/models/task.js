@@ -1,5 +1,7 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose from 'mongoose';
 import TagSchema from './tag';
+
+const { Schema } = mongoose;
 
 /**
  * Task Schema

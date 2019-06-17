@@ -1,7 +1,8 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose from 'mongoose';
 import deepPopulate from 'mongoose-deep-populate';
 
 const deepPopulatePlugin = deepPopulate(mongoose);
+const { Schema } = mongoose;
 
 const newsFeedItemTypes = ['post', 'poll', 'document', 'task'];
 

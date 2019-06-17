@@ -1,10 +1,11 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose from 'mongoose';
 import deepPopulate from 'mongoose-deep-populate';
 import bcrypt from 'bcrypt';
 import uniqueValidator from 'mongoose-unique-validator';
 import env from '../config/env';
 import TagSchema from './tag';
 
+const { Schema } = mongoose;
 const deepPopulatePlugin = deepPopulate(mongoose);
 
 /**

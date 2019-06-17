@@ -1,6 +1,7 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose from 'mongoose';
 import deepPopulate from 'mongoose-deep-populate';
 
+const { Schema } = mongoose;
 const deepPopulatePlugin = deepPopulate(mongoose);
 
 /**
