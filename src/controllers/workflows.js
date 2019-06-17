@@ -104,10 +104,7 @@ const list = (req, res) => {
     .sort('-created')
     .deepPopulate('user users roles.user')
     .exec()
-    .then((workflows) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.json(workflows.map(w => prepareWorkflow(w, req.user)));
-    })
+    .then(workflows => res.json(workflows.map(w => prepareWorkflow(w, req.user))))
     .catch(err => res.status(500).send(errorHandler(err)));
 };
 
