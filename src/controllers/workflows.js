@@ -105,8 +105,8 @@ const list = (req, res) => {
     .deepPopulate('user users roles.user')
     .exec()
     .then((workflows) => {
+      res.setHeader('Content-Type', 'application/json');
       res.json(workflows.map(w => prepareWorkflow(w, req.user)));
-      console.log('RES', res.headers, res);
     })
     .catch(err => res.status(500).send(errorHandler(err)));
 };
