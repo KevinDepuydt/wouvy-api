@@ -17,6 +17,12 @@ import env from '../env';
  * Initialize application middleware
  */
 const initMiddlewares = (app) => {
+  // cors
+  app.use(cors({
+    origin: env.appUrl,
+    exposedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'x-api-token'],
+    credentials: true,
+  }));
   // request body parsing middleware, should be above methodOverride
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
@@ -32,8 +38,6 @@ const initMiddlewares = (app) => {
   }));
   app.use(passport.initialize());
   app.use(passport.session());
-  // cors
-  app.use(cors({ origin: env.appUrl }));
 };
 
 /**
